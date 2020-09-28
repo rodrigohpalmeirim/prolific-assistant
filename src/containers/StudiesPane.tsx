@@ -20,7 +20,7 @@ export function StudiesPane() {
   return (
     <Tab.Pane eventKey="studies">
       {studies.length ? (
-        studies.map((study) => (
+        studies.map((study:any) => (
           <Card className="study-card" key={study.id} onClick={() => openProlificStudy(study.id)}>
             <Card.Body>
               <Container>

@@ -8,8 +8,15 @@ import {
   settingAlertSound,
   settingAlertVolume,
   settingCheckInterval,
-  settingDesktopNotifications,
+  settingDesktopNotifications, testingAlertSound,
 } from '../store/settings/actions';
+import { browser } from 'webextension-scripts/polyfill';
+import moment from 'moment';
+import Button from 'react-bootstrap/Button';
+import { AppState, configureStore } from '../store';
+import { playAlertSound } from '../functions/playAlertSound';
+import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
+import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 
 export function SettingsPane() {
   const dispatch = useDispatch();
@@ -17,6 +24,9 @@ export function SettingsPane() {
 
   function onChangeAlertSound(event: any) {
     dispatch(settingAlertSound(event.target.value));
+  }
+  function onTestAlertSound() {
+    dispatch(testingAlertSound());
   }
 
   function onChangeAlertVolume(event: any) {
@@ -56,6 +66,13 @@ export function SettingsPane() {
           <option value="sweet-alert-4">Sweet Alert 4</option>
           <option value="sweet-alert-5">Sweet Alert 5</option>
         </Form.Control>
+      </Form.Group>
+      <Form.Group>
+        <Button onClick={() => {
+          onTestAlertSound();
+        }}>
+          TEST NOTIFICATION
+        </Button>
       </Form.Group>
       <Form.Group>
         <Form.Label>Alert Volume</Form.Label>

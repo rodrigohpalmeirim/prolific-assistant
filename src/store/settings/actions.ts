@@ -6,13 +6,18 @@ import {
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_DESKTOP_NOTIFICATIONS, TEST_ALERT_SOUND, TestingAlertSoundAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
   return {
     type: SETTING_ALERT_SOUND,
     payload,
+  };
+}
+export function testingAlertSound(): TestingAlertSoundAction {
+  return {
+    type: TEST_ALERT_SOUND, payload: ''
   };
 }
 

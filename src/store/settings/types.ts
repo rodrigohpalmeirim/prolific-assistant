@@ -13,6 +13,7 @@ export interface SettingsState {
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
+export const TEST_ALERT_SOUND = 'TEST_ALERT_SOUND';
 export const SETTING_ALERT_VOLUME = 'SETTING_ALERT_VOLUME';
 export const SETTING_CHECK_INTERVAL = 'SETTING_CHECK_INTERVAL';
 export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
@@ -20,6 +21,10 @@ export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
   payload: SettingsState['alert_sound'];
+}
+export interface TestingAlertSoundAction {
+  type: typeof TEST_ALERT_SOUND;
+  payload: "";
 }
 
 export interface SettingAlertVolumeAction {

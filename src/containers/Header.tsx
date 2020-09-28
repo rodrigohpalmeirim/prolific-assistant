@@ -10,6 +10,8 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
 import { selectSessionLastChecked } from '../store/session/selectors';
+import { centsToGBP } from '../functions/centsToGBP';
+import { selectAcc_Info } from '../store/prolific/selectors';
 
 export function Header() {
   const last_checked = useSelector(selectSessionLastChecked);
@@ -18,7 +20,17 @@ export function Header() {
     <Navbar bg="primary" variant="dark">
       <Nav className="mr-auto">
         <Nav.Link href="https://app.prolific.co/studies">Studies</Nav.Link>
-        <Nav.Link href="https://app.prolific.co/account">Account</Nav.Link>
+      </Nav>
+      <Nav className="mr-auto">
+        <Nav.Link href="https://app.prolific.co/account"><div>
+          ACCOUNT ID:
+        </div>
+        <div>{returnUserID()}</div></Nav.Link>
+        <Nav.Link href="https://app.prolific.co/account/general#balance"><div>
+          BALANCE:
+        </div>
+        <div>{formatBalance()}</div>
+        </Nav.Link>
       </Nav>
       <Nav>
         <Nav.Item className="text-light">
@@ -31,4 +43,23 @@ export function Header() {
       </Nav>
     </Navbar>
   );
+}
+
+function formatBalance(){
+  try{
+    const acc_info = useSelector(selectAcc_Info);
+    let balance = centsToGBP(acc_info.balance);
+    let pending = centsToGBP(acc_info.pending_balance);
+    return `\n${balance} (${pending})`
+  }catch {}
+
+  return 'null'
+}
+
+function returnUserID(){
+  try{
+  const acc_info = useSelector(selectAcc_Info);
+  return `\n${acc_info.id}`;}catch {}
+
+  return 'null'
 }

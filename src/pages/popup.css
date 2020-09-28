@@ -36,3 +36,20 @@
   flex: 1;
   overflow: auto;
 }
+
+.nav-link{
+  text-align: center;
+}
+
+.acc_property{
+  text-align: right;
+  display: inline-block;
+  width: 230px;
+}
+
+.acc_value{
+  display: inline;
+}
+.acc_property_h{
+  display:inline-flex
+}

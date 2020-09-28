@@ -1,9 +1,9 @@
-import { browser, WebRequest } from 'webextension-scripts/polyfill';
+import { browser, WebRequest, Windows } from 'webextension-scripts/polyfill';
 
 import { fetchProlificStudies } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { configureStore } from '../store';
-import { prolificStudiesUpdate, prolificErrorUpdate } from '../store/prolific/actions';
+import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate } from '../store/prolific/actions';
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
@@ -11,14 +11,17 @@ import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddlew
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 
 let authHeader: WebRequest.HttpHeadersItemType;
-let timeout = window.setTimeout(main);
+export let userID = '';
+export let acc_info: any = {};
+let auth_window: Windows.Window;
 
 function updateResults(results: any[]) {
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
   browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
 }
-
+let timeout = window.setTimeout(main);
+let prevurl = location.href;
 async function main() {
   clearTimeout(timeout);
   const state = store.getState();
@@ -51,6 +54,14 @@ async function main() {
     }
   } else {
     store.dispatch(prolificErrorUpdate(401));
+    prevurl = location.href;
+    console.log('error - noh')
+    location.href = 'https://app.prolific.co/';
+      browser.windows.create({
+      url: ["https://app.prolific.co/"],
+      type: 'popup',
+      state: 'minimized',
+    }).then(window=>auth_window =window)
   }
 
   timeout = window.setTimeout(main, state.settings.check_interval * 1000);
@@ -106,7 +117,6 @@ browser.webRequest.onBeforeSendHeaders.addListener(
       }
 
       authHeader = foundAuthHeader;
-
       if (restart) {
         main();
       }
@@ -118,6 +128,30 @@ browser.webRequest.onBeforeSendHeaders.addListener(
     urls: ['https://www.prolific.co/api/*'],
   },
   ['blocking', 'requestHeaders'],
+);
+
+browser.webRequest.onBeforeRequest.addListener(
+  (details) => {
+    if(details.url.includes('/firebase/'))return;
+    userID = details.url.replace('https://www.prolific.co/api/v1/users/','').replace('/','')
+    let filter = browser.webRequest.filterResponseData(details.requestId);
+    let decoder = new TextDecoder("utf-8");
+    let encoder = new TextEncoder();
+
+    // @ts-ignore
+    filter.ondata = event => {
+      let str = decoder.decode(event.data, {stream: true});
+      acc_info = JSON.parse(str);
+      store.dispatch(accInfoUpdate(acc_info))
+      try{browser.windows.remove(auth_window.id)}catch  {}
+      filter.write(encoder.encode(str));
+      filter.disconnect();
+    }
+
+  },
+  {
+    urls: ['https://www.prolific.co/api/v1/users/*'],
+  },["blocking"]
 );
 
 browser.runtime.onMessage.addListener((message) => {
