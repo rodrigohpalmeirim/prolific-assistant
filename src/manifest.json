@@ -16,7 +16,7 @@
   },
 
   "background": {
-    "scripts": ["pages/background.ts","pages/getAuth.ts"],
+    "scripts": ["pages/background.ts"],
     "persistent": true
   },
 

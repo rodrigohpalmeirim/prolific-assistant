@@ -1,15 +1,15 @@
 import { browser, WebRequest, Windows } from 'webextension-scripts/polyfill';
 
-import { fetchProlificStudies } from '../functions/fetchProlificStudies';
+import { fetchProlificAccount, fetchProlificStudies } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { configureStore } from '../store';
 import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate } from '../store/prolific/actions';
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
+import { authProlific } from '../functions/authProlific';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
-
 let authHeader: WebRequest.HttpHeadersItemType;
 export let userID = '';
 export let acc_info: any = {};
@@ -21,7 +21,6 @@ function updateResults(results: any[]) {
   browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
 }
 let timeout = window.setTimeout(main);
-let prevurl = location.href;
 async function main() {
   clearTimeout(timeout);
   const state = store.getState();
@@ -29,7 +28,8 @@ async function main() {
   if (authHeader) {
     try {
       const response = await fetchProlificStudies(authHeader);
-
+      acc_info = await fetchProlificAccount(authHeader,userID);
+      store.dispatch(accInfoUpdate(acc_info))
       if (response.results) {
         updateResults(response.results)
         browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
@@ -54,14 +54,8 @@ async function main() {
     }
   } else {
     store.dispatch(prolificErrorUpdate(401));
-    prevurl = location.href;
     console.log('error - noh')
-    location.href = 'https://app.prolific.co/';
-      browser.windows.create({
-      url: ["https://app.prolific.co/"],
-      type: 'popup',
-      state: 'minimized',
-    }).then(window=>auth_window =window)
+    //authProlific()
   }
 
   timeout = window.setTimeout(main, state.settings.check_interval * 1000);
@@ -159,3 +153,13 @@ browser.runtime.onMessage.addListener((message) => {
     main();
   }
 });
+
+browser.webRequest.onCompleted.addListener(
+  (details) => {
+    console.log(details)
+
+  },
+  {
+    urls: ['https://www.prolific.co/*'],
+  },
+);
