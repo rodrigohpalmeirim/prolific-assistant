@@ -7,7 +7,7 @@ import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate } from '../st
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
-import { authProlific } from '../functions/authProlific';
+import { authProlific, authProlificTab, delWindow } from '../functions/authProlific';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 let authHeader: WebRequest.HttpHeadersItemType;
@@ -18,22 +18,28 @@ let auth_window: Windows.Window;
 function updateResults(results: any[]) {
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
+  browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
   browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
+
+  if(results.length<1){
+    browser.browserAction.setBadgeText({ text: 'OK' });
+    browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
+  }
 }
 let timeout = window.setTimeout(main);
 async function main() {
   clearTimeout(timeout);
   const state = store.getState();
-
+  browser.browserAction.setBadgeText({ text: '...' });
+  browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
   if (authHeader) {
     try {
       const response = await fetchProlificStudies(authHeader);
       acc_info = await fetchProlificAccount(authHeader,userID);
       store.dispatch(accInfoUpdate(acc_info))
-      if (response.results) {
-        updateResults(response.results)
-        browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-      }
+      browser.browserAction.setBadgeText({ text: 'ERR' });
+      browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+
 
       if (response.error) {
         if (response.error.status === 401) {
@@ -45,6 +51,13 @@ async function main() {
           browser.browserAction.setBadgeText({ text: 'ERR' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
         }
+      }else {
+        browser.browserAction.setBadgeText({ text: 'OK' });
+        browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
+      }
+
+      if (response.results) {
+        updateResults(response.results)
       }
     } catch (error) {
       store.dispatch(prolificStudiesUpdate([]));
@@ -54,8 +67,10 @@ async function main() {
     }
   } else {
     store.dispatch(prolificErrorUpdate(401));
+    browser.browserAction.setBadgeText({ text: 'ERR' });
+    browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
     console.log('error - noh')
-    //authProlific()
+    authProlificTab()
   }
 
   timeout = window.setTimeout(main, state.settings.check_interval * 1000);
@@ -111,6 +126,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
       }
 
       authHeader = foundAuthHeader;
+      delWindow();
       if (restart) {
         main();
       }

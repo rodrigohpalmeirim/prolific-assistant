@@ -28,7 +28,7 @@ export function AccountInfoPane() {
   try{
   Object.keys(acc_info).forEach(key=>{
     let value = String(JSON.stringify(acc_info[key]));
-    console.log(value)
+    //console.log(value)
     let el = (<div><div className="acc_property_h"><div className="acc_property">{key}</div>:&nbsp;&nbsp;&nbsp;<div className="acc_value">{value}</div></div></div>)
     elements.push(el)
   })}catch {}
