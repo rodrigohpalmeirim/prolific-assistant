@@ -45,6 +45,7 @@
   text-align: right;
   display: inline-block;
   width: 230px;
+  color: goldenrod;
 }
 
 .acc_value{
@@ -52,4 +53,14 @@
 }
 .acc_property_h{
   display:inline-flex
+}
+
+.log_time {
+  color: violet;
+  display: inline;
+}
+
+.log_data {
+  display: inline;
+  margin-left: 10px;
 }

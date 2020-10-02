@@ -23,4 +23,4 @@ export interface AccInfoUpdateAction {
   payload: ProlificStudy[];
 }
 
-export type ProlificActionTypes = ProlificErrorUpdateAction | ProlificStudiesUpdateAction;
+export type ProlificActionTypes = ProlificErrorUpdateAction | ProlificStudiesUpdateAction | AccInfoUpdateAction;

@@ -17,8 +17,6 @@ const initialState:any = {
 
 export function prolificReducer(state = initialState, action: ProlificActionTypes) {
   return produce(state, (draftState:any) => {
-    // @ts-ignore
-    // @ts-ignore
     switch (action.type) {
       case PROLIFIC_ERROR_UPDATE:
         draftState.error = action.payload;
@@ -28,9 +26,7 @@ export function prolificReducer(state = initialState, action: ProlificActionType
         draftState.error = undefined;
         draftState.studies = action.payload;
         break;
-      // @ts-ignore
       case ACC_INFO_UPDATE:
-        // @ts-ignore
         draftState.acc_info = action.payload;
         break;
     }

@@ -34,6 +34,6 @@ export async function authProlificTab() {
       browser.browserAction.setBadgeText({ text: 'ATO' });
       browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
       delWindow()}
-    },10000)
+    },15000)
   });
 }

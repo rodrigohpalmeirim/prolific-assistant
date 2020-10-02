@@ -3,11 +3,14 @@ import { browser, WebRequest, Windows } from 'webextension-scripts/polyfill';
 import { fetchProlificAccount, fetchProlificStudies } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { configureStore } from '../store';
-import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate } from '../store/prolific/actions';
+import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate, logUpdate } from '../store/prolific/actions';
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { authProlific, authProlificTab, delWindow } from '../functions/authProlific';
+import { Store } from 'redux';
+import { useSelector } from 'react-redux';
+import { selectLogs } from '../store/settings/selectors';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 let authHeader: WebRequest.HttpHeadersItemType;
@@ -25,18 +28,28 @@ function updateResults(results: any[]) {
     browser.browserAction.setBadgeText({ text: 'OK' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
   }
+  appendLog(`${results.length} STUDIES FOUND`,store)
 }
 let timeout = window.setTimeout(main);
+
+let logs:{}[];
+function appendLog(log: string,store:Store) {
+  if(!logs)logs = [];
+  logs.push({data:log,timestamp:(+ new Date())});
+  store.dispatch(logUpdate(logs));
+}
+
 async function main() {
   clearTimeout(timeout);
   const state = store.getState();
   browser.browserAction.setBadgeText({ text: '...' });
   browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
+
   if (authHeader) {
     try {
       const response = await fetchProlificStudies(authHeader);
       acc_info = await fetchProlificAccount(authHeader,userID);
-      store.dispatch(accInfoUpdate(acc_info))
+      appendLog("CHECKING FOR STUDIES",store)
       browser.browserAction.setBadgeText({ text: 'ERR' });
       browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
 
@@ -46,14 +59,17 @@ async function main() {
           store.dispatch(prolificErrorUpdate(401));
           browser.browserAction.setBadgeText({ text: '!' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
+          appendLog("AUTHENTICATION ERROR",store)
         } else {
           store.dispatch(prolificStudiesUpdate([]));
           browser.browserAction.setBadgeText({ text: 'ERR' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+          appendLog("OTHER ERROR",store)
         }
       }else {
         browser.browserAction.setBadgeText({ text: 'OK' });
         browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
+        appendLog("OK!",store)
       }
 
       if (response.results) {
@@ -63,6 +79,7 @@ async function main() {
       store.dispatch(prolificStudiesUpdate([]));
       browser.browserAction.setBadgeText({ text: 'ERR' });
       browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+      appendLog(`ERROR - fetchProlificStudies`, store)
       window.console.error('fetchProlificStudies error', error);
     }
   } else {
@@ -70,6 +87,8 @@ async function main() {
     browser.browserAction.setBadgeText({ text: 'ERR' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
     console.log('error - noh')
+    appendLog(`ERROR - Auth Header missing`, store)
+    appendLog(`Authentication`, store)
     authProlificTab()
   }
 

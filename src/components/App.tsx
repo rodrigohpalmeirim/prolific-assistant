@@ -6,10 +6,10 @@ import { Header } from '../containers/Header';
 import { StudiesPane } from '../containers/StudiesPane';
 import { SettingsPane } from '../containers/SettingsPane';
 import { AccountInfoPane } from '../containers/AccInfoPane';
+import { LogsPane } from '../containers/LogsPane';
 
-export function App() {
-  const [key, setKey] = useState('studies');
-
+export function AppV(view:string) {
+  let [key, setKey] = useState(view);
   function onSelect(k: string) {
     setKey(k);
   }
@@ -21,6 +21,7 @@ export function App() {
         <StudiesPane />
         <AccountInfoPane />
         <SettingsPane />
+        <LogsPane />
       </Tab.Content>
 
       <Nav className="w-100" variant="pills">
@@ -33,9 +34,22 @@ export function App() {
         <Nav.Item className="text-center w-50">
           <Nav.Link eventKey="accinfo">Account Info</Nav.Link>
         </Nav.Item>
+        <Nav.Item className="text-center w-50">
+          <Nav.Link eventKey="logs">LOGS</Nav.Link>
+        </Nav.Item>
       </Nav>
     </Tab.Container>
   );
   //console.log(html);
   return html;
+}
+
+export function App() {
+  let loc = location.hash;
+  if(loc.includes('v=')){
+    let part = loc.split('v=')[1];
+    return AppV(part)
+  }
+
+  return AppV('studies')
 }

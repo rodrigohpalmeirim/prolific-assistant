@@ -12,7 +12,6 @@ const store = new Store();
 console.log(location.href)
 store.ready().then(() => {
   ReactDom.render(
-    // @ts-ignore
     <Provider store={store}>
       <App />
     </Provider>,

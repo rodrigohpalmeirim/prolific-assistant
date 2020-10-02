@@ -6,7 +6,7 @@ import {
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_DESKTOP_NOTIFICATIONS, SETTING_LOGS,
 } from './types';
 
 const initialState: SettingsState = {
@@ -14,6 +14,7 @@ const initialState: SettingsState = {
   alert_volume: 100,
   check_interval: 60,
   desktop_notifications: true,
+  logs: [],
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
@@ -30,6 +31,10 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         break;
       case SETTING_DESKTOP_NOTIFICATIONS:
         draftState.desktop_notifications = action.payload;
+        break;
+      case SETTING_LOGS:
+        let date = + new Date()
+        draftState.logs= action.payload
         break;
     }
   });
