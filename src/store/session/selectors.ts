@@ -7,3 +7,7 @@ export function selectSession(state: AppState) {
 export function selectSessionLastChecked(state: AppState) {
   return selectSession(state).last_checked;
 }
+
+export function selectLogs(state: AppState) {
+  return state.session.logs;
+}

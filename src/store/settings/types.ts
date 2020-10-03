@@ -10,7 +10,7 @@ export interface SettingsState {
   alert_volume: number;
   check_interval: number;
   desktop_notifications: boolean;
-  logs: any[];
+  theme: string;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
@@ -18,7 +18,7 @@ export const TEST_ALERT_SOUND = 'TEST_ALERT_SOUND';
 export const SETTING_ALERT_VOLUME = 'SETTING_ALERT_VOLUME';
 export const SETTING_CHECK_INTERVAL = 'SETTING_CHECK_INTERVAL';
 export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
-export const SETTING_LOGS = 'SETTING_LOGS';
+export const SETTING_THEME = 'SETTING_THEME';
 
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
@@ -39,9 +39,9 @@ export interface SettingCheckIntervalAction {
   payload: SettingsState['check_interval'];
 }
 
-export interface SettingLogs {
-  type: typeof SETTING_LOGS;
-  payload: SettingsState['logs'];
+export interface SettingThemeAction {
+  type: typeof SETTING_THEME;
+  payload: SettingsState['theme'];
 }
 
 export interface SettingsDesktopNotificationAction {
@@ -53,5 +53,5 @@ export type SettingsActionTypes =
   | SettingAlertSoundAction
   | SettingAlertVolumeAction
   | SettingCheckIntervalAction
-  | SettingLogs
-  | SettingsDesktopNotificationAction;
+  | SettingsDesktopNotificationAction
+  | SettingThemeAction

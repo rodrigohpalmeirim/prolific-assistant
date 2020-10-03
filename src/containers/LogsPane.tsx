@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 
-import { selectLogs, selectSettings } from '../store/settings/selectors';
+import { selectSettings } from '../store/settings/selectors';
 import {
   settingAlertSound,
   settingAlertVolume,
@@ -19,13 +19,14 @@ import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateM
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { selectAcc_Info } from '../store/prolific/selectors';
 import ReactDom from 'react-dom';
+import { selectLogs } from '../store/session/selectors';
 export function LogsPane() {
   const dispatch = useDispatch();
   const logs = useSelector(selectLogs);
   const elements:any = [];
   //console.log(logs)
   try{
-  logs.forEach((el:any,i)=>{
+  logs.forEach((el:any,i:number)=>{
     let value = String(JSON.stringify(el.data));
     let timestamp = (el.timestamp);
     let date_f = formatDate(timestamp)

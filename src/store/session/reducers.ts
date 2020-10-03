@@ -1,9 +1,9 @@
 import produce from 'immer';
 
-import { SessionState, SessionActionTypes, SESSION_LAST_CHECKED } from './types';
+import { SessionState, SessionActionTypes, SESSION_LAST_CHECKED, SESSION_LOGS } from './types';
 
 const initialState: SessionState = {
-  last_checked: 0,
+  last_checked: 0,  logs: [],
 };
 
 export function sessionReducer(state = initialState, action: SessionActionTypes) {
@@ -11,6 +11,10 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
     switch (action.type) {
       case SESSION_LAST_CHECKED:
         draftState.last_checked = action.payload;
+        break;
+      case SESSION_LOGS:
+        let date = + new Date()
+        draftState.logs= action.payload
         break;
     }
   });

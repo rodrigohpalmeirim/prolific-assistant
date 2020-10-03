@@ -1,3 +1,5 @@
+import { TEST_ALERT_SOUND } from '../settings/types';
+
 export interface ProlificState {
   error: number;
   studies: ProlificStudy[];

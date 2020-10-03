@@ -1,22 +1,16 @@
 import produce from 'immer';
 
-import {
-  ProlificState,
-  ProlificActionTypes,
-  PROLIFIC_ERROR_UPDATE,
-  PROLIFIC_STUDIES_UPDATE,
-  ACC_INFO_UPDATE,
-  AccInfoUpdateAction
-} from './types';
+import { ACC_INFO_UPDATE, PROLIFIC_ERROR_UPDATE, PROLIFIC_STUDIES_UPDATE, ProlificActionTypes } from './types';
+import { authProlificTab } from '../../functions/authProlific';
 
-const initialState:any = {
+const initialState: any = {
   error: undefined,
   studies: [],
-  acc_info:{},
+  acc_info: {},
 };
 
 export function prolificReducer(state = initialState, action: ProlificActionTypes) {
-  return produce(state, (draftState:any) => {
+  return produce(state, (draftState: any) => {
     switch (action.type) {
       case PROLIFIC_ERROR_UPDATE:
         draftState.error = action.payload;

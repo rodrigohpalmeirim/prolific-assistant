@@ -4,9 +4,9 @@ import {
   PROLIFIC_ERROR_UPDATE,
   PROLIFIC_STUDIES_UPDATE, AccInfoUpdateAction, ACC_INFO_UPDATE,
 } from './types';
-import { SETTING_LOGS, SettingLogs, SettingsState } from '../settings/types';
+import { SettingsState, TEST_ALERT_SOUND, TestingAlertSoundAction } from '../settings/types';
 import { Immutable, Produced } from 'immer';
-import { SessionState } from '../session/types';
+import { SESSION_LOGS, SessionLogs, SessionState } from '../session/types';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
 import { AnyAction } from 'redux';
 
@@ -31,9 +31,9 @@ export function accInfoUpdate(payload: AccInfoUpdateAction['payload']): AccInfoU
   };
 }
 
-export function logUpdate(payload: SettingLogs['payload']): SettingLogs {
+export function logUpdate(payload: SessionLogs['payload']): SessionLogs {
   return {
-    type: SETTING_LOGS,
+    type: SESSION_LOGS,
     payload,
   };
 }

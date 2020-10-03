@@ -19,6 +19,7 @@ import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateM
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { selectAcc_Info } from '../store/prolific/selectors';
 import ReactDom from 'react-dom';
+import { authProlificTab } from '../functions/authProlific';
 
 export function AccountInfoPane() {
   const dispatch = useDispatch();

@@ -1,7 +1,7 @@
-import { browser, Windows, Tabs } from 'webextension-scripts/polyfill';
-
+import { browser, Windows, Tabs, WebRequest } from 'webextension-scripts/polyfill';
+export let authUrl = 'https://www.prolific.co/openid/authorize?client_id=447610&redirect_uri=https://app.prolific.co/oauth/callback&scope=openid%20profile&response_type=id_token%20token&state=state&nonce=nonce';
 export async function authProlific() {
-  const response = await fetch('https://www.prolific.co/openid/authorize?client_id=447610&redirect_uri=https://app.prolific.co/oauth/callback&scope=openid%20profile&response_type=id_token%20token&state=state&nonce=nonce');
+  const response = await fetch(authUrl);
   console.log(response);
 }
 
@@ -35,13 +35,9 @@ export async function authProlificTab() {
       browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
       delWindow()}
     },15000)
-    setInterval(function(){
-      console.log(el)
-      console.log(el.url)
-    },1000)
   });
 }
 
 export async function auth(){
-  await authProlificTab()
+  await authProlific()
 }

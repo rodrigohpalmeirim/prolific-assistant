@@ -6,7 +6,7 @@ import {
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS, TEST_ALERT_SOUND, TestingAlertSoundAction,
+  SETTING_DESKTOP_NOTIFICATIONS, TEST_ALERT_SOUND, TestingAlertSoundAction, SettingThemeAction, SETTING_THEME,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -40,6 +40,13 @@ export function settingDesktopNotifications(
 ): SettingsDesktopNotificationAction {
   return {
     type: SETTING_DESKTOP_NOTIFICATIONS,
+    payload,
+  };
+}
+
+export function settingTheme(payload: SettingThemeAction['payload']): SettingThemeAction {
+  return {
+    type: SETTING_THEME,
     payload,
   };
 }

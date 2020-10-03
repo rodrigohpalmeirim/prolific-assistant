@@ -8,7 +8,7 @@ import {
   settingAlertSound,
   settingAlertVolume,
   settingCheckInterval,
-  settingDesktopNotifications, testingAlertSound,
+  settingDesktopNotifications, testingAlertSound,settingTheme
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import moment from 'moment';
@@ -17,6 +17,7 @@ import { AppState, configureStore } from '../store';
 import { playAlertSound } from '../functions/playAlertSound';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
+import { themes } from '../components/App';
 
 export function SettingsPane() {
   const dispatch = useDispatch();
@@ -45,8 +46,22 @@ export function SettingsPane() {
     }
   }
 
+  function onChangeTheme(event: any) {
+    dispatch(settingTheme(event.target.value));
+  }
+
   function onChangeDesktopNotification(event: any) {
     dispatch(settingDesktopNotifications(event.target.checked));
+  }
+
+  function createThemesOptions(){
+    let elements: JSX.Element[] = []
+    Object.keys(themes).forEach(key=>{
+      let str = key;
+      let fstr = str[0].toUpperCase()+str.substring(1)
+      elements.push(<option value={str}>{fstr}</option>)
+    })
+    return elements
   }
 
   return (
@@ -85,6 +100,12 @@ export function SettingsPane() {
           checked={settings.desktop_notifications}
           onChange={onChangeDesktopNotification}
         />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Theme</Form.Label>
+        <Form.Control as="select" onChange={onChangeTheme} value={settings.theme}>
+          {createThemesOptions()}
+        </Form.Control>
       </Form.Group>
     </Tab.Pane>
   );

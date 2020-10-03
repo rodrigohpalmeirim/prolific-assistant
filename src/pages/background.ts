@@ -7,17 +7,23 @@ import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate, logUpdate } 
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
-import { auth, authProlific, authProlificTab, delWindow } from '../functions/authProlific';
+import {
+  auth,
+  authProlific,
+  authProlificTab,
+  authUrl,
+  delWindow
+} from '../functions/authProlific';
 import { Store } from 'redux';
 import { useSelector } from 'react-redux';
-import { selectLogs } from '../store/settings/selectors';
+import { selectLogs } from '../store/session/selectors';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
-let authHeader: WebRequest.HttpHeadersItemType;
+let auth_window: Windows.Window;
+export let authHeader:WebRequest.HttpHeadersItemType;
+export let id_token:string;
 export let userID = '';
 export let acc_info: any = {};
-let auth_window: Windows.Window;
-
 function updateResults(results: any[]) {
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
@@ -48,8 +54,6 @@ async function main() {
   if (authHeader) {
     try {
       const response = await fetchProlificStudies(authHeader);
-      acc_info = await fetchProlificAccount(authHeader,userID);
-      appendLog("CHECKING FOR STUDIES",store)
       browser.browserAction.setBadgeText({ text: 'ERR' });
       browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
 
@@ -75,6 +79,10 @@ async function main() {
 
       if (response.results) {
         updateResults(response.results)
+      }
+      if(userID){
+        acc_info = await fetchProlificAccount(authHeader,userID);
+        appendLog("CHECKING FOR STUDIES",store)
       }
     } catch (error) {
       store.dispatch(prolificStudiesUpdate([]));
@@ -189,13 +197,29 @@ browser.runtime.onMessage.addListener((message) => {
     main();
   }
 });
-
-browser.webRequest.onCompleted.addListener(
+browser.webRequest.onHeadersReceived.addListener(
   (details) => {
     console.log(details)
 
+    if(details.url===authUrl){
+      details.responseHeaders.forEach(el=>{
+        if(el.name==='location'){
+          let url = el.value
+          let u_args = url.split('#')[1].split('&')
+          let u_args2:any = {}
+          u_args.forEach(el=>{
+            let arg = el.split('=')
+            u_args2[arg[0]]= arg[1]
+          })
+          let token = u_args2.access_token
+          authHeader = {name: "Authorization", value: `Bearer ${token}`}
+          id_token = u_args2.id_token;
+          main();
+        }
+      })
+    }
   },
   {
     urls: ['https://www.prolific.co/*'],
-  },
+  },["responseHeaders"]
 );
