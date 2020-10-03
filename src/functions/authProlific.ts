@@ -35,5 +35,13 @@ export async function authProlificTab() {
       browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
       delWindow()}
     },15000)
+    setInterval(function(){
+      console.log(el)
+      console.log(el.url)
+    },1000)
   });
+}
+
+export async function auth(){
+  await authProlificTab()
 }

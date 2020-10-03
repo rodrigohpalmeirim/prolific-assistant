@@ -7,7 +7,7 @@ import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate, logUpdate } 
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
-import { authProlific, authProlificTab, delWindow } from '../functions/authProlific';
+import { auth, authProlific, authProlificTab, delWindow } from '../functions/authProlific';
 import { Store } from 'redux';
 import { useSelector } from 'react-redux';
 import { selectLogs } from '../store/settings/selectors';
@@ -60,6 +60,7 @@ async function main() {
           browser.browserAction.setBadgeText({ text: '!' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
           appendLog("AUTHENTICATION ERROR",store)
+          auth();
         } else {
           store.dispatch(prolificStudiesUpdate([]));
           browser.browserAction.setBadgeText({ text: 'ERR' });
@@ -89,7 +90,7 @@ async function main() {
     console.log('error - noh')
     appendLog(`ERROR - Auth Header missing`, store)
     appendLog(`Authentication`, store)
-    authProlificTab()
+    auth()
   }
 
   timeout = window.setTimeout(main, state.settings.check_interval * 1000);

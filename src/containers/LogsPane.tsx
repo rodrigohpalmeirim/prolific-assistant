@@ -33,7 +33,7 @@ export function LogsPane() {
     elements.push(el2)
   })}catch {}
   let html = (
-    <Tab.Pane className="p-1" eventKey="logs">
+    <Tab.Pane className="p-1 logs" eventKey="logs">
       <Form.Group>
         {elements}
       </Form.Group>
