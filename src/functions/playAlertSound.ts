@@ -5,6 +5,7 @@ import sweetAlert2 from '../audio/sweet-alert-2.wav';
 import sweetAlert3 from '../audio/sweet-alert-3.wav';
 import sweetAlert4 from '../audio/sweet-alert-4.wav';
 import sweetAlert5 from '../audio/sweet-alert-5.wav';
+import glowa from '../audio/glowa.wav';
 
 function playFile(file: any, volume: number) {
   const audio = new Audio(file);
@@ -31,6 +32,7 @@ export function playAlertSound(state: AppState) {
     case 'sweet-alert-5':
       playFile(sweetAlert5, state.settings.alert_volume);
       break;
+    case 'glowa':playFile(glowa,state.settings.alert_volume);break;
     case 'voice':
       const speech = new SpeechSynthesisUtterance('New studies available on Prolific.');
       speech.volume = state.settings.alert_volume / 100;

@@ -6,7 +6,9 @@ export interface SettingsState {
     | 'sweet-alert-2'
     | 'sweet-alert-3'
     | 'sweet-alert-4'
-    | 'sweet-alert-5';
+    | 'sweet-alert-5'
+    | 'glowa'
+
   alert_volume: number;
   check_interval: number;
   desktop_notifications: boolean;

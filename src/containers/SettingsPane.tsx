@@ -80,6 +80,7 @@ export function SettingsPane() {
           <option value="sweet-alert-3">Sweet Alert 3</option>
           <option value="sweet-alert-4">Sweet Alert 4</option>
           <option value="sweet-alert-5">Sweet Alert 5</option>
+          <option value="glowa">Glowa</option>
         </Form.Control>
       </Form.Group>
       <Form.Group>
