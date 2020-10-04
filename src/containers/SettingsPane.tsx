@@ -69,7 +69,7 @@ export function SettingsPane() {
     Object.keys(themes).forEach(key=>{
       let str = key;
       let fstr = str[0].toUpperCase()+str.substring(1)
-      elements.push(<option value={str}>{fstr}</option>)
+      elements.push(<option key={str} value={str}>{fstr}</option>)
     })
     return elements
   }

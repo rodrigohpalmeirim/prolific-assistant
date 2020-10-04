@@ -50,7 +50,7 @@ export function LogsPane() {
     let value = String(JSON.stringify(el.data));
     let timestamp = (el.timestamp);
     let date_f = formatDate(timestamp)
-    let el2 = (<div><div className={`log_type_${el.type} log_el`}><div className="log_time">{date_f}</div><div className="log_data">{value}</div> </div></div>)
+    let el2 = (<div key={timestamp}><div className={`log_type_${el.type} log_el`}><div className="log_time">{date_f}</div><div className="log_data">{value}</div> </div></div>)
     elements.push(el2)
   })}catch {}
   let html = (

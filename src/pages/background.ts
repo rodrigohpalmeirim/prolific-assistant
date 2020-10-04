@@ -190,6 +190,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
 browser.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.url.includes('/firebase/')) return;
+    try{
     let filter = browser.webRequest.filterResponseData(details.requestId);
     let decoder = new TextDecoder('utf-8');
     let encoder = new TextEncoder();
@@ -207,7 +208,18 @@ browser.webRequest.onBeforeRequest.addListener(
       }
       filter.write(encoder.encode(str));
       filter.disconnect();
-    };
+    };}catch {
+      //https://www.prolific.co/api/v1/users/${userID}/
+      async function tmp(){
+        let str = details.url.split('users')[1].replace('/','').replace('/','')
+        userID = str;
+        if(!acc_info)
+        acc_info = await fetchProlificAccount(authHeader,userID)
+        store.dispatch(accInfoUpdate(acc_info));
+        store.dispatch(settingUID(userID));
+      }
+      tmp()
+    }
 
   },
   {
