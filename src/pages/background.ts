@@ -102,8 +102,9 @@ async function main() {
         updateResults(response.results);
       }
       if (userID) {
+        appendLog('LOADING USER INFO', 'status');
         acc_info = await fetchProlificAccount(authHeader, userID);
-        appendLog('CHECKING FOR STUDIES', 'status');
+        store.dispatch(accInfoUpdate(acc_info));
       }
     } catch (error) {
       store.dispatch(prolificStudiesUpdate([]));
@@ -213,9 +214,9 @@ browser.webRequest.onBeforeRequest.addListener(
       async function tmp(){
         let str = details.url.split('users')[1].replace('/','').replace('/','')
         userID = str;
-        if(!acc_info)
+        if(!acc_info){
         acc_info = await fetchProlificAccount(authHeader,userID)
-        store.dispatch(accInfoUpdate(acc_info));
+        store.dispatch(accInfoUpdate(acc_info));}
         store.dispatch(settingUID(userID));
       }
       tmp()
