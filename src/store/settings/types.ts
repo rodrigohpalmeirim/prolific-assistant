@@ -14,14 +14,17 @@ export interface SettingsState {
   check_interval: number;
   desktop_notifications: boolean;
   theme: string;
+  uid:string;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
 export const TEST_ALERT_SOUND = 'TEST_ALERT_SOUND';
+export const TEST_STUDY = 'TEST_STUDY';
 export const SETTING_ALERT_VOLUME = 'SETTING_ALERT_VOLUME';
 export const SETTING_CHECK_INTERVAL = 'SETTING_CHECK_INTERVAL';
 export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
 export const SETTING_THEME = 'SETTING_THEME';
+export const SETTING_UID = 'SETTING_UID';
 export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
 
 export interface SettingAlertSoundAction {
@@ -30,6 +33,11 @@ export interface SettingAlertSoundAction {
 }
 export interface TestingAlertSoundAction {
   type: typeof TEST_ALERT_SOUND;
+  payload: "";
+}
+
+export interface TestingStudyAction {
+  type: typeof TEST_STUDY;
   payload: "";
 }
 
@@ -46,6 +54,11 @@ export interface SettingCheckIntervalAction {
 export interface SettingThemeAction {
   type: typeof SETTING_THEME;
   payload: SettingsState['theme'];
+}
+
+export interface SettingUIDAction {
+  type: typeof SETTING_UID;
+  payload: SettingsState['uid'];
 }
 
 export interface SettingsDesktopNotificationAction {
@@ -66,3 +79,4 @@ export type SettingsActionTypes =
   | SettingsDesktopNotificationAction
   | SettingThemeAction
   | SettingAutostartAction
+  | SettingUIDAction

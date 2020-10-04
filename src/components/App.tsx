@@ -17,6 +17,7 @@ export let themes: any = {
   dark: {
     theme1bg:'#282828',theme1fg:'white',
     theme2bg:'#151515',theme2fg:'white',
+    theme3bg:'#131313',
     hover:'#101010'
   },
 };
@@ -25,7 +26,8 @@ export let themeApplyCSS = [
   '.form-control:focus{background-color: var(--theme2bg);color: var(--theme2fg);}',
   '.theme1{background-color: var(--theme1bg);color: var(--theme1fg);}',
   '.theme2{background-color: var(--theme2bg);color: var(--theme2fg);}',
-  '.nav_btn:hover{background-color: var(--hover);opacity: 0.8;}'
+  '.nav_btn:hover{background-color: var(--hover);opacity: 0.8;}',
+  '.card {background-color: var(--theme3bg);}'
 ]
 
 

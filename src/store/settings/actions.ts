@@ -4,15 +4,15 @@ import {
   SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
   SETTING_DESKTOP_NOTIFICATIONS,
-  SETTING_THEME,
+  SETTING_THEME, SETTING_UID,
   SettingAlertSoundAction,
   SettingAlertVolumeAction,
   SettingAutostartAction,
   SettingCheckIntervalAction,
   SettingsDesktopNotificationAction,
-  SettingThemeAction,
-  TEST_ALERT_SOUND,
-  TestingAlertSoundAction,
+  SettingThemeAction, SettingUIDAction,
+  TEST_ALERT_SOUND, TEST_STUDY,
+  TestingAlertSoundAction, TestingStudyAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -24,6 +24,12 @@ export function settingAlertSound(payload: SettingAlertSoundAction['payload']): 
 export function testingAlertSound(): TestingAlertSoundAction {
   return {
     type: TEST_ALERT_SOUND, payload: ''
+  };
+}
+
+export function testingStudy(): TestingStudyAction {
+  return {
+    type: TEST_STUDY, payload: ''
   };
 }
 
@@ -56,6 +62,14 @@ export function settingTheme(payload: SettingThemeAction['payload']): SettingThe
     payload,
   };
 }
+
+export function settingUID(payload: SettingUIDAction['payload']): SettingUIDAction {
+  return {
+    type: SETTING_UID,
+    payload,
+  };
+}
+
 
 export function settingAutoStart(payload: SettingAutostartAction['payload']): SettingAutostartAction {
   return {

@@ -8,7 +8,7 @@ import {
   settingAlertSound,
   settingAlertVolume,
   settingCheckInterval,
-  settingDesktopNotifications, testingAlertSound, settingTheme, settingAutoStart,
+  settingDesktopNotifications, testingAlertSound, settingTheme, settingAutoStart, testingStudy,
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import moment from 'moment';
@@ -28,6 +28,10 @@ export function SettingsPane() {
   }
   function onTestAlertSound() {
     dispatch(testingAlertSound());
+  }
+
+  function onTestStudy() {
+    dispatch(testingStudy());
   }
 
   function onChangeAlertVolume(event: any) {
@@ -112,6 +116,13 @@ export function SettingsPane() {
           checked={settings.autostart}
           onChange={onChangeAutoStart}
         />
+      </Form.Group>
+      <Form.Group>
+        <Button onClick={() => {
+          onTestStudy();
+        }}>
+          TEST FAKE STUDY
+        </Button>
       </Form.Group>
       <Form.Group>
         <Form.Label>Theme</Form.Label>

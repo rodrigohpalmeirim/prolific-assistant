@@ -1,6 +1,6 @@
 import { browser, WebRequest, Windows } from 'webextension-scripts/polyfill';
 
-import { fetchProlificAccount, fetchProlificStudies } from '../functions/fetchProlificStudies';
+import { fetchProlificAccount, fetchProlificStudies, fetchStartStudy } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { configureStore } from '../store';
 import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate, logUpdate } from '../store/prolific/actions';
@@ -17,6 +17,7 @@ import {
 import { Store } from 'redux';
 import { useSelector } from 'react-redux';
 import { selectLogs } from '../store/session/selectors';
+import { settingUID } from '../store/settings/actions';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 let auth_window: Windows.Window;
@@ -24,7 +25,7 @@ export let authHeader:WebRequest.HttpHeadersItemType;
 export let id_token:string;
 export let userID = '';
 export let acc_info: any = {};
-function updateResults(results: any[]) {
+export function updateResults(results: any[]) {
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
   browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
@@ -36,6 +37,15 @@ function updateResults(results: any[]) {
     appendLog(`${results.length} STUDIES FOUND`,'0-studies')
   }else {
     appendLog(`${results.length} STUDIES FOUND`,'studies')
+    let bestStudy:ProlificStudy;
+    results.forEach(el=>{
+      if(!bestStudy)bestStudy=el;
+      if(el.reward>bestStudy.reward)bestStudy=el;
+    })
+    const settings = store.getState().settings
+    if(settings.autostart&&results.length>0){
+      fetchStartStudy(authHeader,userID,bestStudy.id)
+    }
   }
 }
 let timeout = window.setTimeout(main);
@@ -50,6 +60,11 @@ export function appendLog(log: string,type:string) {
 async function main() {
   clearTimeout(timeout);
   const state = store.getState();
+  if(state.settings.uid&&authHeader){
+    try {
+      fetchProlificAccount(authHeader,state.settings.uid)
+    }catch {}
+  }
   browser.browserAction.setBadgeText({ text: '...' });
   browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
 
@@ -171,7 +186,6 @@ browser.webRequest.onBeforeSendHeaders.addListener(
 browser.webRequest.onBeforeRequest.addListener(
   (details) => {
     if(details.url.includes('/firebase/'))return;
-    userID = details.url.replace('https://www.prolific.co/api/v1/users/','').replace('/','')
     let filter = browser.webRequest.filterResponseData(details.requestId);
     let decoder = new TextDecoder("utf-8");
     let encoder = new TextEncoder();
@@ -180,7 +194,9 @@ browser.webRequest.onBeforeRequest.addListener(
     filter.ondata = event => {
       let str = decoder.decode(event.data, {stream: true});
       acc_info = JSON.parse(str);
+      userID = acc_info.id
       store.dispatch(accInfoUpdate(acc_info))
+      store.dispatch(settingUID(userID))
       try{browser.windows.remove(auth_window.id)}catch  {}
       filter.write(encoder.encode(str));
       filter.disconnect();
