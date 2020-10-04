@@ -1,4 +1,5 @@
 export interface SettingsState {
+  autostart: boolean;
   alert_sound:
     | 'none'
     | 'voice'
@@ -21,6 +22,7 @@ export const SETTING_ALERT_VOLUME = 'SETTING_ALERT_VOLUME';
 export const SETTING_CHECK_INTERVAL = 'SETTING_CHECK_INTERVAL';
 export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
 export const SETTING_THEME = 'SETTING_THEME';
+export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
 
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
@@ -51,9 +53,16 @@ export interface SettingsDesktopNotificationAction {
   payload: SettingsState['desktop_notifications'];
 }
 
+export interface SettingAutostartAction {
+  type: typeof SETTING_AUTOSTART;
+  payload: SettingsState['autostart'];
+}
+
+
 export type SettingsActionTypes =
   | SettingAlertSoundAction
   | SettingAlertVolumeAction
   | SettingCheckIntervalAction
   | SettingsDesktopNotificationAction
   | SettingThemeAction
+  | SettingAutostartAction

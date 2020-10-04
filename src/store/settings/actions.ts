@@ -1,12 +1,18 @@
 import {
-  SettingAlertSoundAction,
-  SettingAlertVolumeAction,
-  SettingCheckIntervalAction,
-  SettingsDesktopNotificationAction,
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
+  SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS, TEST_ALERT_SOUND, TestingAlertSoundAction, SettingThemeAction, SETTING_THEME,
+  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_THEME,
+  SettingAlertSoundAction,
+  SettingAlertVolumeAction,
+  SettingAutostartAction,
+  SettingCheckIntervalAction,
+  SettingsDesktopNotificationAction,
+  SettingThemeAction,
+  TEST_ALERT_SOUND,
+  TestingAlertSoundAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -47,6 +53,13 @@ export function settingDesktopNotifications(
 export function settingTheme(payload: SettingThemeAction['payload']): SettingThemeAction {
   return {
     type: SETTING_THEME,
+    payload,
+  };
+}
+
+export function settingAutoStart(payload: SettingAutostartAction['payload']): SettingAutostartAction {
+  return {
+    type: SETTING_AUTOSTART,
     payload,
   };
 }

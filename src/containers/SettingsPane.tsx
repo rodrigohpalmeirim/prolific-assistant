@@ -8,7 +8,7 @@ import {
   settingAlertSound,
   settingAlertVolume,
   settingCheckInterval,
-  settingDesktopNotifications, testingAlertSound,settingTheme
+  settingDesktopNotifications, testingAlertSound, settingTheme, settingAutoStart,
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import moment from 'moment';
@@ -52,6 +52,9 @@ export function SettingsPane() {
 
   function onChangeDesktopNotification(event: any) {
     dispatch(settingDesktopNotifications(event.target.checked));
+  }
+  function onChangeAutoStart(event: any) {
+    dispatch(settingAutoStart(event.target.checked));
   }
 
   function createThemesOptions(){
@@ -100,6 +103,14 @@ export function SettingsPane() {
           type="checkbox"
           checked={settings.desktop_notifications}
           onChange={onChangeDesktopNotification}
+        />
+      </Form.Group>
+      <Form.Group>
+        <Form.Check
+          label="AutoStart Studies"
+          type="checkbox"
+          checked={settings.autostart}
+          onChange={onChangeAutoStart}
         />
       </Form.Group>
       <Form.Group>
