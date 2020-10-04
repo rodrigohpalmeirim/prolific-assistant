@@ -20,9 +20,29 @@ import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddlew
 import { selectAcc_Info } from '../store/prolific/selectors';
 import ReactDom from 'react-dom';
 import { selectLogs } from '../store/session/selectors';
+
+function onChangeLogsType(event: any) {
+  try{
+  let value = event.target.value;
+  if(value=='all'){
+    document.querySelectorAll('.log_el').forEach((el:any)=>el.style.display= 'revert')
+  }else if(value=='status_e_s'){
+    document.querySelectorAll('.log_el').forEach((el:any)=>el.style.display= 'none')
+    document.querySelectorAll(`.log_type_success`).forEach((el:any)=>el.style.display= 'revert')
+    document.querySelectorAll(`.log_type_error`).forEach((el:any)=>el.style.display= 'revert')
+    document.querySelectorAll(`.log_type_studies`).forEach((el:any)=>el.style.display= 'revert')
+  }else {
+    try{
+      document.querySelectorAll('.log_el').forEach((el:any)=>el.style.display= 'none')
+      document.querySelectorAll(`.log_type_${value}`).forEach((el:any)=>el.style.display= 'revert')
+    }catch {}
+  }}catch {}
+}
+let logs:any;
+let logsType= 'studies_e_s'
 export function LogsPane() {
   const dispatch = useDispatch();
-  const logs = useSelector(selectLogs);
+  logs = useSelector(selectLogs);
   const elements:any = [];
   //console.log(logs)
   try{
@@ -30,13 +50,31 @@ export function LogsPane() {
     let value = String(JSON.stringify(el.data));
     let timestamp = (el.timestamp);
     let date_f = formatDate(timestamp)
-    let el2 = (<div><div className="log_el"><div className="log_time">{date_f}</div><div className="log_data">{value}</div> </div></div>)
+    let el2 = (<div><div className={`log_type_${el.type} log_el`}><div className="log_time">{date_f}</div><div className="log_data">{value}</div> </div></div>)
     elements.push(el2)
   })}catch {}
   let html = (
     <Tab.Pane className="p-1 logs" eventKey="logs">
       <Form.Group>
+        <Form.Control as="select" onChange={onChangeLogsType}>
+          <option value="status_e_s">STUDIES & ERROR/SUCCESS</option>
+          <option value="all">ALL</option>
+          <option value="studies">STUDIES</option>
+          <option value="success">SUCCESS</option>
+          <option value="error">ERROR</option>
+          <option value="status">STATUS</option>
+        </Form.Control>
+        <style>{`.log_el{display:none};`}</style>
+        <style>{`
+        .log_type_0-studies {color: #595959;}
+        .log_type_success {color: lime;display:revert}
+        .log_type_error {color: red;display:revert}
+        .log_type_studies {color: red;display:revert}
+        .log_type_status {color: #36bdff;}
+        `}</style>
+        <div className="log-box">
         {elements}
+        </div>
       </Form.Group>
     </Tab.Pane>
   );

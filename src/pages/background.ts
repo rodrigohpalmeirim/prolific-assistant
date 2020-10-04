@@ -33,15 +33,17 @@ function updateResults(results: any[]) {
   if(results.length<1){
     browser.browserAction.setBadgeText({ text: 'OK' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
+    appendLog(`${results.length} STUDIES FOUND`,'0-studies')
+  }else {
+    appendLog(`${results.length} STUDIES FOUND`,'studies')
   }
-  appendLog(`${results.length} STUDIES FOUND`,store)
 }
 let timeout = window.setTimeout(main);
 
 let logs:{}[];
-function appendLog(log: string,store:Store) {
+export function appendLog(log: string,type:string) {
   if(!logs)logs = [];
-  logs.push({data:log,timestamp:(+ new Date())});
+  logs.push({data:log,type:type,timestamp:(+ new Date())});
   store.dispatch(logUpdate(logs));
 }
 
@@ -63,18 +65,18 @@ async function main() {
           store.dispatch(prolificErrorUpdate(401));
           browser.browserAction.setBadgeText({ text: '!' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-          appendLog("AUTHENTICATION ERROR",store)
+          appendLog("AUTHENTICATION ERROR",'error')
           auth();
         } else {
           store.dispatch(prolificStudiesUpdate([]));
           browser.browserAction.setBadgeText({ text: 'ERR' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-          appendLog("OTHER ERROR",store)
+          appendLog("OTHER ERROR",'error')
         }
       }else {
         browser.browserAction.setBadgeText({ text: 'OK' });
         browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
-        appendLog("OK!",store)
+        appendLog("OK!",'status')
       }
 
       if (response.results) {
@@ -82,22 +84,20 @@ async function main() {
       }
       if(userID){
         acc_info = await fetchProlificAccount(authHeader,userID);
-        appendLog("CHECKING FOR STUDIES",store)
+        appendLog("CHECKING FOR STUDIES",'status')
       }
     } catch (error) {
       store.dispatch(prolificStudiesUpdate([]));
       browser.browserAction.setBadgeText({ text: 'ERR' });
       browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-      appendLog(`ERROR - fetchProlificStudies`, store)
+      appendLog(`ERROR - fetchProlificStudies`,'error')
       window.console.error('fetchProlificStudies error', error);
     }
   } else {
     store.dispatch(prolificErrorUpdate(401));
     browser.browserAction.setBadgeText({ text: 'ERR' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-    console.log('error - noh')
-    appendLog(`ERROR - Auth Header missing`, store)
-    appendLog(`Authentication`, store)
+    appendLog(`ERROR - Auth Header missing`,'error')
     auth()
   }
 

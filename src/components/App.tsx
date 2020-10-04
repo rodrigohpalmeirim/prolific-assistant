@@ -10,47 +10,67 @@ import { LogsPane } from '../containers/LogsPane';
 import { useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
 
-export let themes:any = {
-  white:``,
-  dark:`
-  .theme1{background-color: #282828;color: white;}
-  .theme2{background-color: #151515;color: white;}
-  .form-control{background-color: #151515;color: white;}
-  .form-control:focus{background-color: #151515;color: white;}`,
+export let themes: any = {
+  white: {
+    hover:'#d4d4d4'
+  },
+  dark: {
+    theme1bg:'#282828',theme1fg:'white',
+    theme2bg:'#151515',theme2fg:'white',
+    hover:'#101010'
+  },
+};
+export let themeApplyCSS = [
+  '.form-control{background-color: var(--theme2bg);color: var(--theme2fg);}',
+  '.form-control:focus{background-color: var(--theme2bg);color: var(--theme2fg);}',
+  '.theme1{background-color: var(--theme1bg);color: var(--theme1fg);}',
+  '.theme2{background-color: var(--theme2bg);color: var(--theme2fg);}',
+  '.nav_btn:hover{background-color: var(--hover);opacity: 0.8;}'
+]
 
+
+export function returnTheme(theme: string) {
+  let css = ''
+  try {
+    Object.keys(themes[theme]).forEach(key=>{
+      css += `--${key}: ${themes[theme][key]};`
+    })
+  } catch {}
+  return `:root{${css}} ${themeApplyCSS.join('\n')}`;
 }
 
-export function AppV(view:string) {
+export function AppV(view: string) {
   const settings = useSelector(selectSettings);
   let [key, setKey] = useState(view);
 
   function onSelect(k: string) {
     setKey(k);
   }
+
   let html = (
     <Tab.Container activeKey={key} onSelect={onSelect}>
       <style>
-        {`${themes[settings.theme]}`}
+        {`${returnTheme(settings.theme)}`}
       </style>
       <Header />
-      <Tab.Content className={"theme1"}>
+      <Tab.Content className={'theme1'}>
         <StudiesPane />
         <AccountInfoPane />
         <SettingsPane />
         <LogsPane />
       </Tab.Content>
 
-      <Nav className={"w-100 theme2"} variant="pills">
-        <Nav.Item className="text-center w-50">
+      <Nav className={'w-100 theme2'} variant="pills">
+        <Nav.Item className="text-center w-50 nav_btn">
           <Nav.Link eventKey="studies">Studies</Nav.Link>
         </Nav.Item>
-        <Nav.Item className="text-center w-50">
+        <Nav.Item className="text-center w-50 nav_btn">
           <Nav.Link eventKey="settings">Settings</Nav.Link>
         </Nav.Item>
-        <Nav.Item className="text-center w-50">
+        <Nav.Item className="text-center w-50 nav_btn">
           <Nav.Link eventKey="accinfo">Account Info</Nav.Link>
         </Nav.Item>
-        <Nav.Item className="text-center w-50">
+        <Nav.Item className="text-center w-50 nav_btn">
           <Nav.Link eventKey="logs">LOGS</Nav.Link>
         </Nav.Item>
       </Nav>
@@ -62,10 +82,10 @@ export function AppV(view:string) {
 
 export function App() {
   let loc = location.hash;
-  if(loc.includes('v=')){
+  if (loc.includes('v=')) {
     let part = loc.split('v=')[1];
-    return AppV(part)
+    return AppV(part);
   }
 
-  return AppV('studies')
+  return AppV('studies');
 }
