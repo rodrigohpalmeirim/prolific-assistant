@@ -3,67 +3,71 @@ import { browser, WebRequest, Windows } from 'webextension-scripts/polyfill';
 import { fetchProlificAccount, fetchProlificStudies, fetchStartStudy } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { configureStore } from '../store';
-import { prolificStudiesUpdate, prolificErrorUpdate, accInfoUpdate, logUpdate } from '../store/prolific/actions';
+import { accInfoUpdate, logUpdate, prolificErrorUpdate, prolificStudiesUpdate } from '../store/prolific/actions';
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
-import {
-  auth,
-  authProlific,
-  authProlificTab,
-  authUrl,
-  delWindow
-} from '../functions/authProlific';
-import { Store } from 'redux';
-import { useSelector } from 'react-redux';
-import { selectLogs } from '../store/session/selectors';
+import { auth, authUrl, delWindow } from '../functions/authProlific';
 import { settingUID } from '../store/settings/actions';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 let auth_window: Windows.Window;
-export let authHeader:WebRequest.HttpHeadersItemType;
-export let id_token:string;
+export let authHeader: WebRequest.HttpHeadersItemType;
+export let id_token: string;
 export let userID = '';
 export let acc_info: any = {};
+
 export function updateResults(results: any[]) {
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
   browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
   browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
 
-  if(results.length<1){
+  if (results.length < 1) {
     browser.browserAction.setBadgeText({ text: 'OK' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
-    appendLog(`${results.length} STUDIES FOUND`,'0-studies')
-  }else {
-    appendLog(`${results.length} STUDIES FOUND`,'studies')
-    let bestStudy:ProlificStudy;
-    results.forEach(el=>{
-      if(!bestStudy)bestStudy=el;
-      if(el.reward>bestStudy.reward)bestStudy=el;
-    })
-    const settings = store.getState().settings
-    if(settings.autostart&&results.length>0){
-      fetchStartStudy(authHeader,userID,bestStudy.id)
+    appendLog(`${results.length} STUDIES FOUND`, '0-studies');
+  } else {
+    appendLog(`${results.length} STUDIES FOUND`, 'studies');
+    let bestStudy: ProlificStudy;
+    results.forEach(el => {
+      if (!bestStudy) bestStudy = el;
+      if (el.reward > bestStudy.reward) bestStudy = el;
+    });
+    const settings = store.getState().settings;
+    if (settings.autostart && results.length > 0) {
+      fetchStartStudy(authHeader, userID, bestStudy.id);
     }
   }
 }
+
 let timeout = window.setTimeout(main);
 
-let logs:{}[];
-export function appendLog(log: string,type:string) {
-  if(!logs)logs = [];
-  logs.push({data:log,type:type,timestamp:(+ new Date())});
+let logs: {}[];
+
+export function appendLog(log: string, type: string) {
+  if (!logs) logs = [];
+  logs.push({ data: log, type: type, timestamp: (+new Date()) });
   store.dispatch(logUpdate(logs));
 }
 
 async function main() {
   clearTimeout(timeout);
   const state = store.getState();
-  if(state.settings.uid&&authHeader){
-    try {
-      fetchProlificAccount(authHeader,state.settings.uid)
-    }catch {}
+  if (state.settings.uid && authHeader) {
+    async function tmp() {
+      try {
+        let json = await fetchProlificAccount(authHeader, state.settings.uid);
+        if (json.id && json.id == state.settings.uid) {
+
+        } else {
+          store.dispatch(settingUID(''));
+        }
+      } catch {
+        store.dispatch(settingUID(''));
+      }
+    }
+    tmp();
   }
   browser.browserAction.setBadgeText({ text: '...' });
   browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
@@ -80,40 +84,40 @@ async function main() {
           store.dispatch(prolificErrorUpdate(401));
           browser.browserAction.setBadgeText({ text: '!' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-          appendLog("AUTHENTICATION ERROR",'error')
+          appendLog('AUTHENTICATION ERROR', 'error');
           auth();
         } else {
           store.dispatch(prolificStudiesUpdate([]));
           browser.browserAction.setBadgeText({ text: 'ERR' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-          appendLog("OTHER ERROR",'error')
+          appendLog('OTHER ERROR', 'error');
         }
-      }else {
+      } else {
         browser.browserAction.setBadgeText({ text: 'OK' });
         browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
-        appendLog("OK!",'status')
+        appendLog('OK!', 'status');
       }
 
       if (response.results) {
-        updateResults(response.results)
+        updateResults(response.results);
       }
-      if(userID){
-        acc_info = await fetchProlificAccount(authHeader,userID);
-        appendLog("CHECKING FOR STUDIES",'status')
+      if (userID) {
+        acc_info = await fetchProlificAccount(authHeader, userID);
+        appendLog('CHECKING FOR STUDIES', 'status');
       }
     } catch (error) {
       store.dispatch(prolificStudiesUpdate([]));
       browser.browserAction.setBadgeText({ text: 'ERR' });
       browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-      appendLog(`ERROR - fetchProlificStudies`,'error')
+      appendLog(`ERROR - fetchProlificStudies`, 'error');
       window.console.error('fetchProlificStudies error', error);
     }
   } else {
     store.dispatch(prolificErrorUpdate(401));
     browser.browserAction.setBadgeText({ text: 'ERR' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-    appendLog(`ERROR - Auth Header missing`,'error')
-    auth()
+    appendLog(`ERROR - Auth Header missing`, 'error');
+    auth();
   }
 
   timeout = window.setTimeout(main, state.settings.check_interval * 1000);
@@ -125,9 +129,9 @@ browser.notifications.onClicked.addListener((notificationId) => {
 });
 
 function handleSignedOut() {
-  authHeader = null
-  updateResults([])
-  store.dispatch(prolificErrorUpdate(401))
+  authHeader = null;
+  updateResults([]);
+  store.dispatch(prolificErrorUpdate(401));
 }
 
 // Watch for url changes and handle sign out
@@ -136,7 +140,7 @@ browser.webNavigation.onCompleted.addListener(
     handleSignedOut();
   },
   {
-    url: [{ urlEquals: 'https://www.prolific.co/auth/accounts/login/'}],
+    url: [{ urlEquals: 'https://www.prolific.co/auth/accounts/login/' }],
   },
 );
 
@@ -147,7 +151,7 @@ browser.webNavigation.onHistoryStateUpdated.addListener(
     handleSignedOut();
   },
   {
-    url: [{ urlEquals: 'https://app.prolific.co/login'}],
+    url: [{ urlEquals: 'https://app.prolific.co/login' }],
   },
 );
 
@@ -159,7 +163,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
 
     if (foundAuthHeader) {
       if (foundAuthHeader.value === 'Bearer null') {
-        return
+        return;
       }
 
       let restart = false;
@@ -185,27 +189,30 @@ browser.webRequest.onBeforeSendHeaders.addListener(
 
 browser.webRequest.onBeforeRequest.addListener(
   (details) => {
-    if(details.url.includes('/firebase/'))return;
+    if (details.url.includes('/firebase/')) return;
     let filter = browser.webRequest.filterResponseData(details.requestId);
-    let decoder = new TextDecoder("utf-8");
+    let decoder = new TextDecoder('utf-8');
     let encoder = new TextEncoder();
 
     // @ts-ignore
     filter.ondata = event => {
-      let str = decoder.decode(event.data, {stream: true});
+      let str = decoder.decode(event.data, { stream: true });
       acc_info = JSON.parse(str);
-      userID = acc_info.id
-      store.dispatch(accInfoUpdate(acc_info))
-      store.dispatch(settingUID(userID))
-      try{browser.windows.remove(auth_window.id)}catch  {}
+      userID = acc_info.id;
+      store.dispatch(accInfoUpdate(acc_info));
+      store.dispatch(settingUID(userID));
+      try {
+        browser.windows.remove(auth_window.id);
+      } catch {
+      }
       filter.write(encoder.encode(str));
       filter.disconnect();
-    }
+    };
 
   },
   {
     urls: ['https://www.prolific.co/api/v1/users/*'],
-  },["blocking"]
+  }, ['blocking'],
 );
 
 browser.runtime.onMessage.addListener((message) => {
@@ -215,27 +222,27 @@ browser.runtime.onMessage.addListener((message) => {
 });
 browser.webRequest.onHeadersReceived.addListener(
   (details) => {
-    console.log(details)
+    console.log(details);
 
-    if(details.url===authUrl){
-      details.responseHeaders.forEach(el=>{
-        if(el.name==='location'){
-          let url = el.value
-          let u_args = url.split('#')[1].split('&')
-          let u_args2:any = {}
-          u_args.forEach(el=>{
-            let arg = el.split('=')
-            u_args2[arg[0]]= arg[1]
-          })
-          let token = u_args2.access_token
-          authHeader = {name: "Authorization", value: `Bearer ${token}`}
+    if (details.url === authUrl) {
+      details.responseHeaders.forEach(el => {
+        if (el.name === 'location') {
+          let url = el.value;
+          let u_args = url.split('#')[1].split('&');
+          let u_args2: any = {};
+          u_args.forEach(el => {
+            let arg = el.split('=');
+            u_args2[arg[0]] = arg[1];
+          });
+          let token = u_args2.access_token;
+          authHeader = { name: 'Authorization', value: `Bearer ${token}` };
           id_token = u_args2.id_token;
           main();
         }
-      })
+      });
     }
   },
   {
     urls: ['https://www.prolific.co/*'],
-  },["responseHeaders"]
+  }, ['responseHeaders'],
 );

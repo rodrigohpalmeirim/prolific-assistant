@@ -8,7 +8,7 @@ import {
   settingAlertSound,
   settingAlertVolume,
   settingCheckInterval,
-  settingDesktopNotifications, testingAlertSound, settingTheme, settingAutoStart, testingStudy,
+  settingDesktopNotifications, testingAlertSound, settingTheme, settingAutoStart, testingStudy, settingUID,
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import moment from 'moment';
@@ -40,6 +40,9 @@ export function SettingsPane() {
     if (0 <= value && value <= 100) {
       dispatch(settingAlertVolume(value));
     }
+  }
+  function onChangeUID(uid:string) {
+    dispatch(settingUID(uid))
   }
 
   function onChangeCheckInterval(event: any) {
@@ -100,6 +103,19 @@ export function SettingsPane() {
       <Form.Group>
         <Form.Label>Alert Volume</Form.Label>
         <Form.Control type="number" onChange={onChangeAlertVolume} value={settings.alert_volume.toString()} />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Prolific ID</Form.Label>
+        <Form.Control id="uid_box" type="text" />
+      </Form.Group>
+      <Form.Group>
+        <Button onClick={() => {
+          // @ts-ignore
+          onChangeUID(document.getElementById('uid_box').value)
+          browser.runtime.sendMessage('check_for_studies')
+        }}>
+          SET Prolific ID
+        </Button>
       </Form.Group>
       <Form.Group>
         <Form.Check

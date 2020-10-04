@@ -69,7 +69,7 @@ export function LogsPane() {
         .log_type_0-studies {color: #595959;}
         .log_type_success {color: lime;display:revert}
         .log_type_error {color: red;display:revert}
-        .log_type_studies {color: red;display:revert}
+        .log_type_studies {color: #ff6c00;display:revert}
         .log_type_status {color: #36bdff;}
         `}</style>
         <div className="log-box">
