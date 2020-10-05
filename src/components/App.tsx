@@ -9,6 +9,7 @@ import { AccountInfoPane } from '../containers/AccInfoPane';
 import { LogsPane } from '../containers/LogsPane';
 import { useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
+import { SubmissionsPage } from '../containers/SubmissionsPane';
 
 export let themes: any = {
   white: {
@@ -60,12 +61,17 @@ export function AppV(view: string) {
         <AccountInfoPane />
         <SettingsPane />
         <LogsPane />
+        <SubmissionsPage/>
       </Tab.Content>
 
       <Nav className={'w-100 theme2'} variant="pills">
-        <Nav.Item className="text-center w-50 nav_btn">
+        <Nav.Item className="text-center w-25 nav_btn">
           <Nav.Link eventKey="studies">Studies</Nav.Link>
         </Nav.Item>
+        <Nav.Item className="text-center w-25 nav_btn">
+        <Nav.Link eventKey="submissions">Submissions</Nav.Link>
+        </Nav.Item>
+
         <Nav.Item className="text-center w-50 nav_btn">
           <Nav.Link eventKey="settings">Settings</Nav.Link>
         </Nav.Item>

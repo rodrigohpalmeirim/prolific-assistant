@@ -1,14 +1,14 @@
 import {
+  ACC_INFO_UPDATE,
+  AccInfoUpdateAction,
+  PROLIFIC_ERROR_UPDATE,
+  PROLIFIC_STUDIES_UPDATE,
+  PROLIFIC_SUBMISSIONS_UPDATE,
   ProlificErrorUpdateAction,
   ProlificStudiesUpdateAction,
-  PROLIFIC_ERROR_UPDATE,
-  PROLIFIC_STUDIES_UPDATE, AccInfoUpdateAction, ACC_INFO_UPDATE,
+  ProlificSubmissionsUpdateAction,
 } from './types';
-import { SettingsState, TEST_ALERT_SOUND, TestingAlertSoundAction } from '../settings/types';
-import { Immutable, Produced } from 'immer';
-import { SESSION_LOGS, SessionLogs, SessionState } from '../session/types';
-import { PersistPartial } from 'redux-persist/es/persistReducer';
-import { AnyAction } from 'redux';
+import { SESSION_LOGS, SessionLogs } from '../session/types';
 
 export function prolificErrorUpdate(payload: ProlificErrorUpdateAction['payload']): ProlificErrorUpdateAction {
   return {
@@ -20,6 +20,12 @@ export function prolificErrorUpdate(payload: ProlificErrorUpdateAction['payload'
 export function prolificStudiesUpdate(payload: ProlificStudiesUpdateAction['payload']): ProlificStudiesUpdateAction {
   return {
     type: PROLIFIC_STUDIES_UPDATE,
+    payload,
+  };
+}
+export function prolificSubmissionsUpdate(payload: ProlificSubmissionsUpdateAction['payload']): ProlificSubmissionsUpdateAction {
+  return {
+    type: PROLIFIC_SUBMISSIONS_UPDATE,
     payload,
   };
 }
