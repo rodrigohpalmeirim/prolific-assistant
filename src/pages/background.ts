@@ -3,7 +3,8 @@ import { browser, WebRequest, Windows } from 'webextension-scripts/polyfill';
 import {
   checkUserID,
   fetchProlificAccount,
-  fetchProlificStudies, fetchProlificSubmissions,
+  fetchProlificStudies,
+  fetchProlificSubmissions,
   fetchStartStudy,
 } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
@@ -20,7 +21,6 @@ import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateM
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { auth, authUrl, delWindow } from '../functions/authProlific';
 import { settingUID } from '../store/settings/actions';
-import { useDispatch } from 'react-redux';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 let auth_window: Windows.Window;
@@ -101,25 +101,25 @@ async function main() {
       if (userID) {
         appendLog('LOADING USER INFO', 'status');
         acc_info = await fetchProlificAccount(authHeader, userID);
-        if(!acc_info.id || acc_info.id ==! userID){
-          if(await checkUserID(authHeader,state.settings.uid,store)){
+        if (!acc_info.id || acc_info.id == !userID) {
+          if (await checkUserID(authHeader, state.settings.uid, store)) {
             userID = state.settings.uid;
           }
         }
         store.dispatch(accInfoUpdate(acc_info));
-      }else {
-        if(await checkUserID(authHeader,state.settings.uid,store)){
+      } else {
+        if (await checkUserID(authHeader, state.settings.uid, store)) {
           userID = state.settings.uid;
-          appendLog(`Successfully Gathered Prolific ID from settings ${state.settings.uid}`,'success')
-        }else {
-          appendLog('Prolific ID from settings is invalid','error')
+          appendLog(`Successfully Gathered Prolific ID from settings ${state.settings.uid}`, 'success');
+        } else {
+          appendLog('Prolific ID from settings is invalid', 'error');
         }
       }
 
-      if(userID){
-        let response = await fetchProlificSubmissions(authHeader,userID)
-        if(response.results){
-          store.dispatch(prolificSubmissionsUpdate(response.results))
+      if (userID) {
+        let response = await fetchProlificSubmissions(authHeader, userID);
+        if (response.results) {
+          store.dispatch(prolificSubmissionsUpdate(response.results));
         }
       }
     } catch (error) {
@@ -207,39 +207,23 @@ browser.webRequest.onBeforeSendHeaders.addListener(
 browser.webRequest.onBeforeRequest.addListener(
   (details) => {
     if (details.url.includes('/firebase/')) return;
-    try{
-    let filter = browser.webRequest.filterResponseData(details.requestId);
-    let decoder = new TextDecoder('utf-8');
-    let encoder = new TextEncoder();
+    try {
+      let filter = browser.webRequest.filterResponseData(details.requestId);
+      let decoder = new TextDecoder('utf-8');
+      let encoder = new TextEncoder();
 
-    // @ts-ignore
-    filter.ondata = event => {
-      let str = decoder.decode(event.data, { stream: true });
-      acc_info = JSON.parse(str);
-      userID = acc_info.id;
-      store.dispatch(accInfoUpdate(acc_info));
-      store.dispatch(settingUID(userID));
-      if(store.getState().settings.uid!=userID){
-        appendLog(`Automatically Gathered UserID from HTTP request: ${userID}`,'success')
-      }
+      // @ts-ignore
+      filter.ondata = event => {
+        let str = decoder.decode(event.data, { stream: true });
+        acc_info = JSON.parse(str);
+        UIDfromBody(acc_info);
 
-      try {
-        browser.windows.remove(auth_window.id);
-      } catch {
-      }
-      filter.write(encoder.encode(str));
-      filter.disconnect();
-    };}catch {
+        filter.write(encoder.encode(str));
+        filter.disconnect();
+      };
+    } catch {
       //https://www.prolific.co/api/v1/users/${userID}/
-      async function tmp(){
-        let str = details.url.split('users')[1].replace('/','').replace('/','')
-        userID = str;
-        if(!acc_info){
-        acc_info = await fetchProlificAccount(authHeader,userID)
-        store.dispatch(accInfoUpdate(acc_info));}
-        store.dispatch(settingUID(userID));
-      }
-      tmp()
+      UIDfromUrl(details.url);
     }
 
   },
@@ -255,7 +239,6 @@ browser.runtime.onMessage.addListener((message) => {
 });
 browser.webRequest.onHeadersReceived.addListener(
   (details) => {
-    console.log(details);
 
     if (details.url === authUrl) {
       details.responseHeaders.forEach(el => {
@@ -279,3 +262,35 @@ browser.webRequest.onHeadersReceived.addListener(
     urls: ['https://www.prolific.co/*'],
   }, ['responseHeaders'],
 );
+
+async function UIDfromUrl(url: string) {
+  let str = url.split('users')[1].replace('/', '').replace('/', '');
+  let userID_t = str;
+  if (!acc_info) {
+    acc_info = await fetchProlificAccount(authHeader, userID);
+    store.dispatch(accInfoUpdate(acc_info));
+  }
+  if (userID_t && userID_t.length > 0) {
+    store.dispatch(settingUID(userID_t));
+    userID = userID_t;
+    if (store.getState().settings.uid != userID) {
+      appendLog(`Automatically Gathered UserID from HTTP request: ${userID}`, 'success');
+    }
+  }
+
+}
+
+function UIDfromBody(body: any) {
+  store.dispatch(accInfoUpdate(acc_info));
+  let userID_t = '';
+  if (body) {
+    userID_t = body.id;
+  }
+  if (userID_t && userID_t.length > 0) {
+    store.dispatch(settingUID(userID_t));
+    userID = userID_t;
+    if (store.getState().settings.uid != userID) {
+      appendLog(`Automatically Gathered UserID from HTTP request: ${userID}`, 'success');
+    }
+  }
+}

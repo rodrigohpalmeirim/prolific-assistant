@@ -54,10 +54,12 @@ export async function checkUserID(authHeader: any,userID:string,store: Store){
   const { name, value } = authHeader
   const headers = { [name]: value }
   // omit credentials here, since auth is handled via the bearer token
+  if(userID.length<1){
+    return false;
+  }
   const response = await fetch(`https://www.prolific.co/api/v1/users/${userID}/`, { credentials: 'omit', headers });
   if(response.status==404){
-    store.dispatch(settingUID(''));
-    appendLog('ERROR PROLIFIC ID is Invalid','error')
+    appendLog('ERROR PROLIFIC ID may be Invalid','error')
     return false;
   }
   appendLog('ERROR PROLIFIC ID is valid','status')

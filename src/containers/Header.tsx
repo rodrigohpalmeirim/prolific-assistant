@@ -12,6 +12,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { selectSessionLastChecked } from '../store/session/selectors';
 import { centsToGBP } from '../functions/centsToGBP';
 import { selectAcc_Info } from '../store/prolific/selectors';
+import { WarnMsg } from './WarnMsg';
 
 export function Header() {
   const last_checked = useSelector(selectSessionLastChecked);
@@ -22,6 +23,7 @@ export function Header() {
         <Nav.Link href="https://app.prolific.co/studies">Studies</Nav.Link>
       </Nav>
       <Nav className="mr-auto">
+        <WarnMsg/>
         <Nav.Link href="https://app.prolific.co/account">
           <OverlayTrigger placement="bottom" overlay={<Tooltip id="balance-tooltip">{<div>PROLIFIC ID:<br/>{returnUserID()}</div>}</Tooltip>}>
             <div>

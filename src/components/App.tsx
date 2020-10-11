@@ -10,6 +10,7 @@ import { LogsPane } from '../containers/LogsPane';
 import { useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
 import { SubmissionsPage } from '../containers/SubmissionsPane';
+import { WarnMsg } from '../containers/WarnMsg';
 
 export let themes: any = {
   white: {
@@ -42,9 +43,12 @@ export function returnTheme(theme: string) {
   return `:root{${css}} ${themeApplyCSS.join('\n')}`;
 }
 
+export let key: any, setKey:any
+
 export function AppV(view: string) {
+  [key, setKey] = useState(view);
   const settings = useSelector(selectSettings);
-  let [key, setKey] = useState(view);
+
 
   function onSelect(k: string) {
     setKey(k);
@@ -89,7 +93,7 @@ export function AppV(view: string) {
 }
 
 export function App() {
-  let loc = location.hash;
+  let loc = location.href;
   if (loc.includes('v=')) {
     let part = loc.split('v=')[1];
     return AppV(part);
