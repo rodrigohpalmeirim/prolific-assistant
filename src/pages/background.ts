@@ -19,7 +19,7 @@ import {
 import { sessionLastChecked } from '../store/session/action';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
-import { auth, authUrl, delWindow } from '../functions/authProlific';
+import { auth, authUrl } from '../functions/authProlific';
 import { settingUID } from '../store/settings/actions';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
@@ -38,9 +38,9 @@ export function updateResults(results: any[]) {
   if (results.length < 1) {
     browser.browserAction.setBadgeText({ text: 'OK' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
-    appendLog(`${results.length} STUDIES FOUND`, '0-studies');
+    appendLog(`${results.length} STUDIES FOUND`, '0-studies',`no studies found.`);
   } else {
-    appendLog(`${results.length} STUDIES FOUND`, 'studies');
+    appendLog(`${results.length} STUDIES FOUND`, 'studies',`${results.length} studies found.`);
     let bestStudy: ProlificStudy;
     results.forEach(el => {
       if (!bestStudy) bestStudy = el;
@@ -57,9 +57,9 @@ let timeout = window.setTimeout(main);
 
 let logs: {}[];
 
-export function appendLog(log: string, type: string) {
+export function appendLog(log: string, type: string,description:string) {
   if (!logs) logs = [];
-  logs.push({ data: log, type: type, timestamp: (+new Date()) });
+  logs.push({ data: log, type: type, timestamp: (+new Date()),desc:description });
   store.dispatch(logUpdate(logs));
 }
 
@@ -81,25 +81,25 @@ async function main() {
           store.dispatch(prolificErrorUpdate(401));
           browser.browserAction.setBadgeText({ text: '!' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-          appendLog('AUTHENTICATION ERROR', 'error');
+          appendLog('AUTHENTICATION ERROR', 'error',`ERROR 401 Occurred\n${response.error}`);
           auth();
         } else {
           store.dispatch(prolificStudiesUpdate([]));
           browser.browserAction.setBadgeText({ text: 'ERR' });
           browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-          appendLog('OTHER ERROR', 'error');
+          appendLog('OTHER ERROR', 'error',`Unknown ERROR Occurred\n${response.error}`);
         }
       } else {
         browser.browserAction.setBadgeText({ text: 'OK' });
         browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
-        appendLog('OK!', 'status');
+        appendLog('OK!', 'status',`Everything seems to be fine`);
       }
 
       if (response.results) {
         updateResults(response.results);
       }
       if (userID) {
-        appendLog('LOADING USER INFO', 'status');
+        appendLog('LOADING USER INFO', 'status',`Fetching UserInfo for UserID: ${userID}`);
         acc_info = await fetchProlificAccount(authHeader, userID);
         if (!acc_info.id || acc_info.id == !userID) {
           if (await checkUserID(authHeader, state.settings.uid, store)) {
@@ -110,9 +110,9 @@ async function main() {
       } else {
         if (await checkUserID(authHeader, state.settings.uid, store)) {
           userID = state.settings.uid;
-          appendLog(`Successfully Gathered Prolific ID from settings ${state.settings.uid}`, 'success');
+          appendLog(`Successfully Gathered Prolific ID from settings`, 'success',`Successfully Gathered Prolific ID from settings\nID: ${state.settings.uid}`);
         } else {
-          appendLog('Prolific ID from settings is invalid', 'error');
+          appendLog('Prolific ID from settings is invalid', 'error',`Prolific ID from settings is invalid. \nID: ${state.settings.uid}`);
         }
       }
 
@@ -126,14 +126,14 @@ async function main() {
       store.dispatch(prolificStudiesUpdate([]));
       browser.browserAction.setBadgeText({ text: 'ERR' });
       browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-      appendLog(`ERROR - fetchProlificStudies`, 'error');
+      appendLog(`ERROR - fetchProlificStudies`, 'error',`Exception occurred:\n${error}`);
       window.console.error('fetchProlificStudies error', error);
     }
   } else {
     store.dispatch(prolificErrorUpdate(401));
     browser.browserAction.setBadgeText({ text: 'ERR' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-    appendLog(`ERROR - Auth Header missing`, 'error');
+    appendLog(`ERROR - Auth Header missing`, 'error',`Auth header is missing`);
     auth();
   }
 
@@ -190,7 +190,6 @@ browser.webRequest.onBeforeSendHeaders.addListener(
       }
 
       authHeader = foundAuthHeader;
-      delWindow();
       if (restart) {
         main();
       }
@@ -274,7 +273,7 @@ async function UIDfromUrl(url: string) {
     store.dispatch(settingUID(userID_t));
     userID = userID_t;
     if (store.getState().settings.uid != userID) {
-      appendLog(`Automatically Gathered UserID from HTTP request: ${userID}`, 'success');
+      appendLog(`Automatically Gathered UserID from HTTP request`, 'success',`Automatically Gathered UserID from HTTP request: ${userID}`);
     }
   }
 
@@ -290,7 +289,7 @@ function UIDfromBody(body: any) {
     store.dispatch(settingUID(userID_t));
     userID = userID_t;
     if (store.getState().settings.uid != userID) {
-      appendLog(`Automatically Gathered UserID from HTTP request: ${userID}`, 'success');
+      appendLog(`Automatically Gathered UserID from HTTP request`, 'success',`Automatically Gathered UserID from HTTP request: ${userID}`);
     }
   }
 }

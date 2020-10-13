@@ -23,9 +23,14 @@ export async function fetchProlificSubmissions(authHeader: any,userID:string) {
   const { name, value } = authHeader
   const headers = { [name]: value }
   // omit credentials here, since auth is handled via the bearer token
-  appendLog('Reading submissions','status')
   const response = await fetch(`https://www.prolific.co/api/v1/submissions/?participant=${userID}&page=1`, { credentials: 'omit', headers });
   let json = await response.json()
+  if(json.error){
+    appendLog('ERROR while reading submissions','error',`ERROR while reading submissions\nUSERID: ${userID}\nERROR: ${json.error}\nSTATUS: ${response.status}`)
+  }else {
+    appendLog('Successfully fetched submissions','status',`Successfully fetched submissions\nUSERID: ${userID}\nSTATUS: ${response.status}`)
+
+  }
   return json;
 }
 
@@ -42,10 +47,13 @@ export async function fetchStartStudy(authHeader: any,userID:string,studyID:stri
     participant_id:userID
   }))
   let json = JSON.parse(req.responseText);
-  let state = json.error?'error':'success';
-  let log = `Starting Study ${studyID} STATUS:${req.status}`
-  if(state==='error')log = 'ERROR - '+log+` ERRCODE: ${json.error.error_code}`
-  appendLog(log,state)
+  if(json.error){
+    appendLog(`ERROR while starting study`,"error",`ERROR while starting study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nERROR: ${json.error}\nSTATUS: ${req.status}`)
+  }else {
+    appendLog(`Successfully started study`,"success",`Successfully started study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nSTATUS: ${req.status}`)
+
+  }
+
   console.log(json)
   return json
 }
@@ -54,15 +62,15 @@ export async function checkUserID(authHeader: any,userID:string,store: Store){
   const { name, value } = authHeader
   const headers = { [name]: value }
   // omit credentials here, since auth is handled via the bearer token
-  if(userID.length<1){
+  if(!userID||!userID.length||userID.length<1){
     return false;
   }
   const response = await fetch(`https://www.prolific.co/api/v1/users/${userID}/`, { credentials: 'omit', headers });
   if(response.status==404){
-    appendLog('ERROR PROLIFIC ID may be Invalid','error')
+    appendLog('ERROR PROLIFIC ID may be Invalid','error',`ERROR PROLIFIC ID may be Invalid\nID: ${userID}`)
     return false;
   }
-  appendLog('ERROR PROLIFIC ID is valid','status')
+  appendLog('PROLIFIC ID is valid','status',`PROLIFIC ID is valid ID: ${userID}`)
   return true;
 }
 

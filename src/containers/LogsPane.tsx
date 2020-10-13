@@ -6,8 +6,6 @@ import { selectLogs } from '../store/session/selectors';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Button from 'react-bootstrap/Button';
-import { browser } from 'webextension-scripts/polyfill';
-import moment from 'moment';
 import Nav from 'react-bootstrap/Nav';
 import { logUpdate } from '../store/prolific/actions';
 
@@ -45,11 +43,18 @@ export function LogsPane() {
       let value = String(JSON.stringify(el.data));
       let timestamp = (el.timestamp);
       let date_f = formatDate(timestamp);
-      let key = timestamp+"_log-"+Math.random()
+      let key = timestamp + '_log-' + Math.random();
+      let desc = <div className="log_tooltip">TYPE: {el.type}<br />{el.desc}</div>;
+      //console.log(desc);
       let el2 = (<div key={key}>
         <div className={`log_type_${el.type} log_el`}>
-          <div className="log_time">{date_f}</div>
-          <div className="log_data">{value}</div>
+          <div>
+            <div className="log_time">{date_f}</div>
+            <OverlayTrigger placement="auto" overlay={<Tooltip id={`log_type_${el.type}_tooltip`}>{desc}</Tooltip>}>
+              <div className="log_data">{value}</div>
+            </OverlayTrigger>
+          </div>
+
         </div>
       </div>);
       elements.push(el2);
@@ -85,10 +90,12 @@ export function LogsPane() {
         </div>
         <div className="clearlogs_btn">
           <Nav.Item>
-            <Button onClick={() => {dispatch(logUpdate([]))}}>
+            <Button onClick={() => {
+              dispatch(logUpdate([]));
+            }}>
               CLEAR
             </Button>
-        </Nav.Item>
+          </Nav.Item>
         </div>
       </Form.Group>
     </Tab.Pane>

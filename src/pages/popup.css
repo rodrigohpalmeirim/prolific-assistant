@@ -64,3 +64,7 @@
   display: inline;
   margin-left: 10px;
 }
+
+.log_tooltip{
+  white-space: pre-line;
+}

@@ -14,8 +14,8 @@ export function WarnMsg() {
   const acc_info = useSelector(selectAcc_Info);
   const error = useSelector(selectProlificError);
 
-  let msg = <div />;
-  let actions = <div />;
+  let msg:JSX.Element = <div />;
+  let actions:JSX.Element = <div />;
 
   if (acc_info.status != 'OK') {
     actions = generateActions([(<button className="btn btn-primary" onClick={_ => {
@@ -64,8 +64,8 @@ function generateWarnBox(txt: string,actions: {}, color: string) {
 function generateActions(actions: JSX.Element[]) {
   let els: any = [];
 
-  actions.forEach(el => {
-    els.push(<div className="warn_box_action">{el}</div>);
+  actions.forEach((el,i) => {
+    els.push(<div className="warn_box_action" key={`warn_box_action_${i}`}>{el}</div>);
   });
   //console.log(els)
   return (<div>
