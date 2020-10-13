@@ -14,7 +14,7 @@ export interface SettingsState {
   check_interval: number;
   desktop_notifications: boolean;
   theme: string;
-  uid:string;
+  uid: string;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
@@ -26,19 +26,22 @@ export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
 export const SETTING_THEME = 'SETTING_THEME';
 export const SETTING_UID = 'SETTING_UID';
 export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
+export const RESET = 'RESET';
+export const RELOAD = 'RELOAD';
 
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
   payload: SettingsState['alert_sound'];
 }
+
 export interface TestingAlertSoundAction {
   type: typeof TEST_ALERT_SOUND;
-  payload: "";
+  payload: '';
 }
 
 export interface TestingStudyAction {
   type: typeof TEST_STUDY;
-  payload: "";
+  payload: '';
 }
 
 export interface SettingAlertVolumeAction {
@@ -71,6 +74,14 @@ export interface SettingAutostartAction {
   payload: SettingsState['autostart'];
 }
 
+export interface ResetSettingsAction {
+  type: typeof RESET;
+  payload: '';
+}
+export interface ReloadAction {
+  type: typeof RELOAD;
+  payload: '';
+}
 
 export type SettingsActionTypes =
   | SettingAlertSoundAction
@@ -80,3 +91,5 @@ export type SettingsActionTypes =
   | SettingThemeAction
   | SettingAutostartAction
   | SettingUIDAction
+  | ResetSettingsAction
+  | ReloadAction

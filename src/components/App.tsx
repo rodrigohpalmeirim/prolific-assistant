@@ -16,11 +16,17 @@ export let themes: any = {
   white: {
     hover:'#d4d4d4'
   },
-  dark: {
+  "Dark Blue": {
     theme1bg:'#282828',theme1fg:'white',
     theme2bg:'#151515',theme2fg:'white',
     theme3bg:'#131313',
     hover:'#101010'
+  },
+  "Dark Red": {
+    theme1bg:'#282828',theme1fg:'white',
+    theme2bg:'#151515',theme2fg:'white',
+    theme3bg:'#131313',theme_fg:'#ff0000',navbar:'var(--theme3bg)',
+    hover:'#101010'   ,theme_bfg:'#750000',theme_bfg_h:'#b50000',
   },
 };
 export let themeApplyCSS = [
@@ -29,7 +35,15 @@ export let themeApplyCSS = [
   '.theme1{background-color: var(--theme1bg);color: var(--theme1fg);}',
   '.theme2{background-color: var(--theme2bg);color: var(--theme2fg);}',
   '.nav_btn:hover{background-color: var(--hover);opacity: 0.8;}',
-  '.card {background-color: var(--theme3bg);}'
+  '.card {background-color: var(--theme3bg);}',
+  '.btn-primary{background-color: var(--theme_bfg); border-color: var(--theme_bfg) !important;}',
+  '.nav-link.active{background-color: var(--theme_bfg) !important; border-color: var(--theme_bfg) !important;}',
+  '.nav-link{color: var(--theme_fg);}',
+  '.btn-primary:hover{background-color: var(--theme_bfg_h); border-color: var(--theme_bfg) !important;}',
+  '.navbar {background-color: var(--navbar) !important;}',
+  'a:hover{color:var(--theme_fg)}',
+  '.acc_property_h_s{background-color: var(--theme2bg);}',
+  '.acc_property_h_f{background-color: var(--theme2bg);}',
 ]
 
 
@@ -40,7 +54,33 @@ export function returnTheme(theme: string) {
       css += `--${key}: ${themes[theme][key]};`
     })
   } catch {}
-  return `:root{${css}} ${themeApplyCSS.join('\n')}`;
+  return `:root{${css}} ${prepareApplyCSS()}`;
+  function prepareApplyCSS(){
+    let css = themeApplyCSS;
+    let keys = Object.keys(themes[theme])
+    let csskeys = [];
+    let regex = /var\(--([a-z0-9A-Z_]*)\)/gm;
+    css.forEach(el=>{
+      let m;
+      while ((m = regex.exec(el)) !== null) {
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+          regex.lastIndex++;
+        }
+
+        // The result can be accessed through the `m`-variable.
+        m.forEach((match, groupIndex) => {
+          if(groupIndex==1){
+            if(!keys.includes(match)){
+              css[css.indexOf(el)] = '';
+            }
+          }
+        });
+      }
+    })
+
+    return css.join('\n');
+  }
 }
 
 export let key: any, setKey:any

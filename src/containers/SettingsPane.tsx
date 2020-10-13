@@ -8,7 +8,13 @@ import {
   settingAlertSound,
   settingAlertVolume,
   settingCheckInterval,
-  settingDesktopNotifications, testingAlertSound, settingTheme, settingAutoStart, testingStudy, settingUID,
+  settingDesktopNotifications,
+  testingAlertSound,
+  settingTheme,
+  settingAutoStart,
+  testingStudy,
+  settingUID,
+  resetSettings, reload,
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import moment from 'moment';
@@ -50,11 +56,14 @@ export function SettingsPane() {
 
     if (15 <= value) {
       dispatch(settingCheckInterval(Number(event.target.value)));
+    }else {
+      dispatch(settingCheckInterval(15));
     }
   }
 
   function onChangeTheme(event: any) {
     dispatch(settingTheme(event.target.value));
+    location.href = "?v=settings"
   }
 
   function onChangeDesktopNotification(event: any) {
@@ -72,6 +81,14 @@ export function SettingsPane() {
       elements.push(<option key={str} value={str}>{fstr}</option>)
     })
     return elements
+  }
+  function ResetSettings(){
+    dispatch(resetSettings())
+    Reload();
+  }
+  function Reload(){
+    dispatch(reload())
+    location.reload();
   }
 
   return (
@@ -145,6 +162,19 @@ export function SettingsPane() {
         <Form.Control as="select" onChange={onChangeTheme} value={settings.theme}>
           {createThemesOptions()}
         </Form.Control>
+      </Form.Group>
+      <Form.Group>
+        <Button className="btn-danger" onClick={() => {
+          ResetSettings()
+        }}>
+          RESET SETTINGS
+        </Button>
+        &nbsp;&nbsp;&nbsp;
+        <Button onClick={() => {
+          Reload();
+        }}>
+          RELOAD
+        </Button>
       </Form.Group>
     </Tab.Pane>
   );

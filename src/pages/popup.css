@@ -68,3 +68,31 @@
 .log_tooltip{
   white-space: pre-line;
 }
+
+.btn-danger{
+  background-color: var(--danger);
+  border-color: var(--danger);
+}
+.acc_f_s_i {
+  top: 7px;
+  position: relative;
+  text-align: center;
+  font-size: 20px;
+}
+.acc_f_f_i{
+  bottom: 2px;
+  position: relative;
+  text-align: center;
+}
+.inline{
+  display: inline;
+}
+.acc_property_h_s{
+  height: 48px;
+  margin: 5px;
+}
+.acc_property_h_f{
+  height: 24px;
+  margin: 3px;
+  display: block ruby;
+}

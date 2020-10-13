@@ -1,18 +1,26 @@
 import {
+  RELOAD,
+  ReloadAction,
+  RESET,
+  ResetSettingsAction,
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
   SETTING_DESKTOP_NOTIFICATIONS,
-  SETTING_THEME, SETTING_UID,
+  SETTING_THEME,
+  SETTING_UID,
   SettingAlertSoundAction,
   SettingAlertVolumeAction,
   SettingAutostartAction,
   SettingCheckIntervalAction,
   SettingsDesktopNotificationAction,
-  SettingThemeAction, SettingUIDAction,
-  TEST_ALERT_SOUND, TEST_STUDY,
-  TestingAlertSoundAction, TestingStudyAction,
+  SettingThemeAction,
+  SettingUIDAction,
+  TEST_ALERT_SOUND,
+  TEST_STUDY,
+  TestingAlertSoundAction,
+  TestingStudyAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -75,5 +83,16 @@ export function settingAutoStart(payload: SettingAutostartAction['payload']): Se
   return {
     type: SETTING_AUTOSTART,
     payload,
+  };
+}
+
+export function resetSettings(): ResetSettingsAction {
+  return {
+    type: RESET, payload: ''
+  };
+}
+export function reload(): ReloadAction {
+  return {
+    type: RELOAD, payload: ''
   };
 }
