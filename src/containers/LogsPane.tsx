@@ -8,63 +8,39 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import { logUpdate } from '../store/prolific/actions';
+import { setKey } from '../components/App';
+import { noop } from '../store/settings/actions';
 
 function onChangeLogsType(event: any) {
   try {
     let value = event.target.value;
+    logsType = value;
     if (value == 'all') {
-      document.querySelectorAll('.log_el').forEach((el: any) => el.style.display = 'revert');
+      logsTypes = ['all'];
     } else if (value == 'status_e_s') {
-      document.querySelectorAll('.log_el').forEach((el: any) => el.style.display = 'none');
-      document.querySelectorAll(`.log_type_success`).forEach((el: any) => el.style.display = 'revert');
-      document.querySelectorAll(`.log_type_error`).forEach((el: any) => el.style.display = 'revert');
-      document.querySelectorAll(`.log_type_studies`).forEach((el: any) => el.style.display = 'revert');
+      logsTypes = ['success', 'error', 'studies'];
     } else {
-      try {
-        document.querySelectorAll('.log_el').forEach((el: any) => el.style.display = 'none');
-        document.querySelectorAll(`.log_type_${value}`).forEach((el: any) => el.style.display = 'revert');
-      } catch {
-      }
+      logsTypes = [value];
     }
+
   } catch {
   }
 }
 
 let logs: any;
 let logsType = 'studies_e_s';
+let logsTypes = ['success', 'error', 'studies'];
 
 export function LogsPane() {
   const dispatch = useDispatch();
   logs = useSelector(selectLogs);
-  const elements: any = [];
-  //console.log(logs)
-  try {
-    logs.forEach((el: any, i: number) => {
-      let value = String(JSON.stringify(el.data));
-      let timestamp = (el.timestamp);
-      let date_f = formatDate(timestamp);
-      let key = timestamp + '_log-' + Math.random();
-      let desc = <div className="log_tooltip">TYPE: {el.type}<br />{el.desc}</div>;
-      //console.log(desc);
-      let el2 = (<div key={key}>
-        <div className={`log_type_${el.type} log_el`}>
-          <div>
-            <div className="log_time">{date_f}</div>
-            <OverlayTrigger placement="auto" overlay={<Tooltip id={`log_type_${el.type}_tooltip`}>{desc}</Tooltip>}>
-              <div className="log_data">{value}</div>
-            </OverlayTrigger>
-          </div>
 
-        </div>
-      </div>);
-      elements.push(el2);
-    });
-  } catch {
-  }
   let html = (
     <Tab.Pane className="p-1 logs" eventKey="logs">
       <Form.Group>
-        <Form.Control as="select" onChange={onChangeLogsType}>
+        <Form.Control as="select" onChange={event=>{onChangeLogsType(event);setKey('empty');setTimeout(function(){
+          setKey('logs')
+        },0)}}>
           <option value="status_e_s">STUDIES & ERROR/SUCCESS</option>
           <option value="all">ALL</option>
           <option value="studies">STUDIES</option>
@@ -72,12 +48,11 @@ export function LogsPane() {
           <option value="error">ERROR</option>
           <option value="status">STATUS</option>
         </Form.Control>
-        <style>{`.log_el{display:none};`}</style>
         <style>{`
         .log_type_0-studies {color: #595959;}
-        .log_type_success {color: lime;display:revert}
-        .log_type_error {color: red;display:revert}
-        .log_type_studies {color: #ff6c00;display:revert}
+        .log_type_success {color: lime;}
+        .log_type_error {color: red;}
+        .log_type_studies {color: #ff6c00;}
         .log_type_status {color: #36bdff;}
         .clearlogs_btn{
         position: absolute;
@@ -86,12 +61,13 @@ export function LogsPane() {
         }
         `}</style>
         <div className="log-box">
-          {elements}
+          {elements()}
         </div>
         <div className="clearlogs_btn">
           <Nav.Item>
             <Button onClick={() => {
               dispatch(logUpdate([]));
+              logs = [];
             }}>
               CLEAR
             </Button>
@@ -117,4 +93,37 @@ function formatDate(date: any) {
     sec = '0' + sec;
 
   return [hour, min, sec].join(':');
+}
+
+function elements(){
+  const elements: any = [];
+  //console.log(logs)
+  try {
+    logs.forEach((el: any, i: number) => {
+        if (logsTypes.includes(el.type) || logsTypes.includes('all')) {
+          let value = String(JSON.stringify(el.data));
+          let timestamp = (el.timestamp);
+          let date_f = formatDate(timestamp);
+          let key = timestamp + '_log-' + Math.random();
+          let desc = <div className="log_tooltip">TYPE: {el.type}<br />{el.desc}</div>;
+          //console.log(desc);
+          let el2 = (<div key={key}>
+            <div className={`log_type_${el.type} log_el`}>
+              <div>
+                <div className="log_time">{date_f}</div>
+                <OverlayTrigger placement="auto" overlay={<Tooltip id={`log_type_${el.type}_tooltip`}>{desc}</Tooltip>}>
+                  <div className="log_data">{value}</div>
+                </OverlayTrigger>
+              </div>
+
+            </div>
+          </div>);
+          elements.push(el2);
+        }
+      },
+    );
+
+  } catch {
+  }
+  return elements;
 }

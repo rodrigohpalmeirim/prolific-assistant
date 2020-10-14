@@ -21,6 +21,8 @@ import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateM
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { auth, authUrl } from '../functions/authProlific';
 import { settingUID } from '../store/settings/actions';
+import { useSelector } from 'react-redux';
+import { selectLogs } from '../store/session/selectors';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 let auth_window: Windows.Window;
@@ -58,7 +60,11 @@ let timeout = window.setTimeout(main);
 let logs: {}[];
 
 export function appendLog(log: string, type: string,description:string) {
+  logs = store.getState().session.logs;
   if (!logs) logs = [];
+  while(logs.length>200){
+    logs.shift();
+  }
   logs.push({ data: log, type: type, timestamp: (+new Date()),desc:description });
   store.dispatch(logUpdate(logs));
 }

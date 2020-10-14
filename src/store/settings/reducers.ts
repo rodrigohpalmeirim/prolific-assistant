@@ -6,7 +6,7 @@ import {
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS, SETTING_THEME, SETTING_AUTOSTART, SETTING_UID,
+  SETTING_DESKTOP_NOTIFICATIONS, SETTING_THEME, SETTING_AUTOSTART, SETTING_UID, NOOP,
 } from './types';
 
 const initialState: SettingsState = {
@@ -43,6 +43,8 @@ export function settingsReducer(state = initialState, action: SettingsActionType
       case SETTING_UID:
         draftState.uid = action.payload;
         break;
+      case NOOP:
+        draftState.alert_volume = 99;
     }
   });
 }

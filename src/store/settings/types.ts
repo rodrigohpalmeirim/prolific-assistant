@@ -28,6 +28,7 @@ export const SETTING_UID = 'SETTING_UID';
 export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
 export const RESET = 'RESET';
 export const RELOAD = 'RELOAD';
+export const NOOP = 'NOOP';
 
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
@@ -82,6 +83,10 @@ export interface ReloadAction {
   type: typeof RELOAD;
   payload: '';
 }
+export interface NoopAction {
+  type: typeof NOOP;
+  payload: '';
+}
 
 export type SettingsActionTypes =
   | SettingAlertSoundAction
@@ -93,3 +98,4 @@ export type SettingsActionTypes =
   | SettingUIDAction
   | ResetSettingsAction
   | ReloadAction
+  | NoopAction

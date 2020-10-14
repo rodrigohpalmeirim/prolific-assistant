@@ -1,4 +1,5 @@
 import {
+  NOOP, NoopAction,
   RELOAD,
   ReloadAction,
   RESET,
@@ -94,5 +95,10 @@ export function resetSettings(): ResetSettingsAction {
 export function reload(): ReloadAction {
   return {
     type: RELOAD, payload: ''
+  };
+}
+export function noop(): NoopAction {
+  return {
+    type: NOOP, payload: ''
   };
 }
