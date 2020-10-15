@@ -11,3 +11,7 @@ export function selectSessionLastChecked(state: AppState) {
 export function selectLogs(state: AppState) {
   return state.session.logs;
 }
+
+export function selectPopup(state:AppState){
+  return state.session.popup;
+}

@@ -36,10 +36,3 @@ export function accInfoUpdate(payload: AccInfoUpdateAction['payload']): AccInfoU
     payload,
   };
 }
-
-export function logUpdate(payload: SessionLogs['payload']): SessionLogs {
-  return {
-    type: SESSION_LOGS,
-    payload,
-  };
-}

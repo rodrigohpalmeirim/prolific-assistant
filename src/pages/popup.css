@@ -65,14 +65,10 @@
   margin-left: 10px;
 }
 
-.log_tooltip{
+.log_tooltip,.raw{
   white-space: pre-line;
 }
 
-.btn-danger{
-  background-color: var(--danger);
-  border-color: var(--danger);
-}
 .acc_f_s_i {
   top: 7px;
   position: relative;
@@ -99,3 +95,46 @@
 
 .acc_property_h_s{background-color: #e5e5e5;}
 .acc_property_h_f{background-color: #e5e5e5;}
+
+.i_popup{
+  position: absolute;
+  left: calc(50% - 250px);
+  top: calc(50% - 100px);
+  width: 500px;
+  height: 200px;
+  opacity: 1;
+  display: grid;
+  border-style: solid;
+  z-index: 1000;
+  background-color: #f0f0f0
+}
+
+.i_popup_f{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  opacity: 0.3;
+}
+.i_popup_txt.raw {
+  text-align: center;
+  position: relative;
+  width: 500px;
+  min-width: 500px;
+  top: 30px;
+}
+.i_popup_btn {
+  left: calc(50% - 19px);
+  position: relative;
+  bottom: -40px;
+}
+
+.middle{
+  text-align: center;
+}
+
+.c-red{
+  color: red;
+}
+.card{
+  margin: 6px;
+}

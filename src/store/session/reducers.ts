@@ -1,9 +1,9 @@
 import produce from 'immer';
 
-import { SessionState, SessionActionTypes, SESSION_LAST_CHECKED, SESSION_LOGS } from './types';
+import { SessionState, SessionActionTypes, SESSION_LAST_CHECKED, SESSION_LOGS, POPUP } from './types';
 
 const initialState: SessionState = {
-  last_checked: 0,  logs: [],
+  last_checked: 0,  logs: [],popup:{}
 };
 
 export function sessionReducer(state = initialState, action: SessionActionTypes) {
@@ -16,6 +16,8 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
         let date = + new Date()
         draftState.logs= action.payload
         break;
+      case POPUP:
+        draftState.popup = action.payload;
     }
   });
 }

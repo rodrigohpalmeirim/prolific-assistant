@@ -11,17 +11,16 @@ import { openProlificStudy } from '../functions/openProlificStudy';
 import { configureStore } from '../store';
 import {
   accInfoUpdate,
-  logUpdate,
   prolificErrorUpdate,
   prolificStudiesUpdate,
   prolificSubmissionsUpdate,
 } from '../store/prolific/actions';
-import { sessionLastChecked } from '../store/session/action';
+import { sessionLastChecked, popup, logUpdate } from '../store/session/actions';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { auth, authUrl } from '../functions/authProlific';
 import { settingUID } from '../store/settings/actions';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectLogs } from '../store/session/selectors';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
@@ -240,6 +239,14 @@ browser.webRequest.onBeforeRequest.addListener(
 browser.runtime.onMessage.addListener((message) => {
   if (message === 'check_for_studies') {
     main();
+  }
+  if (message === 'check_for_studies-cuid') {
+    main();
+    if(userID==store.getState().settings.uid){
+      store.dispatch(popup(({type:"ok",text:`Prolific ID Changed to:\n${userID}`})))
+    }else {
+      store.dispatch(popup(({type:"ok",text:`Prolific ID is Invalid:\n${store.getState().settings.uid}`})))
+    }
   }
 });
 browser.webRequest.onHeadersReceived.addListener(

@@ -7,9 +7,9 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
-import { logUpdate } from '../store/prolific/actions';
 import { setKey } from '../components/App';
 import { noop } from '../store/settings/actions';
+import { logUpdate } from '../store/session/actions';
 
 function onChangeLogsType(event: any) {
   try {

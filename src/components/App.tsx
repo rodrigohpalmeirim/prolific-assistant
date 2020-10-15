@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
 import { SubmissionsPage } from '../containers/SubmissionsPane';
 import { WarnMsg } from '../containers/WarnMsg';
+import { InfoPopup } from '../containers/Popup_Info';
 
 export let themes: any = {
   white: {
@@ -19,7 +20,7 @@ export let themes: any = {
   "Dark Blue": {
     theme1bg:'#282828',theme1fg:'white',
     theme2bg:'#151515',theme2fg:'white',
-    theme3bg:'#131313',
+    theme3bg:'#131313',theme_bfg:'#007bff',
     hover:'#101010'
   },
   "Dark Red": {
@@ -44,6 +45,12 @@ export let themeApplyCSS = [
   'a:hover{color:var(--theme_fg)}',
   '.acc_property_h_s{background-color: var(--theme2bg);}',
   '.acc_property_h_f{background-color: var(--theme2bg);}',
+  '.btn-primary:not(:disabled):not(.disabled):active {background-color: var(--theme_bfg)}',
+  '.btn-primary:focus{background-color: var(--theme_bfg_h);}',
+  '.btn-primary:not(:disabled):not(.disabled):active:focus{box-shadow: var(--theme_bfg);}',
+  '.btn-primary:focus{box-shadow: var(--theme_bfg);}',
+  '.i_popup,.i_popup_f{background-color: var(--theme3bg);color: var(--theme1fg);}',
+  '.i_popup{border-color: var(--theme_bfg);}',
 ]
 
 
@@ -96,6 +103,7 @@ export function AppV(view: string) {
 
   let html = (
     <Tab.Container activeKey={key} onSelect={onSelect}>
+      <InfoPopup/>
       <style>
         {`${returnTheme(settings.theme)}`}
       </style>

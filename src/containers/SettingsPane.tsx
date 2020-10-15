@@ -129,7 +129,7 @@ export function SettingsPane() {
         <Button onClick={() => {
           // @ts-ignore
           onChangeUID(document.getElementById('uid_box').value)
-          browser.runtime.sendMessage('check_for_studies')
+          browser.runtime.sendMessage('check_for_studies-cuid')
         }}>
           SET Prolific ID
         </Button>
@@ -164,7 +164,7 @@ export function SettingsPane() {
         </Form.Control>
       </Form.Group>
       <Form.Group>
-        <Button className="btn-danger" onClick={() => {
+        <Button onClick={() => {
           ResetSettings()
         }}>
           RESET SETTINGS

@@ -7,7 +7,6 @@ import {
   PROLIFIC_SUBMISSIONS_UPDATE,
   ProlificActionTypes,
 } from './types';
-import { authProlificTab } from '../../functions/authProlific';
 
 const initialState: any = {
   error: undefined,

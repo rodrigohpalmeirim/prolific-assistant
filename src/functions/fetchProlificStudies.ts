@@ -71,6 +71,7 @@ export async function checkUserID(authHeader: any,userID:string,store: Store){
     return false;
   }
   appendLog('PROLIFIC ID is valid','status',`PROLIFIC ID is valid ID: ${userID}`)
+  store.dispatch(settingUID(userID))
   return true;
 }
 
