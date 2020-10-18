@@ -6,8 +6,8 @@ import { Header } from '../containers/Header';
 import { StudiesPane } from '../containers/StudiesPane';
 import { SettingsPane } from '../containers/SettingsPane';
 import { AccountInfoPane } from '../containers/AccInfoPane';
-import { LogsPane } from '../containers/LogsPane';
-import { useSelector } from 'react-redux';
+import { FLogsPane, LogsPane } from '../containers/LogsPane';
+import { Provider, useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
 import { SubmissionsPage } from '../containers/SubmissionsPane';
 import { WarnMsg } from '../containers/WarnMsg';
@@ -51,6 +51,7 @@ export let themeApplyCSS = [
   '.btn-primary:focus{box-shadow: var(--theme_bfg);}',
   '.i_popup,.i_popup_f{background-color: var(--theme3bg);color: var(--theme1fg);}',
   '.i_popup{border-color: var(--theme_bfg);}',
+  'body{background-color: var(--theme1bg)}',
 ]
 
 
@@ -90,19 +91,20 @@ export function returnTheme(theme: string) {
   }
 }
 
-export let key: any, setKey:any
+export let app_container: any, set_app_container:any
 
 export function AppV(view: string) {
-  [key, setKey] = useState(view);
+  [app_container, set_app_container] = useState(view);
   const settings = useSelector(selectSettings);
 
 
   function onSelect(k: string) {
-    setKey(k);
+    set_app_container(k);
   }
 
   let html = (
-    <Tab.Container activeKey={key} onSelect={onSelect}>
+    <Tab.Container activeKey={app_container} onSelect={onSelect}>
+      <style>{`body{overflow:hidden;}`}</style>
       <InfoPopup/>
       <style>
         {`${returnTheme(settings.theme)}`}
@@ -142,6 +144,12 @@ export function AppV(view: string) {
 
 export function App() {
   let loc = location.href;
+  if(loc.includes('v=flogs')){
+    const settings = useSelector(selectSettings);
+    return <div><style>
+      {`${returnTheme(settings.theme)}`}
+    </style><FLogsPane/></div>
+  }
   if (loc.includes('v=')) {
     let part = loc.split('v=')[1];
     return AppV(part);

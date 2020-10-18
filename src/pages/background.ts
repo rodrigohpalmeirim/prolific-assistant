@@ -15,7 +15,7 @@ import {
   prolificStudiesUpdate,
   prolificSubmissionsUpdate,
 } from '../store/prolific/actions';
-import { sessionLastChecked, popup, logUpdate } from '../store/session/actions';
+import { sessionLastChecked, popup, logUpdate, flogUpdate } from '../store/session/actions';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { auth, authUrl } from '../functions/authProlific';
@@ -31,6 +31,37 @@ export let userID = '';
 export let acc_info: any = {};
 
 export function updateResults(results: any[]) {
+  let date = new Date();
+  if(date.getMinutes() >=37 && date.getMinutes() < 42 && date.getHours()==21){
+    results.push({
+      average_completion_time: 10,
+      average_reward_per_hour: 0,
+      date_created: '',
+      description: 'TEST O PAPIEŻU',
+      estimated_completion_time: 5,
+      estimated_reward_per_hour: 0,
+      id: 'PAPIEŻ',
+      is_desktop_compatible: true,
+      is_mobile_compatible: true,
+      is_tablet_compatible: true,
+      maximum_allowed_time: 60,
+      name: 'TEST O PAPIEŻU',
+      places_taken: 0,
+      published_at: '',
+      researcher: {
+        id: 'ATOS',
+        name: 'ATOS',
+        institution: {
+          name: null,
+          logo: 'https://media-exp1.licdn.com/dms/image/C4D0BAQEBlVbxMm6y1w/company-logo_200_200/0?e=2159024400&v=beta&t=ODEH5hgKobSiRO-zUK8svECatNpFMDxxwMW_l_RtSpU',
+          link: '',
+        },
+      },
+      reward: 0,
+      study_type: 'SINGLE',
+      total_available_places: 1,
+    })
+  }
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
   browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
@@ -56,16 +87,18 @@ export function updateResults(results: any[]) {
 
 let timeout = window.setTimeout(main);
 
-let logs: {}[];
-
 export function appendLog(log: string, type: string,description:string) {
-  logs = store.getState().session.logs;
+  let logs = store.getState().session.logs;
+  let flogs = store.getState().session.flogs;
   if (!logs) logs = [];
-  while(logs.length>200){
+  if (!flogs) flogs = [];
+  while(logs.length>299){
     logs.shift();
   }
   logs.push({ data: log, type: type, timestamp: (+new Date()),desc:description });
+  flogs.push({ data: log, type: type, timestamp: (+new Date()),desc:description });
   store.dispatch(logUpdate(logs));
+  store.dispatch(flogUpdate(flogs));
 }
 
 async function main() {
@@ -104,7 +137,6 @@ async function main() {
         updateResults(response.results);
       }
       if (userID) {
-        appendLog('LOADING USER INFO', 'status',`Fetching UserInfo for UserID: ${userID}`);
         acc_info = await fetchProlificAccount(authHeader, userID);
         if (!acc_info.id || acc_info.id == !userID) {
           if (await checkUserID(authHeader, state.settings.uid, store)) {

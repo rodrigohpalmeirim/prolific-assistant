@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { Popover } from 'react-bootstrap';
-import { setKey } from '../components/App';
+import { set_app_container } from '../components/App';
 import { browser } from 'webextension-scripts/polyfill';
 
 export function WarnMsg() {
@@ -22,7 +22,7 @@ export function WarnMsg() {
       window.open('http://app.prolific.co', '_blank');
     }}>Navigate to prolific</button>), (<button className="btn btn-primary" onClick={_ => {
       //location.href = '?v=accinfo';
-      setKey('accinfo')
+      set_app_container('accinfo')
     }}>Account Info</button>)]);
     msg = generateWarnBox(`ACCOUNT STATUS is ${acc_info.status}.`,actions, '#f00');
   }
@@ -32,7 +32,7 @@ export function WarnMsg() {
       window.open('http://app.prolific.co', '_blank');
     }}>Navigate to prolific</button>), (<button className="btn btn-primary" onClick={_ => {
       //location.href = '?v=settings';
-      setKey('settings')
+      set_app_container('settings')
     }}>Settings</button>)]);
     msg = generateWarnBox('PROLIFIC ID is undefined. Enter it in settings or navigate to app.prolific.co page',actions, '#f00');
   }

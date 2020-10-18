@@ -1,6 +1,6 @@
 {
   "name": "prolific-assistant",
-  "version": "4.20.0",
+  "version": "4.21.37.2",
   "description": "Monitors https://prolific.co/ for new studies.",
   "license": "ISC",
   "scripts": {

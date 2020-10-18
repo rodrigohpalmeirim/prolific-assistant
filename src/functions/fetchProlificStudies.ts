@@ -1,4 +1,4 @@
-import { appendLog } from '../pages/background';
+import { appendLog, userID } from '../pages/background';
 import { settingUID } from '../store/settings/actions';
 import { Store } from 'redux';
 
@@ -16,7 +16,14 @@ export async function fetchProlificAccount(authHeader: any,userID:string) {
   const headers = { [name]: value }
   // omit credentials here, since auth is handled via the bearer token
   const response = await fetch(`https://www.prolific.co/api/v1/users/${userID}/`, { credentials: 'omit', headers });
-  return await response.json();
+  let json = await response.json();
+  if(json.error){
+    appendLog('ERROR while loading user info', 'error',`ERROR while loading user info\nUserID: ${userID}\n STATUS ${response.status}\n ERROR: ${JSON.stringify(json.error)}`);
+  }else {
+    appendLog('Successfully loaded user info', 'status',`Successfully loaded user info\nUserID: ${userID}\n STATUS ${response.status}`);
+
+  }
+  return json
 }
 
 export async function fetchProlificSubmissions(authHeader: any,userID:string) {
@@ -26,7 +33,7 @@ export async function fetchProlificSubmissions(authHeader: any,userID:string) {
   const response = await fetch(`https://www.prolific.co/api/v1/submissions/?participant=${userID}&page=1`, { credentials: 'omit', headers });
   let json = await response.json()
   if(json.error){
-    appendLog('ERROR while reading submissions','error',`ERROR while reading submissions\nUSERID: ${userID}\nERROR: ${json.error}\nSTATUS: ${response.status}`)
+    appendLog('ERROR while reading submissions','error',`ERROR while reading submissions\nUSERID: ${userID}\nERROR: ${JSON.stringify(json.error)}\nSTATUS: ${response.status}`)
   }else {
     appendLog('Successfully fetched submissions','status',`Successfully fetched submissions\nUSERID: ${userID}\nSTATUS: ${response.status}`)
 
@@ -48,10 +55,9 @@ export async function fetchStartStudy(authHeader: any,userID:string,studyID:stri
   }))
   let json = JSON.parse(req.responseText);
   if(json.error){
-    appendLog(`ERROR while starting study`,"error",`ERROR while starting study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nERROR: ${json.error}\nSTATUS: ${req.status}`)
+    appendLog(`ERROR while starting study`,"error",`ERROR while starting study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nERROR: ${JSON.stringify(json.error)}\nSTATUS: ${req.status}`)
   }else {
     appendLog(`Successfully started study`,"success",`Successfully started study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nSTATUS: ${req.status}`)
-
   }
 
   console.log(json)

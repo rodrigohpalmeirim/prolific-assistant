@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { Nav, Popover } from 'react-bootstrap';
-import { setKey } from '../components/App';
+import { set_app_container } from '../components/App';
 import { browser } from 'webextension-scripts/polyfill';
 import Button from 'react-bootstrap/Button';
 import { logUpdate, popup } from '../store/session/actions';

@@ -138,3 +138,8 @@
 .card{
   margin: 6px;
 }
+
+.balance_type{
+  width: 80px;
+  display: inline-block;
+}

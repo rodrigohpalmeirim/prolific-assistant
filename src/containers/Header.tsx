@@ -23,9 +23,11 @@ export function Header() {
         <Nav.Link href="https://app.prolific.co/studies">Studies</Nav.Link>
       </Nav>
       <Nav className="mr-auto">
-        <WarnMsg/>
+        <WarnMsg />
         <Nav.Link href="https://app.prolific.co/account">
-          <OverlayTrigger placement="bottom" overlay={<Tooltip id="balance-tooltip">{<div>PROLIFIC ID:<br/>{returnUserID()}</div>}</Tooltip>}>
+          <OverlayTrigger placement="bottom"
+                          overlay={<Tooltip id="balance-tooltip">{<div>PROLIFIC ID:<br />{returnUserID()}
+                          </div>}</Tooltip>}>
             <div>
               <div>
                 ACCOUNT ID:
@@ -76,7 +78,11 @@ function formatBalanceFull() {
     let balance = centsToGBP(acc_info.balance);
     let pending = centsToGBP(acc_info.pending_balance);
     let all = centsToGBP(acc_info.balance + acc_info.pending_balance);
-    return (<div>BALANCE: {balance}<br />PENDING: {pending}<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALL: {all}</div>);
+    return (<div>
+      <div><div className="balance_type inline">BALANCE:</div> <div className="balance_value inline">{balance}</div></div>
+      <div><div className="balance_type inline">PENDING:</div> <div className="balance_value inline">{pending}</div></div>
+      <div><div className="balance_type inline">ALL:</div> <div className="balance_value inline">{all}</div></div>
+    </div>);
   } catch {
   }
 
