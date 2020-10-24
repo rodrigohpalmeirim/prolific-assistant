@@ -7,27 +7,26 @@ import { StudiesPane } from '../containers/StudiesPane';
 import { SettingsPane } from '../containers/SettingsPane';
 import { AccountInfoPane } from '../containers/AccInfoPane';
 import { FLogsPane, LogsPane } from '../containers/LogsPane';
-import { Provider, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
 import { SubmissionsPage } from '../containers/SubmissionsPane';
-import { WarnMsg } from '../containers/WarnMsg';
 import { InfoPopup } from '../containers/Popup_Info';
 
 export let themes: any = {
   white: {
-    hover:'#d4d4d4'
+    hover: '#d4d4d4',
   },
-  "Dark Blue": {
-    theme1bg:'#282828',theme1fg:'white',
-    theme2bg:'#151515',theme2fg:'white',
-    theme3bg:'#131313',theme_bfg:'#007bff',
-    hover:'#101010'
+  'Dark Blue': {
+    theme1bg: '#282828', theme1fg: 'white',
+    theme2bg: '#151515', theme2fg: 'white',
+    theme3bg: '#131313', theme_bfg: '#007bff',
+    hover: '#101010',
   },
-  "Dark Red": {
-    theme1bg:'#282828',theme1fg:'white',
-    theme2bg:'#151515',theme2fg:'white',
-    theme3bg:'#131313',theme_fg:'#ff0000',navbar:'var(--theme3bg)',
-    hover:'#101010'   ,theme_bfg:'#750000',theme_bfg_h:'#b50000',
+  'Dark Red': {
+    theme1bg: '#282828', theme1fg: 'white',
+    theme2bg: '#151515', theme2fg: 'white',
+    theme3bg: '#131313', theme_fg: '#ff0000', navbar: 'var(--theme3bg)',
+    hover: '#101010', theme_bfg: '#750000', theme_bfg_h: '#b50000',
   },
 };
 export let themeApplyCSS = [
@@ -52,23 +51,24 @@ export let themeApplyCSS = [
   '.i_popup,.i_popup_f{background-color: var(--theme3bg);color: var(--theme1fg);}',
   '.i_popup{border-color: var(--theme_bfg);}',
   'body{background-color: var(--theme1bg)}',
-]
+];
 
 
 export function returnTheme(theme: string) {
-  let css = ''
+  let css = '';
   try {
-    Object.keys(themes[theme]).forEach(key=>{
-      css += `--${key}: ${themes[theme][key]};`
-    })
-  } catch {}
+    Object.keys(themes[theme]).forEach(key => {
+      css += `--${key}: ${themes[theme][key]};`;
+    });
+  } catch {
+  }
   return `:root{${css}} ${prepareApplyCSS()}`;
-  function prepareApplyCSS(){
+
+  function prepareApplyCSS() {
     let css = themeApplyCSS;
-    let keys = Object.keys(themes[theme])
-    let csskeys = [];
+    let keys = Object.keys(themes[theme]);
     let regex = /var\(--([a-z0-9A-Z_]*)\)/gm;
-    css.forEach(el=>{
+    css.forEach(el => {
       let m;
       while ((m = regex.exec(el)) !== null) {
         // This is necessary to avoid infinite loops with zero-width matches
@@ -78,20 +78,20 @@ export function returnTheme(theme: string) {
 
         // The result can be accessed through the `m`-variable.
         m.forEach((match, groupIndex) => {
-          if(groupIndex==1){
-            if(!keys.includes(match)){
+          if (groupIndex == 1) {
+            if (!keys.includes(match)) {
               css[css.indexOf(el)] = '';
             }
           }
         });
       }
-    })
+    });
 
     return css.join('\n');
   }
 }
 
-export let app_container: any, set_app_container:any
+export let app_container: any, set_app_container: any;
 
 export function AppV(view: string) {
   [app_container, set_app_container] = useState(view);
@@ -102,10 +102,10 @@ export function AppV(view: string) {
     set_app_container(k);
   }
 
-  let html = (
+  return (
     <Tab.Container activeKey={app_container} onSelect={onSelect}>
       <style>{`body{overflow:hidden;}`}</style>
-      <InfoPopup/>
+      <InfoPopup />
       <style>
         {`${returnTheme(settings.theme)}`}
       </style>
@@ -115,7 +115,7 @@ export function AppV(view: string) {
         <AccountInfoPane />
         <SettingsPane />
         <LogsPane />
-        <SubmissionsPage/>
+        <SubmissionsPage />
       </Tab.Content>
 
       <Nav className={'w-100 theme2'} variant="pills">
@@ -123,7 +123,7 @@ export function AppV(view: string) {
           <Nav.Link eventKey="studies">Studies</Nav.Link>
         </Nav.Item>
         <Nav.Item className="text-center w-25 nav_btn">
-        <Nav.Link eventKey="submissions">Submissions</Nav.Link>
+          <Nav.Link eventKey="submissions">Submissions</Nav.Link>
         </Nav.Item>
 
         <Nav.Item className="text-center w-50 nav_btn">
@@ -138,17 +138,17 @@ export function AppV(view: string) {
       </Nav>
     </Tab.Container>
   );
-  //console.log(html);
-  return html;
 }
 
 export function App() {
   let loc = location.href;
-  if(loc.includes('v=flogs')){
+  if (loc.includes('v=flogs')) {
     const settings = useSelector(selectSettings);
-    return <div><style>
-      {`${returnTheme(settings.theme)}`}
-    </style><FLogsPane/></div>
+    return <div>
+      <style>
+        {`${returnTheme(settings.theme)}`}
+      </style>
+      <FLogsPane /></div>;
   }
   if (loc.includes('v=')) {
     let part = loc.split('v=')[1];

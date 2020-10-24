@@ -1,5 +1,4 @@
 import { AppState } from '..';
-import { selectSession } from '../session/selectors';
 
 export function selectProlific(state: AppState) {
   return state.prolific;

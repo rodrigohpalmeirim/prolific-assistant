@@ -1,145 +1,172 @@
 .study-card:hover {
-  background: rgba(0, 123, 255, 0.25);
-  cursor: pointer;
+    background: rgba(0, 123, 255, 0.25);
+    cursor: pointer;
 }
 
 .split-with-bullets *:not(:first-child)::before {
-  content: ' • ';
+    content: ' • ';
 }
 
 .tooltip-inner {
-  line-height: 1.1;
-  max-width: 500px;
+    line-height: 1.1;
+    max-width: 500px;
 }
 
 .tooltip-table {
-  color: #f8f9fa !important;
+    color: #f8f9fa !important;
 }
 
 .tooltip-table td {
-  text-align: right !important;
+    text-align: right !important;
 }
 
 .tooltip-table td:last-child {
-  font-weight: bolder;
-  padding-left: 5px;
+    font-weight: bolder;
+    padding-left: 5px;
 }
 
 #root {
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
 }
 
 #root > .tab-content {
-  flex: 1;
-  overflow: auto;
+    flex: 1;
+    overflow: auto;
 }
 
-.nav-link{
-  text-align: center;
+.nav-link {
+    text-align: center;
 }
 
-.acc_property{
-  text-align: right;
-  display: inline-block;
-  width: 230px;
-  color: goldenrod;
+.acc_property {
+    text-align: right;
+    display: inline-block;
+    width: 230px;
+    color: goldenrod;
 }
 
-.acc_value{
-  display: inline;
+.acc_value {
+    display: inline;
 }
-.acc_property_h{
-  display:inline-flex
+
+.acc_property_h {
+    display: inline-flex
 }
 
 .log_time {
-  color: violet;
-  display: inline;
+    color: violet;
+    display: inline;
 }
 
 .log_data {
-  display: inline;
-  margin-left: 10px;
+    display: inline;
+    margin-left: 10px;
 }
 
-.log_tooltip,.raw{
-  white-space: pre-line;
+.log_tooltip, .raw {
+    white-space: pre-line;
 }
 
 .acc_f_s_i {
-  top: 7px;
-  position: relative;
-  text-align: center;
-  font-size: 20px;
-}
-.acc_f_f_i{
-  bottom: 2px;
-  position: relative;
-  text-align: center;
-}
-.inline{
-  display: inline;
-}
-.acc_property_h_s{
-  height: 48px;
-  margin: 5px;
-}
-.acc_property_h_f{
-  height: 24px;
-  margin: 3px;
-  display: block ruby;
+    top: 7px;
+    position: relative;
+    text-align: center;
+    font-size: 20px;
 }
 
-.acc_property_h_s{background-color: #e5e5e5;}
-.acc_property_h_f{background-color: #e5e5e5;}
-
-.i_popup{
-  position: absolute;
-  left: calc(50% - 250px);
-  top: calc(50% - 100px);
-  width: 500px;
-  height: 200px;
-  opacity: 1;
-  display: grid;
-  border-style: solid;
-  z-index: 1000;
-  background-color: #f0f0f0
+.acc_f_f_i {
+    bottom: 2px;
+    position: relative;
+    text-align: center;
 }
 
-.i_popup_f{
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  opacity: 0.3;
+.inline {
+    display: inline;
 }
+
+.acc_property_h_s {
+    height: 48px;
+    margin: 5px;
+}
+
+.acc_property_h_f {
+    height: 24px;
+    margin: 3px;
+    display: block ruby;
+}
+
+.acc_property_h_s {
+    background-color: #e5e5e5;
+}
+
+.acc_property_h_f {
+    background-color: #e5e5e5;
+}
+
+.i_popup {
+    position: absolute;
+    left: calc(50% - 250px);
+    top: calc(50% - 100px);
+    width: 500px;
+    height: 200px;
+    opacity: 1;
+    display: grid;
+    border-style: solid;
+    z-index: 1000;
+    background-color: #f0f0f0
+}
+
+.i_popup_f {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    opacity: 0.3;
+}
+
 .i_popup_txt.raw {
-  text-align: center;
-  position: relative;
-  width: 500px;
-  min-width: 500px;
-  top: 30px;
+    text-align: center;
+    position: relative;
+    width: 500px;
+    min-width: 500px;
+    top: 30px;
 }
+
 .i_popup_btn {
-  left: calc(50% - 19px);
-  position: relative;
-  bottom: -40px;
+    left: calc(50% - 19px);
+    position: relative;
+    bottom: -40px;
 }
 
-.middle{
-  text-align: center;
+.middle {
+    text-align: center;
 }
 
-.c-red{
-  color: red;
-}
-.card{
-  margin: 6px;
+.c-red {
+    color: var(--red);
 }
 
-.balance_type{
-  width: 80px;
-  display: inline-block;
+.c-green {
+    color: var(--green);
+}
+
+.c-blue {
+    color: var(--blue);
+}
+
+.card {
+    margin: 6px;
+}
+
+.balance_type {
+    width: 80px;
+    display: inline-block;
+}
+
+.study-content {
+    margin-right: 0;
+    padding-right: 0;
+    margin-left: 20px;
 }

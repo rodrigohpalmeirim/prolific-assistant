@@ -32,7 +32,9 @@ export function playAlertSound(state: AppState) {
     case 'sweet-alert-5':
       playFile(sweetAlert5, state.settings.alert_volume);
       break;
-    case 'glowa':playFile(glowa,state.settings.alert_volume);break;
+    case 'glowa':
+      playFile(glowa, state.settings.alert_volume);
+      break;
     case 'voice':
       const speech = new SpeechSynthesisUtterance('New studies available on Prolific.');
       speech.volume = state.settings.alert_volume / 100;

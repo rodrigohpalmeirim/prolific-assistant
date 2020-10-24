@@ -3,7 +3,7 @@ import { Middleware } from 'redux';
 import { playAlertSound } from '../functions/playAlertSound';
 
 import { AppState } from '.';
-import { NOOP, RELOAD, RESET, SETTING_ALERT_SOUND, TEST_ALERT_SOUND, TEST_STUDY } from './settings/types';
+import { RELOAD, RESET, SETTING_ALERT_SOUND, TEST_ALERT_SOUND, TEST_STUDY } from './settings/types';
 import { updateResults } from '../pages/background';
 
 export const settingsAlertSoundMiddleware: Middleware = (store) => (next) => (action) => {
@@ -18,7 +18,6 @@ export const settingsAlertSoundMiddleware: Middleware = (store) => (next) => (ac
     playAlertSound(state);
   }
   if (action.type === TEST_STUDY) {
-    const state: AppState = store.getState();
     updateResults([{
       average_completion_time: 5,
       average_reward_per_hour: 100,
@@ -54,10 +53,6 @@ export const settingsAlertSoundMiddleware: Middleware = (store) => (next) => (ac
   }
   if (action.type === RELOAD) {
     location.reload();
-  }
-  if(action.type===NOOP){
-    const state: AppState = store.getState();
-    playAlertSound(state);
   }
   return result;
 };

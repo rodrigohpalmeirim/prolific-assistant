@@ -52,13 +52,13 @@ export function SubmissionsPage() {
         <option value="returned">{`RETURNED & TIMED-OUT (${count(submissions, 'returned')})`}</option>
         <option value="approved">{`APPROVED (${count(submissions, 'approved')})`}</option>
       </Form.Control>
-      {(submissions && submissions.length&&count(submissions, submissionType) > 0) ? (
+      {(submissions && submissions.length && count(submissions, submissionType) > 0) ? (
         submissions.map((submission: any) => (
           (submissionTypes.includes(submission.status.toLowerCase()) || submissionTypes.includes('all')) ?
             <Card className="study-card" key={submission.study.id}
                   onClick={() => openProlificStudy(submission.study.id)}>
               <Card.Body>
-                <Container>
+                <Container className="study-content">
                   <Row>
                     <Col xs="auto">
                       <img
@@ -82,20 +82,11 @@ export function SubmissionsPage() {
                         <OverlayTrigger
                           overlay={
                             <Tooltip id="reward-tooltip">
-                              <table className="tooltip-table">
-                                <tbody>
-                                <tr>
-                                  <td>Reward:</td>
-                                  <td>
-                                    <strong>{centsToGBP_Submission(submission.reward)}</strong>
-                                  </td>
-                                </tr>
-                                </tbody>
-                              </table>
+                              {createRewardTooltip(submission)}
                             </Tooltip>
                           }
                         >
-                          <span>{centsToGBP_Submission(submission.reward)}</span>
+                          <span>{createReward(submission)}</span>
                         </OverlayTrigger>
                         <OverlayTrigger
                           overlay={
@@ -112,6 +103,7 @@ export function SubmissionsPage() {
                           overlay={
                             <Tooltip id="date-tooltip">
                               DATE:<br /><strong>{formatDate(submission)}</strong>
+                              {createTimeTaken(submission)}
                             </Tooltip>
                           }
                         >
@@ -174,7 +166,7 @@ function formatDate(submission: any) {
 }
 
 function count(submissions: any, type: string) {
-  if(!submissions)return 0;
+  if (!submissions) return 0;
   let submissionTypes = getTypes(type);
   let count = 0;
   submissions.forEach((el: any) => {
@@ -199,4 +191,72 @@ function getTypes(type: string) {
     submissionTypes = [type];
   }
   return submissionTypes;
+}
+
+function getBonusReward(submission: any) {
+  let reward: number = 0;
+  if (isBonus(submission)) {
+    submission.bonus_payments.forEach((el: any) => {
+      reward += ((el) as number);
+    });
+
+    return reward * 100;
+  }
+  return 0;
+
+}
+
+function isBonus(submission: any) {
+  return submission.bonus_payments && submission.bonus_payments.length && submission.bonus_payments.length > 0;
+}
+
+function createReward(submission: any) {
+  let reward = centsToGBP_Submission(submission.reward);
+  let bonus = centsToGBP_Submission(getBonusReward(submission));
+  if (isBonus(submission)) {
+    return <div className="inline">{reward} + <div className="inline c-blue">{bonus}</div></div>;
+  }
+  return <div className="inline">{reward}</div>;
+}
+
+function createRewardTooltip(submission: any) {
+  if (!isBonus(submission)) {
+    return (<div>
+      <div>
+        <div className="inline balance_type">Reward:</div>
+        <div className="inline"><strong>{centsToGBP_Submission(submission.reward)}</strong></div>
+      </div>
+    </div>);
+  } else {
+    let reward = submission.reward;
+    let bonus = getBonusReward(submission);
+    let total = reward + bonus;
+
+    let reward_f = centsToGBP_Submission(reward);
+    let bonus_f = centsToGBP_Submission(bonus);
+    let total_f = centsToGBP_Submission(total);
+
+    return (<div>
+      <div>
+        <div className="inline balance_type">Reward:</div>
+        <div className="inline"><strong>{reward_f}</strong></div>
+      </div>
+      <div>
+        <div className="inline balance_type">Bonus:</div>
+        <div className="inline c-blue"><strong>{bonus_f}</strong></div>
+      </div>
+      <div>
+        <div className="inline balance_type">Total:</div>
+        <div className="inline"><strong>{total_f}</strong></div>
+      </div>
+    </div>);
+  }
+}
+
+function createTimeTaken(submission:any){
+  if(submission.time_taken){
+    return <div><div className="balance_type">Time Taken:</div><strong>{Math.round(submission.time_taken/60)} minutes</strong></div>
+  }else {
+    return <div/>
+  }
 }

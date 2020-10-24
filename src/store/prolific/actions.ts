@@ -8,7 +8,6 @@ import {
   ProlificStudiesUpdateAction,
   ProlificSubmissionsUpdateAction,
 } from './types';
-import { SESSION_LOGS, SessionLogs } from '../session/types';
 
 export function prolificErrorUpdate(payload: ProlificErrorUpdateAction['payload']): ProlificErrorUpdateAction {
   return {
@@ -23,6 +22,7 @@ export function prolificStudiesUpdate(payload: ProlificStudiesUpdateAction['payl
     payload,
   };
 }
+
 export function prolificSubmissionsUpdate(payload: ProlificSubmissionsUpdateAction['payload']): ProlificSubmissionsUpdateAction {
   return {
     type: PROLIFIC_SUBMISSIONS_UPDATE,

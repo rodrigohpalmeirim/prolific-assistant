@@ -1,10 +1,8 @@
-import { SettingsState } from '../settings/types';
-
 export interface SessionState {
   last_checked: number;
   logs: any;
   flogs: any;
-  popup:any;
+  popup: any;
 }
 
 export const SESSION_LAST_CHECKED = 'SESSION_LAST_CHECKED';
@@ -21,6 +19,7 @@ export interface SessionLogs {
   type: typeof SESSION_LOGS;
   payload: SessionState['logs'];
 }
+
 export interface SessionFullLogs {
   type: typeof SESSION_FLOGS;
   payload: SessionState['flogs'];

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 import { selectFLogs, selectLogs } from '../store/session/selectors';
@@ -7,24 +7,20 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
-import { app_container, set_app_container } from '../components/App';
-import { noop } from '../store/settings/actions';
-import { logUpdate } from '../store/session/actions';
+import { app_container } from '../components/App';
 
 export function LogsPane() {
-  const dispatch = useDispatch();
   let logs = useSelector(selectLogs);
-  return createLogsView(logs)
+  return createLogsView(logs);
 }
 
 export function FLogsPane() {
-  const dispatch = useDispatch();
   let logs = useSelector(selectFLogs);
-  return createLogsView(logs)
+  return createLogsView(logs);
 }
 
 function formatDate(date: any) {
-  var d = new Date(date),
+  let d = new Date(date),
     hour = '' + (d.getHours()),
     min = '' + d.getMinutes(),
     sec = '' + d.getSeconds();
@@ -39,15 +35,15 @@ function formatDate(date: any) {
   return [hour, min, sec].join(':');
 }
 
-function elements(logs:any,logsType:any,logsTypes:any){
+function elements(logs: any, logsType: any, logsTypes: any) {
   const elements: any = [];
-  if(app_container=='logs'||location.href.includes('v=flogs')){
+  if (app_container == 'logs' || location.href.includes('v=flogs')) {
 
-  }else {
+  } else {
     return elements;
   }
   try {
-    logs.forEach((el: any, i: number) => {
+    logs.forEach((el: any) => {
         if (logsTypes.includes(el.type) || logsTypes.includes('all')) {
           let value = String(JSON.stringify(el.data));
           let timestamp = (el.timestamp);
@@ -76,9 +72,8 @@ function elements(logs:any,logsType:any,logsTypes:any){
   return elements;
 }
 
-function createLogsView(logs:any[]){
-  const dispatch = useDispatch();
-  let logsTypes = ['success', 'error', 'studies'];
+function createLogsView(logs: any[]) {
+  let logsTypes: string[];
   let [logType, setLogType] = useState('status_e_s');
 
   if (logType == 'all') {
@@ -89,16 +84,18 @@ function createLogsView(logs:any[]){
     logsTypes = [logType];
   }
 
-  let html = (
+  return (
     <Tab.Pane className="p-1 logs" eventKey="logs">
       <Form.Group>
-        <Form.Control as="select" value={logType} onChange={event=>{setLogType(event.target.value)}}>
-          <option value="status_e_s">{`STUDIES & ERROR/SUCCESS (${count(logs,'status_e_s')})`}</option>
-          <option value="all">{`ALL (${count(logs,'all')})`}</option>
-          <option value="studies">{`STUDIES (${count(logs,'studies')})`}</option>
-          <option value="success">{`SUCCESS (${count(logs,'success')})`}</option>
-          <option value="error">{`ERROR (${count(logs,'error')})`}</option>
-          <option value="status">{`STATUS (${count(logs,'status')})`}</option>
+        <Form.Control as="select" value={logType} onChange={event => {
+          setLogType(event.target.value);
+        }}>
+          <option value="status_e_s">{`STUDIES & ERROR/SUCCESS (${count(logs, 'status_e_s')})`}</option>
+          <option value="all">{`ALL (${count(logs, 'all')})`}</option>
+          <option value="studies">{`STUDIES (${count(logs, 'studies')})`}</option>
+          <option value="success">{`SUCCESS (${count(logs, 'success')})`}</option>
+          <option value="error">{`ERROR (${count(logs, 'error')})`}</option>
+          <option value="status">{`STATUS (${count(logs, 'status')})`}</option>
         </Form.Control>
         <style>{`
         .log_type_0-studies {color: #595959;}
@@ -113,24 +110,23 @@ function createLogsView(logs:any[]){
         }
         `}</style>
         <div className="log-box">
-          {elements(logs,logType,logsTypes)}
+          {elements(logs, logType, logsTypes)}
         </div>
-        {location.href.includes('v=flogs')?<div/>:(<div className="clearlogs_btn">
-            <Nav.Item>
-              <Button onClick={() => {
-                window.open(location.href+"?v=flogs");
-              }}>
-                ALL LOGS
-              </Button>
-            </Nav.Item>
-          </div>)}
+        {location.href.includes('v=flogs') ? <div /> : (<div className="clearlogs_btn">
+          <Nav.Item>
+            <Button onClick={() => {
+              window.open(location.href + '?v=flogs');
+            }}>
+              ALL LOGS
+            </Button>
+          </Nav.Item>
+        </div>)}
       </Form.Group>
     </Tab.Pane>
   );
-  return html;
 }
 
-function count(logs:any,logType:string){
+function count(logs: any, logType: string) {
   let logsTypes = ['success', 'error', 'studies'];
   if (logType == 'all') {
     logsTypes = ['all'];
@@ -140,10 +136,10 @@ function count(logs:any,logType:string){
     logsTypes = [logType];
   }
   let count = 0;
-  logs.forEach((el: { type: string; })=>{
-    if(logsTypes.includes(el.type)||logsTypes.includes('all')){
+  logs.forEach((el: { type: string; }) => {
+    if (logsTypes.includes(el.type) || logsTypes.includes('all')) {
       count++;
     }
-  })
+  });
   return count;
 }

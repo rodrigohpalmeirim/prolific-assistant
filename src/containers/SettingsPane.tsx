@@ -5,24 +5,20 @@ import Tab from 'react-bootstrap/Tab';
 
 import { selectSettings } from '../store/settings/selectors';
 import {
+  reload,
+  resetSettings,
   settingAlertSound,
   settingAlertVolume,
+  settingAutoStart,
   settingCheckInterval,
   settingDesktopNotifications,
-  testingAlertSound,
   settingTheme,
-  settingAutoStart,
-  testingStudy,
   settingUID,
-  resetSettings, reload,
+  testingAlertSound,
+  testingStudy,
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
-import moment from 'moment';
 import Button from 'react-bootstrap/Button';
-import { AppState, configureStore } from '../store';
-import { playAlertSound } from '../functions/playAlertSound';
-import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
-import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { themes } from '../components/App';
 
 export function SettingsPane() {
@@ -32,6 +28,7 @@ export function SettingsPane() {
   function onChangeAlertSound(event: any) {
     dispatch(settingAlertSound(event.target.value));
   }
+
   function onTestAlertSound() {
     dispatch(testingAlertSound());
   }
@@ -47,8 +44,9 @@ export function SettingsPane() {
       dispatch(settingAlertVolume(value));
     }
   }
-  function onChangeUID(uid:string) {
-    dispatch(settingUID(uid))
+
+  function onChangeUID(uid: string) {
+    dispatch(settingUID(uid));
   }
 
   function onChangeCheckInterval(event: any) {
@@ -56,38 +54,41 @@ export function SettingsPane() {
 
     if (15 <= value) {
       dispatch(settingCheckInterval(Number(event.target.value)));
-    }else {
+    } else {
       dispatch(settingCheckInterval(15));
     }
   }
 
   function onChangeTheme(event: any) {
     dispatch(settingTheme(event.target.value));
-    location.href = "?v=settings"
+    location.href = '?v=settings';
   }
 
   function onChangeDesktopNotification(event: any) {
     dispatch(settingDesktopNotifications(event.target.checked));
   }
+
   function onChangeAutoStart(event: any) {
     dispatch(settingAutoStart(event.target.checked));
   }
 
-  function createThemesOptions(){
-    let elements: JSX.Element[] = []
-    Object.keys(themes).forEach(key=>{
+  function createThemesOptions() {
+    let elements: JSX.Element[] = [];
+    Object.keys(themes).forEach(key => {
       let str = key;
-      let fstr = str[0].toUpperCase()+str.substring(1)
-      elements.push(<option key={str} value={str}>{fstr}</option>)
-    })
-    return elements
+      let fstr = str[0].toUpperCase() + str.substring(1);
+      elements.push(<option key={str} value={str}>{fstr}</option>);
+    });
+    return elements;
   }
-  function ResetSettings(){
-    dispatch(resetSettings())
+
+  function ResetSettings() {
+    dispatch(resetSettings());
     Reload();
   }
-  function Reload(){
-    dispatch(reload())
+
+  function Reload() {
+    dispatch(reload());
     location.reload();
   }
 
@@ -128,8 +129,8 @@ export function SettingsPane() {
       <Form.Group>
         <Button onClick={() => {
           // @ts-ignore
-          onChangeUID(document.getElementById('uid_box').value)
-          browser.runtime.sendMessage('check_for_studies-cuid')
+          onChangeUID(document.getElementById('uid_box').value);
+          browser.runtime.sendMessage('check_for_studies-cuid');
         }}>
           SET Prolific ID
         </Button>
@@ -165,7 +166,7 @@ export function SettingsPane() {
       </Form.Group>
       <Form.Group>
         <Button onClick={() => {
-          ResetSettings()
+          ResetSettings();
         }}>
           RESET SETTINGS
         </Button>

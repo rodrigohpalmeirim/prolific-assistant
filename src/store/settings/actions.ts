@@ -1,5 +1,4 @@
 import {
-  NOOP, NoopAction,
   RELOAD,
   ReloadAction,
   RESET,
@@ -30,15 +29,16 @@ export function settingAlertSound(payload: SettingAlertSoundAction['payload']): 
     payload,
   };
 }
+
 export function testingAlertSound(): TestingAlertSoundAction {
   return {
-    type: TEST_ALERT_SOUND, payload: ''
+    type: TEST_ALERT_SOUND, payload: '',
   };
 }
 
 export function testingStudy(): TestingStudyAction {
   return {
-    type: TEST_STUDY, payload: ''
+    type: TEST_STUDY, payload: '',
   };
 }
 
@@ -89,16 +89,12 @@ export function settingAutoStart(payload: SettingAutostartAction['payload']): Se
 
 export function resetSettings(): ResetSettingsAction {
   return {
-    type: RESET, payload: ''
+    type: RESET, payload: '',
   };
 }
+
 export function reload(): ReloadAction {
   return {
-    type: RELOAD, payload: ''
-  };
-}
-export function noop(): NoopAction {
-  return {
-    type: NOOP, payload: ''
+    type: RELOAD, payload: '',
   };
 }

@@ -1,9 +1,7 @@
-import { TEST_ALERT_SOUND } from '../settings/types';
-
 export interface ProlificState {
   error: number;
   studies: ProlificStudy[];
-  acc_info:any
+  acc_info: any
 }
 
 export const PROLIFIC_ERROR_UPDATE = 'PROLIFIC_ERROR_UPDATE';
@@ -20,6 +18,7 @@ export interface ProlificStudiesUpdateAction {
   type: typeof PROLIFIC_STUDIES_UPDATE;
   payload: ProlificStudy[];
 }
+
 export interface ProlificSubmissionsUpdateAction {
   type: typeof PROLIFIC_SUBMISSIONS_UPDATE;
   payload: ProlificStudy[];
@@ -30,4 +29,8 @@ export interface AccInfoUpdateAction {
   payload: ProlificStudy[];
 }
 
-export type ProlificActionTypes = ProlificErrorUpdateAction | ProlificStudiesUpdateAction | AccInfoUpdateAction | ProlificSubmissionsUpdateAction;
+export type ProlificActionTypes =
+  ProlificErrorUpdateAction
+  | ProlificStudiesUpdateAction
+  | AccInfoUpdateAction
+  | ProlificSubmissionsUpdateAction;

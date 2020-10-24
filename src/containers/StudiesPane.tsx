@@ -20,7 +20,7 @@ export function StudiesPane() {
   return (
     <Tab.Pane eventKey="studies">
       {studies.length ? (
-        studies.map((study:any) => (
+        studies.map((study: any) => (
           <Card className="study-card" key={study.id} onClick={() => openProlificStudy(study.id)}>
             <Card.Body>
               <Container>
@@ -49,12 +49,12 @@ export function StudiesPane() {
                           <Tooltip id="reward-tooltip">
                             <table className="tooltip-table">
                               <tbody>
-                                <tr>
-                                  <td>Reward:</td>
-                                  <td>
-                                    <strong>{centsToGBP(study.reward)}</strong>
-                                  </td>
-                                </tr>
+                              <tr>
+                                <td>Reward:</td>
+                                <td>
+                                  <strong>{centsToGBP(study.reward)}</strong>
+                                </td>
+                              </tr>
                               </tbody>
                             </table>
                           </Tooltip>
@@ -67,24 +67,24 @@ export function StudiesPane() {
                           <Tooltip id="time-tooltip">
                             <table className="tooltip-table">
                               <tbody>
-                                <tr>
-                                  <td>Estimated completion time:</td>
-                                  <td>
-                                    <strong>{study.estimated_completion_time} minutes</strong>
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>Average completion time:</td>
-                                  <td>
-                                    <strong>{study.average_completion_time} minutes</strong>
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>Maximum allowed time:</td>
-                                  <td>
-                                    <strong>{study.maximum_allowed_time} minutes</strong>
-                                  </td>
-                                </tr>
+                              <tr>
+                                <td>Estimated completion time:</td>
+                                <td>
+                                  <strong>{study.estimated_completion_time} minutes</strong>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Average completion time:</td>
+                                <td>
+                                  <strong>{study.average_completion_time} minutes</strong>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Maximum allowed time:</td>
+                                <td>
+                                  <strong>{study.maximum_allowed_time} minutes</strong>
+                                </td>
+                              </tr>
                               </tbody>
                             </table>
                           </Tooltip>
@@ -97,18 +97,18 @@ export function StudiesPane() {
                           <Tooltip id="per-hour-tooltip">
                             <table className="tooltip-table">
                               <tbody>
-                                <tr>
-                                  <td>Estimated reward per hour:</td>
-                                  <td>
-                                    <strong>{centsToGBP(study.estimated_reward_per_hour)}/hr</strong>
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td>Average reward per hour:</td>
-                                  <td>
-                                    <strong>{centsToGBP(study.average_reward_per_hour)}/hr</strong>
-                                  </td>
-                                </tr>
+                              <tr>
+                                <td>Estimated reward per hour:</td>
+                                <td>
+                                  <strong>{centsToGBP(study.estimated_reward_per_hour)}/hr</strong>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Average reward per hour:</td>
+                                <td>
+                                  <strong>{centsToGBP(study.average_reward_per_hour)}/hr</strong>
+                                </td>
+                              </tr>
                               </tbody>
                             </table>
                           </Tooltip>
@@ -121,26 +121,26 @@ export function StudiesPane() {
                           <Tooltip id="places-tooltip">
                             <table className="tooltip-table">
                               <tbody>
-                                <tr>
-                                  <td>Total available places:</td>
-                                  <td>
-                                    <strong>{study.total_available_places}</strong>
-                                  </td>
-                                </tr>
+                              <tr>
+                                <td>Total available places:</td>
+                                <td>
+                                  <strong>{study.total_available_places}</strong>
+                                </td>
+                              </tr>
 
-                                <tr>
-                                  <td>Places taken:</td>
-                                  <td>
-                                    <strong>{study.places_taken}</strong>
-                                  </td>
-                                </tr>
+                              <tr>
+                                <td>Places taken:</td>
+                                <td>
+                                  <strong>{study.places_taken}</strong>
+                                </td>
+                              </tr>
 
-                                <tr>
-                                  <td>Places remaining:</td>
-                                  <td>
-                                    <strong>{study.total_available_places - study.places_taken}</strong>
-                                  </td>
-                                </tr>
+                              <tr>
+                                <td>Places remaining:</td>
+                                <td>
+                                  <strong>{study.total_available_places - study.places_taken}</strong>
+                                </td>
+                              </tr>
                               </tbody>
                             </table>
                           </Tooltip>

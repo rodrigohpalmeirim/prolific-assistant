@@ -1,6 +1,6 @@
-import { applyMiddleware, createStore, combineReducers, Middleware } from 'redux';
+import { applyMiddleware, combineReducers, createStore, Middleware } from 'redux';
 import { createLogger } from 'redux-logger';
-import { createMigrate, persistStore, persistReducer } from 'redux-persist';
+import { createMigrate, persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { wrapStore } from 'webext-redux';
 

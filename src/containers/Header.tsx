@@ -79,9 +79,18 @@ function formatBalanceFull() {
     let pending = centsToGBP(acc_info.pending_balance);
     let all = centsToGBP(acc_info.balance + acc_info.pending_balance);
     return (<div>
-      <div><div className="balance_type inline">BALANCE:</div> <div className="balance_value inline">{balance}</div></div>
-      <div><div className="balance_type inline">PENDING:</div> <div className="balance_value inline">{pending}</div></div>
-      <div><div className="balance_type inline">ALL:</div> <div className="balance_value inline">{all}</div></div>
+      <div>
+        <div className="balance_type inline">BALANCE:</div>
+        <div className="balance_value inline">{balance}</div>
+      </div>
+      <div>
+        <div className="balance_type inline">PENDING:</div>
+        <div className="balance_value inline">{pending}</div>
+      </div>
+      <div>
+        <div className="balance_type inline">ALL:</div>
+        <div className="balance_value inline">{all}</div>
+      </div>
     </div>);
   } catch {
   }

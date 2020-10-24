@@ -1,12 +1,15 @@
 import produce from 'immer';
 
 import {
-  SettingsState,
-  SettingsActionTypes,
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
+  SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS, SETTING_THEME, SETTING_AUTOSTART, SETTING_UID, NOOP,
+  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_THEME,
+  SETTING_UID,
+  SettingsActionTypes,
+  SettingsState,
 } from './types';
 
 const initialState: SettingsState = {
@@ -14,9 +17,9 @@ const initialState: SettingsState = {
   alert_volume: 100,
   check_interval: 60,
   desktop_notifications: true,
-  theme:'white',
-  autostart:false,
-  uid:undefined
+  theme: 'white',
+  autostart: false,
+  uid: undefined,
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
@@ -43,8 +46,6 @@ export function settingsReducer(state = initialState, action: SettingsActionType
       case SETTING_UID:
         draftState.uid = action.payload;
         break;
-      case NOOP:
-        draftState.alert_volume = 99;
     }
   });
 }
