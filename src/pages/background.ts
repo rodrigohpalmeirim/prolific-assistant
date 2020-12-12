@@ -6,6 +6,7 @@ import {
   fetchProlificStudies,
   fetchProlificSubmissions,
   fetchStartStudy,
+  startSuccess,
 } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { configureStore } from '../store';
@@ -38,6 +39,7 @@ export function updateResults(results: any[]) {
     browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
     appendLog(`${results.length} STUDIES FOUND`, '0-studies', `no studies found.`);
   } else {
+    const state = store.getState();
     appendLog(`${results.length} STUDIES FOUND`, 'studies', `${results.length} studies found.`);
     let bestStudy: ProlificStudy;
     results.forEach(el => {
@@ -52,6 +54,11 @@ export function updateResults(results: any[]) {
 }
 
 let timeout = window.setTimeout(main);
+
+export function setStat(stats: any, key: string, value: any) {
+  stats[key] = value;
+  return stats;
+}
 
 export function appendLog(log: string, type: string, description: string) {
   let logs = store.getState().session.logs;
@@ -139,7 +146,6 @@ async function main() {
     appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
     await auth();
   }
-
   timeout = window.setTimeout(main, state.settings.check_interval * 1000);
 }
 

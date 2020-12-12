@@ -1,5 +1,5 @@
-import { appendLog } from '../pages/background';
-import { settingUID } from '../store/settings/actions';
+import { appendLog, setStat } from '../pages/background';
+import {  settingUID } from '../store/settings/actions';
 import { Store } from 'redux';
 
 export async function fetchProlificStudies(authHeader: any) {
@@ -44,9 +44,10 @@ export async function fetchProlificSubmissions(authHeader: any, userID: string) 
   return json;
 }
 
+export let  startSuccess = false;
 export async function fetchStartStudy(authHeader: any, userID: string, studyID: string) {
   let url = 'https://www.prolific.co/api/v1/submissions/';
-
+  startSuccess = false;
   let req = new XMLHttpRequest();
   req.open('POST', url, false);
   req.setRequestHeader(authHeader.name, authHeader.value);
@@ -60,6 +61,7 @@ export async function fetchStartStudy(authHeader: any, userID: string, studyID: 
     appendLog(`ERROR while starting study`, 'error', `ERROR while starting study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nERROR: ${JSON.stringify(json.error)}\nSTATUS: ${req.status}`);
   } else {
     appendLog(`Successfully started study`, 'success', `Successfully started study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nSTATUS: ${req.status}`);
+    startSuccess = true;
   }
 
   console.log(json);
@@ -82,4 +84,3 @@ export async function checkUserID(authHeader: any, userID: string, store: Store)
   store.dispatch(settingUID(userID));
   return true;
 }
-

@@ -1,13 +1,18 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { Store } from 'webext-redux';
 
 import { App } from '../components/App';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import './popup.css';
-import { reload, resetSettings } from '../store/settings/actions';
+import {
+  reload,
+  resetSettings,
+  settingAlertSound,
+  testingAlertSound,
+} from '../store/settings/actions';
 
 const store = new Store();
 console.log(location.href);
@@ -15,7 +20,7 @@ store.ready().then(() => {
   try {
     ReactDom.render(
       <Provider store={store}>
-        <App />
+        <AppByAction />
       </Provider>,
       document.getElementById('root'),
     );
@@ -43,3 +48,12 @@ store.ready().then(() => {
     );
   }
 });
+
+function AppByAction() {
+  let action = location.href.includes('a=')? location.href.split('a=')[1].split('?')[0]:'';
+  if (!action || action.length < 1) action = 'display';
+
+  if (action == 'display') {
+    return App();
+  }
+}

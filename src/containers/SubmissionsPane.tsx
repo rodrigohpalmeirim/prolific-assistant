@@ -9,7 +9,7 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-import { centsToGBP_Submission } from '../functions/centsToGBP';
+import { centsToGBP_Submission, getAllReward, getBonusReward, isBonus } from '../functions/centsToGBP';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { selectProlificError, selectProlificSubmissions } from '../store/prolific/selectors';
 import Form from 'react-bootstrap/Form';
@@ -66,7 +66,7 @@ export function SubmissionsPage() {
                         src={
                           submission.study.researcher.institution && submission.study.researcher.institution.logo
                             ? submission.study.researcher.institution.logo
-                            : 'https://app.prolific.co/img/default_study_icon.2850c668.svg'
+                            : 'https://app.prolific.co/assets/default_study_icon.2850c668.svg'
                         }
                         style={{ width: 64, height: 64 }}
                       />
@@ -123,7 +123,7 @@ export function SubmissionsPage() {
                   </Row>
                 </Container>
               </Card.Body>
-            </Card> : <div />
+            </Card> : <div key={submission.study.id} />
         ))
       ) : (
         <div className="p-3 text-center">
@@ -193,28 +193,12 @@ function getTypes(type: string) {
   return submissionTypes;
 }
 
-function getBonusReward(submission: any) {
-  let reward: number = 0;
-  if (isBonus(submission)) {
-    submission.bonus_payments.forEach((el: any) => {
-      reward += ((el) as number);
-    });
-
-    return reward * 100;
-  }
-  return 0;
-
-}
-
-function isBonus(submission: any) {
-  return submission.bonus_payments && submission.bonus_payments.length && submission.bonus_payments.length > 0;
-}
-
 function createReward(submission: any) {
   let reward = centsToGBP_Submission(submission.reward);
   let bonus = centsToGBP_Submission(getBonusReward(submission));
+  let all = centsToGBP_Submission(getAllReward(submission));
   if (isBonus(submission)) {
-    return <div className="inline">{reward} + <div className="inline c-blue">{bonus}</div></div>;
+    return <div className="inline c-blue">{all}</div>;
   }
   return <div className="inline">{reward}</div>;
 }

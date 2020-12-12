@@ -12,8 +12,10 @@ import {
   settingAutoStart,
   settingCheckInterval,
   settingDesktopNotifications,
+  settingLimitBypass,
   settingTheme,
   settingUID,
+  settingWebhook,
   testingAlertSound,
   testingStudy,
 } from '../store/settings/actions';
@@ -27,6 +29,7 @@ export function SettingsPane() {
 
   function onChangeAlertSound(event: any) {
     dispatch(settingAlertSound(event.target.value));
+
   }
 
   function onTestAlertSound() {
@@ -49,14 +52,26 @@ export function SettingsPane() {
     dispatch(settingUID(uid));
   }
 
+  function onChangeWebhook(hook: string) {
+    dispatch(settingWebhook(hook));
+  }
+
   function onChangeCheckInterval(event: any) {
     const value = Number(event.target.value);
-
-    if (15 <= value) {
-      dispatch(settingCheckInterval(Number(event.target.value)));
+    if (!settings.limit_bypass) {
+      if (15 <= value) {
+        dispatch(settingCheckInterval(Number(event.target.value)));
+      } else {
+        dispatch(settingCheckInterval(15));
+      }
     } else {
-      dispatch(settingCheckInterval(15));
+      if (5 <= value) {
+        dispatch(settingCheckInterval(Number(event.target.value)));
+      } else {
+        dispatch(settingCheckInterval(5));
+      }
     }
+
   }
 
   function onChangeTheme(event: any) {
@@ -66,6 +81,14 @@ export function SettingsPane() {
 
   function onChangeDesktopNotification(event: any) {
     dispatch(settingDesktopNotifications(event.target.checked));
+  }
+
+  function onChangeLimitBypass(event: any) {
+    dispatch(settingLimitBypass(event.target.checked));
+
+    if (!settings.limit_bypass && settings.check_interval < 15) {
+      dispatch(settingCheckInterval(15));
+    }
   }
 
   function onChangeAutoStart(event: any) {
@@ -97,6 +120,14 @@ export function SettingsPane() {
       <Form.Group>
         <Form.Label>Check Interval</Form.Label>
         <Form.Control type="number" onChange={onChangeCheckInterval} value={settings.check_interval.toString()} />
+      </Form.Group>
+      <Form.Group>
+        <Form.Check
+          label="Allow values lower than 15"
+          type="checkbox"
+          checked={settings.limit_bypass}
+          onChange={onChangeLimitBypass}
+        />
       </Form.Group>
       <Form.Group>
         <Form.Label>Alert Sound</Form.Label>
@@ -163,6 +194,11 @@ export function SettingsPane() {
         <Form.Control as="select" onChange={onChangeTheme} value={settings.theme}>
           {createThemesOptions()}
         </Form.Control>
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Discord Webhook</Form.Label>
+        <Form.Control id="webhook_box" type="text" value={settings.webhook} onChange={()=>{// @ts-ignore
+          onChangeWebhook(document.getElementById('webhook_box').value);}} />
       </Form.Group>
       <Form.Group>
         <Button onClick={() => {

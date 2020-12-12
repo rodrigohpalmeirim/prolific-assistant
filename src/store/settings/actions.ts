@@ -7,25 +7,33 @@ import {
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_DESKTOP_NOTIFICATIONS, SETTING_LIMIT_BYPASS,
   SETTING_THEME,
   SETTING_UID,
   SettingAlertSoundAction,
   SettingAlertVolumeAction,
   SettingAutostartAction,
   SettingCheckIntervalAction,
-  SettingsDesktopNotificationAction,
+  SettingsDesktopNotificationAction, SettingsLimitBypassAction,
   SettingThemeAction,
   SettingUIDAction,
   TEST_ALERT_SOUND,
   TEST_STUDY,
   TestingAlertSoundAction,
   TestingStudyAction,
+  SETTING_WEBHOOK, SettingWebhookAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
   return {
     type: SETTING_ALERT_SOUND,
+    payload,
+  };
+}
+
+export function settingWebhook(payload: SettingWebhookAction['payload']): SettingWebhookAction {
+  return {
+    type: SETTING_WEBHOOK,
     payload,
   };
 }
@@ -61,6 +69,15 @@ export function settingDesktopNotifications(
 ): SettingsDesktopNotificationAction {
   return {
     type: SETTING_DESKTOP_NOTIFICATIONS,
+    payload,
+  };
+}
+
+export function settingLimitBypass(
+  payload: SettingsLimitBypassAction['payload'],
+): SettingsLimitBypassAction {
+  return {
+    type: SETTING_LIMIT_BYPASS,
     payload,
   };
 }

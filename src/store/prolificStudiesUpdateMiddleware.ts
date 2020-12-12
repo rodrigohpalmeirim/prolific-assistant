@@ -2,7 +2,7 @@ import { browser } from 'webextension-scripts/polyfill';
 import { Middleware } from 'redux';
 
 import { centsToGBP } from '../functions/centsToGBP';
-import { playAlertSound } from '../functions/playAlertSound';
+import { playAlertSound, sendWebhook } from '../functions/playAlertSound';
 
 import { AppState } from '.';
 import { PROLIFIC_STUDIES_UPDATE } from './prolific/types';
@@ -51,6 +51,9 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
 
     if (newStudies.length) {
       playAlertSound(state);
+      newStudies.forEach(el=>{
+        sendWebhook(state,el)
+      })
     }
   }
 

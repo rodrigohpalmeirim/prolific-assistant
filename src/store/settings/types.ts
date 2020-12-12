@@ -9,20 +9,23 @@ export interface SettingsState {
     | 'sweet-alert-4'
     | 'sweet-alert-5'
     | 'glowa'
-
   alert_volume: number;
   check_interval: number;
   desktop_notifications: boolean;
   theme: string;
   uid: string;
+  limit_bypass: boolean;
+  webhook:string;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
+export const SETTING_WEBHOOK = 'SETTING_WEBHOOK';
 export const TEST_ALERT_SOUND = 'TEST_ALERT_SOUND';
 export const TEST_STUDY = 'TEST_STUDY';
 export const SETTING_ALERT_VOLUME = 'SETTING_ALERT_VOLUME';
 export const SETTING_CHECK_INTERVAL = 'SETTING_CHECK_INTERVAL';
 export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
+export const SETTING_LIMIT_BYPASS = 'SETTING_LIMIT_BYPASS';
 export const SETTING_THEME = 'SETTING_THEME';
 export const SETTING_UID = 'SETTING_UID';
 export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
@@ -32,6 +35,11 @@ export const RELOAD = 'RELOAD';
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
   payload: SettingsState['alert_sound'];
+}
+
+export interface SettingWebhookAction {
+  type: typeof SETTING_WEBHOOK;
+  payload: SettingsState['webhook'];
 }
 
 export interface TestingAlertSoundAction {
@@ -69,6 +77,11 @@ export interface SettingsDesktopNotificationAction {
   payload: SettingsState['desktop_notifications'];
 }
 
+export interface SettingsLimitBypassAction {
+  type: typeof SETTING_LIMIT_BYPASS;
+  payload: SettingsState['limit_bypass'];
+}
+
 export interface SettingAutostartAction {
   type: typeof SETTING_AUTOSTART;
   payload: SettingsState['autostart'];
@@ -94,3 +107,5 @@ export type SettingsActionTypes =
   | SettingUIDAction
   | ResetSettingsAction
   | ReloadAction
+  | SettingsLimitBypassAction
+  | SettingWebhookAction

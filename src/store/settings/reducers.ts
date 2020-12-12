@@ -5,9 +5,9 @@ import {
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_DESKTOP_NOTIFICATIONS, SETTING_LIMIT_BYPASS,
   SETTING_THEME,
-  SETTING_UID,
+  SETTING_UID, SETTING_WEBHOOK,
   SettingsActionTypes,
   SettingsState,
 } from './types';
@@ -20,6 +20,8 @@ const initialState: SettingsState = {
   theme: 'white',
   autostart: false,
   uid: undefined,
+  limit_bypass:false,
+  webhook:"",
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
@@ -45,6 +47,12 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         break;
       case SETTING_UID:
         draftState.uid = action.payload;
+        break;
+      case SETTING_LIMIT_BYPASS:
+        draftState.limit_bypass = action.payload;
+        break;
+      case SETTING_WEBHOOK:
+        draftState.webhook = action.payload;
         break;
     }
   });

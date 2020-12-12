@@ -3,15 +3,16 @@ import { useSelector } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 
-import { selectAcc_Info } from '../store/prolific/selectors';
+import { selectAcc_Info, selectProlificSubmissions } from '../store/prolific/selectors';
 import Nav from 'react-bootstrap/Nav';
-import { centsToGBP } from '../functions/centsToGBP';
+import { centsToGBP, centsToGBP_Submission, efficiency } from '../functions/centsToGBP';
 
 export function AccountInfoPane() {
   const acc_info = useSelector(selectAcc_Info);
   const elements: any = [];
   const s_elements: any = [];
   const f_elements: any = [];
+  const submissions = useSelector(selectProlificSubmissions);
   try {
     Object.keys(acc_info).forEach(key => {
       let value = String(JSON.stringify(acc_info[key]));
@@ -33,7 +34,6 @@ export function AccountInfoPane() {
       NAME: 'name',
       ID: 'id',
       EMAIL: 'email',
-      PHONE: 'phone_number',
       STATUS: 'status',
       BALANCE: 'balance $M',
       PENDING: 'pending_balance $M',
@@ -53,6 +53,13 @@ export function AccountInfoPane() {
         </div>
       ));
     });
+
+    s_elements.push((
+      <div className="acc_property_h_s acc_short" key={"Efficiency"}>
+        <div className="acc_property acc_f_s_i">{"Efficiency"}</div>
+        <div className="acc_value acc_f_s_i">{createEfficiency(submissions).split('"').join('')}</div>
+      </div>
+    ));
 
   } catch {
   }
@@ -111,4 +118,17 @@ export function AccountInfoPane() {
 
       </Tab.Container></Tab.Pane>
   );
+}
+
+function createEfficiency(submissions: any) {
+  let gbpph = '£---';
+  try {
+
+    let eff = efficiency(submissions);
+    if (eff >= 0) gbpph = String(centsToGBP_Submission(eff));
+
+
+  } catch {
+  }
+  return `${gbpph}/h`;
 }
