@@ -7,10 +7,13 @@ import { StudiesPane } from '../containers/StudiesPane';
 import { SettingsPane } from '../containers/SettingsPane';
 import { AccountInfoPane } from '../containers/AccInfoPane';
 import { FLogsPane, LogsPane } from '../containers/LogsPane';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
 import { SubmissionsPage } from '../containers/SubmissionsPane';
 import { InfoPopup } from '../containers/Popup_Info';
+import { StartSpammer } from '../containers/OtherModules/StartSpammerPane';
+import { OtherModulesPane } from '../containers/OtherModulesPane';
+import { settingTheme } from '../store/settings/actions';
 
 export let themes: any = {
   white: {
@@ -29,6 +32,24 @@ export let themes: any = {
     hover: '#101010', theme_bfg: '#750000', theme_bfg_h: '#b50000',
   },
 };
+
+export let hiddenThemes:any = {
+  'RGB':{
+    theme1bg: '#282828', theme1fg: 'white',
+    theme2bg: '#151515', theme2fg: 'white',
+    theme3bg: '#131313', theme_fg: 'var(--rgbRainbow)', navbar: 'var(--theme3bg)',
+    hover: '#101010', theme_bfg: '#750000', theme_bfg_h: '#b50000',rgbRainbow:'rgb(0,0,0)',
+    custom:[
+      '@-webkit-keyframes rainbow_bg{0%{background-color: orange}10%{background-color: purple}20%{background-color: red}30%{background-color: CadetBlue}40%{background-color: yellow}50%{background-color: coral}60%{background-color: green}70%{background-color: cyan}80%{background-color: DeepPink}90%{background-color: DodgerBlue}100%{background-color: orange}}@-ms-keyframes rainbow_bg{0%{background-color: orange}10%{background-color: purple}20%{background-color: red}30%{background-color: CadetBlue}40%{background-color: yellow}50%{background-color: coral}60%{background-color: green}70%{background-color: cyan}80%{background-color: DeepPink}90%{background-color: DodgerBlue}100%{background-color: orange}}@keyframes rainbow_bg{0%{background-color: orange}10%{background-color: purple}20%{background-color: red}30%{background-color: CadetBlue}40%{background-color: yellow}50%{background-color: coral}60%{background-color: green}70%{background-color: cyan}80%{background-color: DeepPink}90%{background-color: DodgerBlue}100%{background-color: orange}}',
+      '@-webkit-keyframes rainbow{0%{color: orange}10%{color: purple}20%{color: red}30%{color: CadetBlue}40%{color: yellow}50%{color: coral}60%{color: green}70%{color: cyan}80%{color: DeepPink}90%{color: DodgerBlue}100%{color: orange}}@-ms-keyframes rainbow{0%{color: orange}10%{color: purple}20%{color: red}30%{color: CadetBlue}40%{color: yellow}50%{color: coral}60%{color: green}70%{color: cyan}80%{color: DeepPink}90%{color: DodgerBlue}100%{color: orange}}@keyframes rainbow{0%{color: orange}10%{color: purple}20%{color: red}30%{color: CadetBlue}40%{color: yellow}50%{color: coral}60%{color: green}70%{color: cyan}80%{color: DeepPink}90%{color: DodgerBlue}100%{color: orange}}',
+      'a:hover{-webkit-animation:rainbow 30s infinite;-ms-animation:rainbow 30s infinite;animation:rainbow 30s infinite;}',
+      '.nav-link{-webkit-animation:rainbow 30s infinite;-ms-animation:rainbow 30s infinite;animation:rainbow 30s infinite;}',
+      '.btn{-webkit-animation:rainbow_bg 30s infinite;-ms-animation:rainbow_bg 30s infinite;animation:rainbow_bg 30s infinite;}',
+
+    ]
+  },
+}
+
 export let themeApplyCSS = [
   '.form-control{background-color: var(--theme2bg);color: var(--theme2fg);}',
   '.form-control:focus{background-color: var(--theme2bg);color: var(--theme2fg);}',
@@ -53,20 +74,46 @@ export let themeApplyCSS = [
   'body{background-color: var(--theme1bg)}',
 ];
 
+export function getCombinedThemes(){
+  const settings = useSelector(selectSettings);
+  let combined:any = {}
+  Object.keys(themes).forEach((key:any)=>{
+    combined[key] = themes[key];
+  })
+  Object.keys(hiddenThemes).forEach((key:any)=>{
+    if(((settings.easter_egg&&settings.easter_egg[key])))
+      combined[key] = hiddenThemes[key];
+  })
+  return combined;
+}
 
-export function returnTheme(theme: string) {
+export function returnTheme(theme: string):any {
+  let allThemes:any = getCombinedThemes();
+  if(!allThemes[theme]){useDispatch()(settingTheme('white'));location.reload();return returnTheme('white');}
   let css = '';
+  let css2 = '';
+
   try {
-    Object.keys(themes[theme]).forEach(key => {
-      css += `--${key}: ${themes[theme][key]};`;
-    });
+    if(allThemes[theme]){
+      Object.keys(allThemes[theme]).forEach(key => {
+        if(key==='custom'){
+          allThemes[theme]['custom'].forEach((el:any)=>{
+            css2+=el+" ";
+          })
+
+        }else {
+          css += `--${key}: ${allThemes[theme][key]};`;
+        }
+
+      });
+    }
   } catch {
   }
-  return `:root{${css}} ${prepareApplyCSS()}`;
+  return `:root{${css}} ${prepareApplyCSS()} ${css2}`;
 
   function prepareApplyCSS() {
     let css = themeApplyCSS;
-    let keys = Object.keys(themes[theme]);
+    let keys = Object.keys(allThemes[theme]);
     let regex = /var\(--([a-z0-9A-Z_]*)\)/gm;
     css.forEach(el => {
       let m;
@@ -87,7 +134,7 @@ export function returnTheme(theme: string) {
       }
     });
 
-    return css.join('\n');
+    return css.join(' ');
   }
 }
 
@@ -116,6 +163,7 @@ export function AppV(view: string) {
         <SettingsPane />
         <LogsPane />
         <SubmissionsPage />
+        <OtherModulesPane />
       </Tab.Content>
 
       <Nav className={'w-100 theme2'} variant="pills">
@@ -126,7 +174,11 @@ export function AppV(view: string) {
           <Nav.Link eventKey="submissions">Submissions</Nav.Link>
         </Nav.Item>
 
-        <Nav.Item className="text-center w-50 nav_btn">
+
+        <Nav.Item className="text-center w-25 nav_btn">
+          <Nav.Link eventKey="other">Other Modules</Nav.Link>
+        </Nav.Item>
+        <Nav.Item className="text-center w-25 nav_btn">
           <Nav.Link eventKey="settings">Settings</Nav.Link>
         </Nav.Item>
         <Nav.Item className="text-center w-50 nav_btn">
@@ -142,8 +194,9 @@ export function AppV(view: string) {
 
 export function App() {
   let loc = location.href;
+  const settings = useSelector(selectSettings);
+
   if (loc.includes('v=flogs')) {
-    const settings = useSelector(selectSettings);
     return <div>
       <style>
         {`${returnTheme(settings.theme)}`}

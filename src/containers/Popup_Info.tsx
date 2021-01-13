@@ -13,10 +13,14 @@ export function InfoPopup() {
   const popup = useSelector(selectPopup);
 
   if (!popup.text || !popup.type) return <div />;
+  return returnPopup(popup.type,popup.text)
+
+}
+
+function returnPopup(type:any,text:any){
   return <div>
     <div className="i_popup_f" />
-    {createPopup(popup.type, popup.text)}</div>;
-
+    {createPopup(type, text)}</div>;
 }
 
 function createPopup(type: string, text: string) {

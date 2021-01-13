@@ -19,3 +19,7 @@ export function selectFLogs(state: AppState) {
 export function selectPopup(state: AppState) {
   return state.session.popup;
 }
+
+export function selectSpammer(state: AppState) {
+  return state.session.spammer;
+}

@@ -21,7 +21,7 @@ import {
   TEST_STUDY,
   TestingAlertSoundAction,
   TestingStudyAction,
-  SETTING_WEBHOOK, SettingWebhookAction,
+  SETTING_WEBHOOK, SettingWebhookAction, SETTING_EASTEREGG, SettingEasterEggAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -31,7 +31,7 @@ export function settingAlertSound(payload: SettingAlertSoundAction['payload']): 
   };
 }
 
-export function settingWebhook(payload: SettingWebhookAction['payload']): SettingWebhookAction {
+export function settingWebhook(payload: (string)[]): SettingWebhookAction {
   return {
     type: SETTING_WEBHOOK,
     payload,
@@ -100,6 +100,13 @@ export function settingUID(payload: SettingUIDAction['payload']): SettingUIDActi
 export function settingAutoStart(payload: SettingAutostartAction['payload']): SettingAutostartAction {
   return {
     type: SETTING_AUTOSTART,
+    payload,
+  };
+}
+
+export function settingEasterEgg(payload: SettingEasterEggAction['payload']): SettingEasterEggAction {
+  return {
+    type: SETTING_EASTEREGG,
     payload,
   };
 }

@@ -6,7 +6,7 @@ import {
   SESSION_LOGS,
   SessionFullLogs,
   SessionLastCheckedAction,
-  SessionLogs,
+  SessionLogs, SPAMMER, Spammer,
 } from './types';
 
 export function sessionLastChecked(): SessionLastCheckedAction {
@@ -33,6 +33,13 @@ export function flogUpdate(payload: SessionFullLogs['payload']): SessionFullLogs
 export function popup(payload: Popup['payload']): Popup {
   return {
     type: POPUP,
+    payload,
+  };
+}
+
+export function spammerAction(payload: [string, boolean, string, boolean, number]): Spammer {
+  return {
+    type: SPAMMER,
     payload,
   };
 }

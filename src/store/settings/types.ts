@@ -9,13 +9,15 @@ export interface SettingsState {
     | 'sweet-alert-4'
     | 'sweet-alert-5'
     | 'glowa'
+    | 'trial'
   alert_volume: number;
   check_interval: number;
   desktop_notifications: boolean;
   theme: string;
   uid: string;
   limit_bypass: boolean;
-  webhook:string;
+  webhook:any;
+  easter_egg:any;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
@@ -29,6 +31,7 @@ export const SETTING_LIMIT_BYPASS = 'SETTING_LIMIT_BYPASS';
 export const SETTING_THEME = 'SETTING_THEME';
 export const SETTING_UID = 'SETTING_UID';
 export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
+export const SETTING_EASTEREGG = 'SETTING_EASTEREGG';
 export const RESET = 'RESET';
 export const RELOAD = 'RELOAD';
 
@@ -87,6 +90,11 @@ export interface SettingAutostartAction {
   payload: SettingsState['autostart'];
 }
 
+export interface SettingEasterEggAction {
+  type: typeof SETTING_EASTEREGG;
+  payload: SettingsState['easter_egg'];
+}
+
 export interface ResetSettingsAction {
   type: typeof RESET;
   payload: '';
@@ -109,3 +117,4 @@ export type SettingsActionTypes =
   | ReloadAction
   | SettingsLimitBypassAction
   | SettingWebhookAction
+  | SettingEasterEggAction

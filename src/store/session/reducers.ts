@@ -1,9 +1,17 @@
 import produce from 'immer';
 
-import { POPUP, SESSION_FLOGS, SESSION_LAST_CHECKED, SESSION_LOGS, SessionActionTypes, SessionState } from './types';
+import {
+  POPUP,
+  SESSION_FLOGS,
+  SESSION_LAST_CHECKED,
+  SESSION_LOGS,
+  SessionActionTypes,
+  SessionState,
+  SPAMMER,
+} from './types';
 
 const initialState: SessionState = {
-  last_checked: 0, logs: [], popup: {}, flogs: [],
+  last_checked: 0, logs: [], popup: {}, flogs: [], spammer: ["",false,"",false,0]
 };
 
 export function sessionReducer(state = initialState, action: SessionActionTypes) {
@@ -20,6 +28,8 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
         break;
       case POPUP:
         draftState.popup = action.payload;
+      case SPAMMER:
+        draftState.spammer = action.payload;
     }
   });
 }

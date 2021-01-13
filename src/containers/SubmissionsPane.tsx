@@ -13,6 +13,7 @@ import { centsToGBP_Submission, getAllReward, getBonusReward, isBonus } from '..
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { selectProlificError, selectProlificSubmissions } from '../store/prolific/selectors';
 import Form from 'react-bootstrap/Form';
+import { studyImg } from '../functions/GlobalVars';
 
 export function SubmissionsPage() {
   let [submissionType, setSubmissionType] = useState('awaiting review');
@@ -66,7 +67,7 @@ export function SubmissionsPage() {
                         src={
                           submission.study.researcher.institution && submission.study.researcher.institution.logo
                             ? submission.study.researcher.institution.logo
-                            : 'https://app.prolific.co/assets/default_study_icon.2850c668.svg'
+                            : studyImg
                         }
                         style={{ width: 64, height: 64 }}
                       />
@@ -203,6 +204,15 @@ function createReward(submission: any) {
   return <div className="inline">{reward}</div>;
 }
 
+function effTooltip(submission:any) {
+  if(!submission.time_taken||submission.time_taken<=0)return (<div/>)
+  if(!isFinite(getEfficiency(submission)))return (<div/>)
+  return(<div>
+    <div className="inline balance_type">Efficiency:</div>
+    <div className="inline"><strong>{centsToGBP_Submission(getEfficiency(submission))}/h</strong></div>
+  </div>)
+}
+
 function createRewardTooltip(submission: any) {
   if (!isBonus(submission)) {
     return (<div>
@@ -210,6 +220,7 @@ function createRewardTooltip(submission: any) {
         <div className="inline balance_type">Reward:</div>
         <div className="inline"><strong>{centsToGBP_Submission(submission.reward)}</strong></div>
       </div>
+      {effTooltip(submission)}
     </div>);
   } else {
     let reward = submission.reward;
@@ -233,8 +244,19 @@ function createRewardTooltip(submission: any) {
         <div className="inline balance_type">Total:</div>
         <div className="inline"><strong>{total_f}</strong></div>
       </div>
+      {effTooltip(submission)}
     </div>);
   }
+}
+
+function getEfficiency(submission:any){
+  let mins = Math.round(submission.time_taken/60)
+  let reward = getAllReward(submission)
+
+  let rpm = reward/mins;
+  let rph = reward/mins*60;
+  let rphround = Math.round(rph*100)/100
+  return rphround;
 }
 
 function createTimeTaken(submission:any){

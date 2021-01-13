@@ -5,9 +5,12 @@ import {
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS, SETTING_LIMIT_BYPASS,
+  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_EASTEREGG,
+  SETTING_LIMIT_BYPASS,
   SETTING_THEME,
-  SETTING_UID, SETTING_WEBHOOK,
+  SETTING_UID,
+  SETTING_WEBHOOK,
   SettingsActionTypes,
   SettingsState,
 } from './types';
@@ -21,7 +24,8 @@ const initialState: SettingsState = {
   autostart: false,
   uid: undefined,
   limit_bypass:false,
-  webhook:"",
+  webhook:["","",false],
+  easter_egg:{},
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
@@ -53,6 +57,9 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         break;
       case SETTING_WEBHOOK:
         draftState.webhook = action.payload;
+        break;
+      case SETTING_EASTEREGG:
+        draftState.easter_egg = action.payload;
         break;
     }
   });

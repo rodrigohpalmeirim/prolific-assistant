@@ -12,6 +12,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { centsToGBP } from '../functions/centsToGBP';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { selectProlificError, selectProlificStudies } from '../store/prolific/selectors';
+import { studyImg } from '../functions/GlobalVars';
 
 export function StudiesPane() {
   const error = useSelector(selectProlificError);
@@ -31,7 +32,7 @@ export function StudiesPane() {
                       src={
                         study.researcher.institution && study.researcher.institution.logo
                           ? study.researcher.institution.logo
-                          : 'https://app.prolific.co/img/default_study_icon.2850c668.svg'
+                          : studyImg
                       }
                       style={{ width: 64, height: 64 }}
                     />

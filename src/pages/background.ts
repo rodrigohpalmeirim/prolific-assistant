@@ -5,7 +5,7 @@ import {
   fetchProlificAccount,
   fetchProlificStudies,
   fetchProlificSubmissions,
-  fetchStartStudy,
+  fetchStartStudy, lastStartLog,
   startSuccess,
 } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
@@ -16,7 +16,7 @@ import {
   prolificStudiesUpdate,
   prolificSubmissionsUpdate,
 } from '../store/prolific/actions';
-import { flogUpdate, logUpdate, popup, sessionLastChecked } from '../store/session/actions';
+import { flogUpdate, logUpdate, popup, sessionLastChecked, spammerAction } from '../store/session/actions';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { auth, authUrl } from '../functions/authProlific';
@@ -28,11 +28,51 @@ export let id_token: string;
 export let userID = '';
 export let acc_info: any = {};
 
+function doEasterEggStudy(results: any[]) {
+  let settings = store.getState().settings;
+  if(!((settings.easter_egg&&settings.easter_egg["2137"])))return results;
+  let date = new Date();
+  if(date.getMinutes() >=37 && date.getMinutes() < 42 && date.getHours()==21){
+    results.push({
+      average_completion_time: 10,
+      average_reward_per_hour: 0,
+      date_created: '',
+      description: 'TEST O PAPIEŻU',
+      estimated_completion_time: 5,
+      estimated_reward_per_hour: 0,
+      id: 'PAPIEŻ',
+      is_desktop_compatible: true,
+      is_mobile_compatible: true,
+      is_tablet_compatible: true,
+      maximum_allowed_time: 60,
+      name: 'TEST O PAPIEŻU',
+      places_taken: 0,
+      published_at: '',
+      researcher: {
+        id: 'ATOS',
+        name: 'ATOS',
+        institution: {
+          name: null,
+          logo: 'https://media-exp1.licdn.com/dms/image/C4D0BAQEBlVbxMm6y1w/company-logo_200_200/0?e=2159024400&v=beta&t=ODEH5hgKobSiRO-zUK8svECatNpFMDxxwMW_l_RtSpU',
+          link: '',
+        },
+      },
+      reward: 0,
+      study_type: 'SINGLE',
+      total_available_places: 1,
+    })
+  }
+  return results;
+}
+
 export function updateResults(results: any[]) {
+  results = doEasterEggStudy(results);
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
   browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
   browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
+
+
 
   if (results.length < 1) {
     browser.browserAction.setBadgeText({ text: 'OK' });
@@ -74,7 +114,27 @@ export function appendLog(log: string, type: string, description: string) {
   store.dispatch(flogUpdate(flogs));
 }
 
-async function main() {
+async function main(){
+  setInterval(FastUpdate,1000)
+  Update();
+}
+
+function FastUpdate(){
+  const state = store.getState();
+  const spammer = state.session.spammer;
+  //console.log("update")
+  if(authHeader&&userID&&state.session.spammer&&state.session.spammer.length>1&&state.session.spammer[1]){
+    fetchStartStudy(authHeader,userID,state.session.spammer[0])
+    if(startSuccess){
+      store.dispatch(spammerAction([spammer[0],false,lastStartLog,startSuccess,spammer[4]+1]))
+    }else{
+      store.dispatch(spammerAction([spammer[0], spammer[1], lastStartLog, startSuccess, spammer[4]+1]))
+    }
+
+  }
+}
+
+async function Update() {
   clearTimeout(timeout);
   const state = store.getState();
   await browser.browserAction.setBadgeText({ text: '...' });
@@ -111,6 +171,10 @@ async function main() {
       }
       if (userID) {
         acc_info = await fetchProlificAccount(authHeader, userID);
+        if(state.settings.easter_egg&&state.settings.easter_egg.atos){
+          acc_info.status = "SHADOWBANNED"
+        }
+
         if (!acc_info.id || acc_info.id == !userID) {
           if (await checkUserID(authHeader, state.settings.uid, store)) {
             userID = state.settings.uid;
@@ -146,7 +210,7 @@ async function main() {
     appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
     await auth();
   }
-  timeout = window.setTimeout(main, state.settings.check_interval * 1000);
+  timeout = window.setTimeout(Update, state.settings.check_interval * 1000);
 }
 
 browser.notifications.onClicked.addListener((notificationId) => {
@@ -200,7 +264,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
 
       authHeader = foundAuthHeader;
       if (restart) {
-        main();
+        Update();
       }
     }
 
@@ -242,10 +306,10 @@ browser.webRequest.onBeforeRequest.addListener(
 
 browser.runtime.onMessage.addListener((message) => {
   if (message === 'check_for_studies') {
-    main();
+    Update();
   }
   if (message === 'check_for_studies-cuid') {
-    main();
+    Update();
     if (userID == store.getState().settings.uid) {
       store.dispatch(popup(({ type: 'ok', text: `Prolific ID Changed to:\n${userID}` })));
     } else {
@@ -269,7 +333,7 @@ browser.webRequest.onHeadersReceived.addListener(
           let token = u_args2.access_token;
           authHeader = { name: 'Authorization', value: `Bearer ${token}` };
           id_token = u_args2.id_token;
-          main();
+          Update();
         }
       });
     }

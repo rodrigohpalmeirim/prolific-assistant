@@ -21,7 +21,7 @@ import {
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import Button from 'react-bootstrap/Button';
-import { themes } from '../components/App';
+import { hiddenThemes, themes } from '../components/App';
 
 export function SettingsPane() {
   const dispatch = useDispatch();
@@ -50,10 +50,6 @@ export function SettingsPane() {
 
   function onChangeUID(uid: string) {
     dispatch(settingUID(uid));
-  }
-
-  function onChangeWebhook(hook: string) {
-    dispatch(settingWebhook(hook));
   }
 
   function onChangeCheckInterval(event: any) {
@@ -102,6 +98,12 @@ export function SettingsPane() {
       let fstr = str[0].toUpperCase() + str.substring(1);
       elements.push(<option key={str} value={str}>{fstr}</option>);
     });
+    Object.keys(hiddenThemes).forEach(key => {
+      if(((settings.easter_egg&&settings.easter_egg[key]))){
+      let str = key;
+      let fstr = str[0].toUpperCase() + str.substring(1);
+      elements.push(<option key={str} value={str}>{fstr}</option>);}
+    });
     return elements;
   }
 
@@ -139,7 +141,9 @@ export function SettingsPane() {
           <option value="sweet-alert-3">Sweet Alert 3</option>
           <option value="sweet-alert-4">Sweet Alert 4</option>
           <option value="sweet-alert-5">Sweet Alert 5</option>
-          <option value="glowa">Glowa</option>
+          {(settings.easter_egg&&settings.easter_egg.glowa)?(<option value="glowa">Glowa</option>):("")}
+          {(settings.easter_egg&&settings.easter_egg.trial)?(<option value="trial">Trial</option>):("")}
+
         </Form.Control>
       </Form.Group>
       <Form.Group>
@@ -194,11 +198,6 @@ export function SettingsPane() {
         <Form.Control as="select" onChange={onChangeTheme} value={settings.theme}>
           {createThemesOptions()}
         </Form.Control>
-      </Form.Group>
-      <Form.Group>
-        <Form.Label>Discord Webhook</Form.Label>
-        <Form.Control id="webhook_box" type="text" value={settings.webhook} onChange={()=>{// @ts-ignore
-          onChangeWebhook(document.getElementById('webhook_box').value);}} />
       </Form.Group>
       <Form.Group>
         <Button onClick={() => {

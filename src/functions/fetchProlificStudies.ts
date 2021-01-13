@@ -1,4 +1,4 @@
-import { appendLog, setStat } from '../pages/background';
+import { appendLog, authHeader, setStat, userID } from '../pages/background';
 import {  settingUID } from '../store/settings/actions';
 import { Store } from 'redux';
 
@@ -44,7 +44,9 @@ export async function fetchProlificSubmissions(authHeader: any, userID: string) 
   return json;
 }
 
-export let  startSuccess = false;
+export let startSuccess = false;
+export let lastStartLog = "";
+
 export async function fetchStartStudy(authHeader: any, userID: string, studyID: string) {
   let url = 'https://www.prolific.co/api/v1/submissions/';
   startSuccess = false;
@@ -59,12 +61,12 @@ export async function fetchStartStudy(authHeader: any, userID: string, studyID: 
   let json = JSON.parse(req.responseText);
   if (json.error) {
     appendLog(`ERROR while starting study`, 'error', `ERROR while starting study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nERROR: ${JSON.stringify(json.error)}\nSTATUS: ${req.status}`);
+    lastStartLog = json.error;
   } else {
     appendLog(`Successfully started study`, 'success', `Successfully started study\nSTUDYID: ${studyID}\nUSERID: ${userID}\nSTATUS: ${req.status}`);
     startSuccess = true;
+    lastStartLog = "Success";
   }
-
-  console.log(json);
   return json;
 }
 
