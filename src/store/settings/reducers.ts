@@ -21,7 +21,7 @@ const initialState: SettingsState = {
   check_interval: 60,
   desktop_notifications: true,
   theme: 'white',
-  autostart: false,
+  autostart: [false, [-1,-1],["-","-",false]],
   uid: undefined,
   limit_bypass:false,
   webhook:["","",false],

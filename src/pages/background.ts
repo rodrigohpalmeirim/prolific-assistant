@@ -21,6 +21,7 @@ import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateM
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { auth, authUrl } from '../functions/authProlific';
 import { settingUID } from '../store/settings/actions';
+import { testAutoStart } from '../functions/centsToGBP';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 export let authHeader: WebRequest.HttpHeadersItemType;
@@ -88,6 +89,7 @@ export function updateResults(results: any[]) {
     });
     const settings = store.getState().settings;
     if (bestStudy && bestStudy.id && settings.autostart && results.length > 0) {
+      if(testAutoStart(settings.autostart,bestStudy.reward))
       fetchStartStudy(authHeader, userID, bestStudy.id);
     }
   }

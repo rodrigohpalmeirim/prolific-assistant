@@ -1,5 +1,5 @@
 export interface SettingsState {
-  autostart: boolean;
+  autostart: any;
   alert_sound:
     | 'none'
     | 'voice'

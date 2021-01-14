@@ -9,6 +9,7 @@ import { centsToGBP, centsToGBP_Submission, efficiency } from '../functions/cent
 import { StartSpammer } from './OtherModules/StartSpammerPane';
 import { WebHookPane } from './OtherModules/WebHookPane';
 import { EasterEggPane } from './OtherModules/EasterEggPane';
+import { AutoStartPane } from './OtherModules/AutoStartPane';
 
 export function OtherModulesPane() {
   const acc_info = useSelector(selectAcc_Info);
@@ -28,6 +29,9 @@ export function OtherModulesPane() {
       <Tab.Container activeKey={key} onSelect={onSelect}>
         <Nav className={'w-100 theme2'} variant="pills">
           <Nav.Item className="text-center w-25 nav_btn">
+            <Nav.Link eventKey="autostart">AutoStart</Nav.Link>
+          </Nav.Item>
+          <Nav.Item className="text-center w-25 nav_btn">
             <Nav.Link eventKey="sspammer">StartSpammer</Nav.Link>
           </Nav.Item>
           <Nav.Item className="text-center w-25 nav_btn">
@@ -38,6 +42,11 @@ export function OtherModulesPane() {
           </Nav.Item>
         </Nav>
         <Tab.Content className={'theme1'}>
+          <Tab.Pane className="p-1" eventKey="autostart">
+            <Form.Group>
+              <AutoStartPane/>
+            </Form.Group>
+          </Tab.Pane>
           <Tab.Pane className="p-1" eventKey="sspammer">
             <Form.Group>
               <StartSpammer/>
