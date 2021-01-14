@@ -5,7 +5,8 @@ import {
   fetchProlificAccount,
   fetchProlificStudies,
   fetchProlificSubmissions,
-  fetchStartStudy, lastStartLog,
+  fetchStartStudy,
+  lastStartLog,
   startSuccess,
 } from '../functions/fetchProlificStudies';
 import { openProlificStudy } from '../functions/openProlificStudy';
@@ -31,9 +32,9 @@ export let acc_info: any = {};
 
 function doEasterEggStudy(results: any[]) {
   let settings = store.getState().settings;
-  if(!((settings.easter_egg&&settings.easter_egg["2137"])))return results;
+  if (!((settings.easter_egg && settings.easter_egg['2137']))) return results;
   let date = new Date();
-  if(date.getMinutes() >=37 && date.getMinutes() < 42 && date.getHours()==21){
+  if (date.getMinutes() >= 37 && date.getMinutes() < 42 && date.getHours() == 21) {
     results.push({
       average_completion_time: 10,
       average_reward_per_hour: 0,
@@ -41,7 +42,7 @@ function doEasterEggStudy(results: any[]) {
       description: 'TEST O PAPIEŻU',
       estimated_completion_time: 5,
       estimated_reward_per_hour: 0,
-      id: 'PAPIEŻ',
+      id: 'TEST_PAPIEŻ',
       is_desktop_compatible: true,
       is_mobile_compatible: true,
       is_tablet_compatible: true,
@@ -61,7 +62,7 @@ function doEasterEggStudy(results: any[]) {
       reward: 0,
       study_type: 'SINGLE',
       total_available_places: 1,
-    })
+    });
   }
   return results;
 }
@@ -72,7 +73,6 @@ export function updateResults(results: any[]) {
   store.dispatch(sessionLastChecked());
   browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
   browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
-
 
 
   if (results.length < 1) {
@@ -89,8 +89,9 @@ export function updateResults(results: any[]) {
     });
     const settings = store.getState().settings;
     if (bestStudy && bestStudy.id && settings.autostart && results.length > 0) {
-      if(testAutoStart(settings.autostart,bestStudy.reward))
-      fetchStartStudy(authHeader, userID, bestStudy.id);
+      if (!bestStudy.id.includes('TEST'))
+        if (testAutoStart(settings.autostart, bestStudy.reward))
+          fetchStartStudy(authHeader, userID, bestStudy.id);
     }
   }
 }
@@ -116,21 +117,21 @@ export function appendLog(log: string, type: string, description: string) {
   store.dispatch(flogUpdate(flogs));
 }
 
-async function main(){
-  setInterval(FastUpdate,1000)
+async function main() {
+  setInterval(FastUpdate, 1000);
   Update();
 }
 
-function FastUpdate(){
+function FastUpdate() {
   const state = store.getState();
   const spammer = state.session.spammer;
   //console.log("update")
-  if(authHeader&&userID&&state.session.spammer&&state.session.spammer.length>1&&state.session.spammer[1]){
-    fetchStartStudy(authHeader,userID,state.session.spammer[0])
-    if(startSuccess){
-      store.dispatch(spammerAction([spammer[0],false,lastStartLog,startSuccess,spammer[4]+1]))
-    }else{
-      store.dispatch(spammerAction([spammer[0], spammer[1], lastStartLog, startSuccess, spammer[4]+1]))
+  if (authHeader && userID && state.session.spammer && state.session.spammer.length > 1 && state.session.spammer[1]) {
+    fetchStartStudy(authHeader, userID, state.session.spammer[0]);
+    if (startSuccess) {
+      store.dispatch(spammerAction([spammer[0], false, lastStartLog, startSuccess, spammer[4] + 1]));
+    } else {
+      store.dispatch(spammerAction([spammer[0], spammer[1], lastStartLog, startSuccess, spammer[4] + 1]));
     }
 
   }
@@ -173,8 +174,8 @@ async function Update() {
       }
       if (userID) {
         acc_info = await fetchProlificAccount(authHeader, userID);
-        if(state.settings.easter_egg&&state.settings.easter_egg.atos){
-          acc_info.status = "SHADOWBANNED"
+        if (state.settings.easter_egg && state.settings.easter_egg.atos) {
+          acc_info.status = 'SHADOWBANNED';
         }
 
         if (!acc_info.id || acc_info.id == !userID) {

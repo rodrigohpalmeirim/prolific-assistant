@@ -3,7 +3,7 @@ import ReactDom from 'react-dom';
 import { Provider, useDispatch } from 'react-redux';
 import { Store } from 'webext-redux';
 
-import { App, returnThemeScript } from '../components/App';
+import { App } from '../components/App';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import './popup.css';

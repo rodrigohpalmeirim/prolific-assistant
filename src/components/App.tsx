@@ -154,7 +154,7 @@ export function AppV(view: string) {
       <style>{`body{overflow:hidden;}`}</style>
       <InfoPopup />
       <style>
-        {`${returnTheme(settings.theme)}`}
+        {`${returnTheme(settings?settings.theme?settings.theme:"white":"white")}`}
       </style>
       <Header />
       <Tab.Content className={'theme1'}>
