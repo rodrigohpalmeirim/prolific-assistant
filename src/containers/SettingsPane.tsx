@@ -21,7 +21,7 @@ import {
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import Button from 'react-bootstrap/Button';
-import { hiddenThemes, themes } from '../components/App';
+import { getCombinedThemesS, hiddenThemes, themes } from '../components/App';
 
 export function SettingsPane() {
   const dispatch = useDispatch();
@@ -93,16 +93,10 @@ export function SettingsPane() {
 
   function createThemesOptions() {
     let elements: JSX.Element[] = [];
-    Object.keys(themes).forEach(key => {
+    Object.keys(getCombinedThemesS(settings)).forEach(key => {
       let str = key;
       let fstr = str[0].toUpperCase() + str.substring(1);
       elements.push(<option key={str} value={str}>{fstr}</option>);
-    });
-    Object.keys(hiddenThemes).forEach(key => {
-      if(((settings.easter_egg&&settings.easter_egg[key]))){
-      let str = key;
-      let fstr = str[0].toUpperCase() + str.substring(1);
-      elements.push(<option key={str} value={str}>{fstr}</option>);}
     });
     return elements;
   }

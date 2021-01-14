@@ -4,7 +4,7 @@ import {
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
-  SETTING_CHECK_INTERVAL,
+  SETTING_CHECK_INTERVAL, SETTING_CTHEME,
   SETTING_DESKTOP_NOTIFICATIONS,
   SETTING_EASTEREGG,
   SETTING_LIMIT_BYPASS,
@@ -21,6 +21,7 @@ const initialState: SettingsState = {
   check_interval: 60,
   desktop_notifications: true,
   theme: 'white',
+  ctheme: [{},false],
   autostart: [false, [-1,-1],["-","-",false]],
   uid: undefined,
   limit_bypass:false,
@@ -60,6 +61,9 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         break;
       case SETTING_EASTEREGG:
         draftState.easter_egg = action.payload;
+        break;
+      case SETTING_CTHEME:
+        draftState.ctheme = action.payload;
         break;
     }
   });

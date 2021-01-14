@@ -23,6 +23,7 @@ import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddlew
 import { auth, authUrl } from '../functions/authProlific';
 import { settingUID } from '../store/settings/actions';
 import { testAutoStart } from '../functions/centsToGBP';
+import { showOKPopup } from '../containers/Popup_Info';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
 export let authHeader: WebRequest.HttpHeadersItemType;
@@ -314,9 +315,9 @@ browser.runtime.onMessage.addListener((message) => {
   if (message === 'check_for_studies-cuid') {
     Update();
     if (userID == store.getState().settings.uid) {
-      store.dispatch(popup(({ type: 'ok', text: `Prolific ID Changed to:\n${userID}` })));
+      showOKPopup(`Prolific ID Changed to:\n${userID}`);
     } else {
-      store.dispatch(popup(({ type: 'ok', text: `Prolific ID is Invalid:\n${store.getState().settings.uid}` })));
+      showOKPopup(`Prolific ID is Invalid:\n${store.getState().settings.uid}`);
     }
   }
 });

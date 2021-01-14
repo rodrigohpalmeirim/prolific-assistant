@@ -14,10 +14,11 @@ export interface SettingsState {
   check_interval: number;
   desktop_notifications: boolean;
   theme: string;
+  ctheme: [any, boolean];
   uid: string;
   limit_bypass: boolean;
-  webhook:any;
-  easter_egg:any;
+  webhook: any;
+  easter_egg: any;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
@@ -29,6 +30,7 @@ export const SETTING_CHECK_INTERVAL = 'SETTING_CHECK_INTERVAL';
 export const SETTING_DESKTOP_NOTIFICATIONS = 'SETTING_DESKTOP_NOTIFICATIONS';
 export const SETTING_LIMIT_BYPASS = 'SETTING_LIMIT_BYPASS';
 export const SETTING_THEME = 'SETTING_THEME';
+export const SETTING_CTHEME = 'SETTING_CTHEME';
 export const SETTING_UID = 'SETTING_UID';
 export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
 export const SETTING_EASTEREGG = 'SETTING_EASTEREGG';
@@ -68,6 +70,11 @@ export interface SettingCheckIntervalAction {
 export interface SettingThemeAction {
   type: typeof SETTING_THEME;
   payload: SettingsState['theme'];
+}
+
+export interface SettingCThemeAction {
+  type: typeof SETTING_CTHEME;
+  payload: SettingsState['ctheme'];
 }
 
 export interface SettingUIDAction {
@@ -118,3 +125,4 @@ export type SettingsActionTypes =
   | SettingsLimitBypassAction
   | SettingWebhookAction
   | SettingEasterEggAction
+  | SettingCThemeAction

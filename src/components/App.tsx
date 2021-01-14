@@ -38,7 +38,7 @@ export let hiddenThemes:any = {
     theme1bg: '#282828', theme1fg: 'white',
     theme2bg: '#151515', theme2fg: 'white',
     theme3bg: '#131313', theme_fg: 'var(--rgbRainbow)', navbar: 'var(--theme3bg)',
-    hover: '#101010', theme_bfg: '#750000', theme_bfg_h: '#b50000',rgbRainbow:'rgb(0,0,0)',
+    hover: '#101010', theme_bfg: '#750000', theme_bfg_h: '#b50000',
     custom:[
       '@-webkit-keyframes rainbow_bg{0%{background-color: orange}10%{background-color: purple}20%{background-color: red}30%{background-color: CadetBlue}40%{background-color: yellow}50%{background-color: coral}60%{background-color: green}70%{background-color: cyan}80%{background-color: DeepPink}90%{background-color: DodgerBlue}100%{background-color: orange}}@-ms-keyframes rainbow_bg{0%{background-color: orange}10%{background-color: purple}20%{background-color: red}30%{background-color: CadetBlue}40%{background-color: yellow}50%{background-color: coral}60%{background-color: green}70%{background-color: cyan}80%{background-color: DeepPink}90%{background-color: DodgerBlue}100%{background-color: orange}}@keyframes rainbow_bg{0%{background-color: orange}10%{background-color: purple}20%{background-color: red}30%{background-color: CadetBlue}40%{background-color: yellow}50%{background-color: coral}60%{background-color: green}70%{background-color: cyan}80%{background-color: DeepPink}90%{background-color: DodgerBlue}100%{background-color: orange}}',
       '@-webkit-keyframes rainbow{0%{color: orange}10%{color: purple}20%{color: red}30%{color: CadetBlue}40%{color: yellow}50%{color: coral}60%{color: green}70%{color: cyan}80%{color: DeepPink}90%{color: DodgerBlue}100%{color: orange}}@-ms-keyframes rainbow{0%{color: orange}10%{color: purple}20%{color: red}30%{color: CadetBlue}40%{color: yellow}50%{color: coral}60%{color: green}70%{color: cyan}80%{color: DeepPink}90%{color: DodgerBlue}100%{color: orange}}@keyframes rainbow{0%{color: orange}10%{color: purple}20%{color: red}30%{color: CadetBlue}40%{color: yellow}50%{color: coral}60%{color: green}70%{color: cyan}80%{color: DeepPink}90%{color: DodgerBlue}100%{color: orange}}',
@@ -76,6 +76,10 @@ export let themeApplyCSS = [
 
 export function getCombinedThemes(){
   const settings = useSelector(selectSettings);
+  return getCombinedThemesS(settings)
+}
+
+export function getCombinedThemesS(settings:any){
   let combined:any = {}
   Object.keys(themes).forEach((key:any)=>{
     combined[key] = themes[key];
@@ -84,6 +88,8 @@ export function getCombinedThemes(){
     if(((settings.easter_egg&&settings.easter_egg[key])))
       combined[key] = hiddenThemes[key];
   })
+  if(((settings.easter_egg&&settings.easter_egg["UNLIMITED_THEMES"])))
+  combined["custom"] = settings.ctheme[0];
   return combined;
 }
 

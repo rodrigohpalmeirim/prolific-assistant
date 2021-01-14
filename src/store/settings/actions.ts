@@ -9,6 +9,7 @@ import {
   SETTING_CHECK_INTERVAL,
   SETTING_DESKTOP_NOTIFICATIONS, SETTING_LIMIT_BYPASS,
   SETTING_THEME,
+  SETTING_CTHEME,
   SETTING_UID,
   SettingAlertSoundAction,
   SettingAlertVolumeAction,
@@ -16,6 +17,7 @@ import {
   SettingCheckIntervalAction,
   SettingsDesktopNotificationAction, SettingsLimitBypassAction,
   SettingThemeAction,
+  SettingCThemeAction,
   SettingUIDAction,
   TEST_ALERT_SOUND,
   TEST_STUDY,
@@ -85,6 +87,13 @@ export function settingLimitBypass(
 export function settingTheme(payload: SettingThemeAction['payload']): SettingThemeAction {
   return {
     type: SETTING_THEME,
+    payload,
+  };
+}
+
+export function settingCTheme(payload: SettingCThemeAction['payload']): SettingCThemeAction {
+  return {
+    type: SETTING_CTHEME,
     payload,
   };
 }

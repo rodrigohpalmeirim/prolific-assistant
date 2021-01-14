@@ -23,6 +23,10 @@ function returnPopup(type:any,text:any){
     {createPopup(type, text)}</div>;
 }
 
+export function showOKPopup(text:string){
+  dispatch(popup({ type: 'ok', text: text}));
+}
+
 function createPopup(type: string, text: string) {
   if (type === 'ok') {
     return (<div className="i_popup">
