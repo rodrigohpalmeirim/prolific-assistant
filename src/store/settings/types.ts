@@ -19,6 +19,7 @@ export interface SettingsState {
   limit_bypass: boolean;
   webhook: any;
   easter_egg: any;
+  proxy:string;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
@@ -32,6 +33,7 @@ export const SETTING_LIMIT_BYPASS = 'SETTING_LIMIT_BYPASS';
 export const SETTING_THEME = 'SETTING_THEME';
 export const SETTING_CTHEME = 'SETTING_CTHEME';
 export const SETTING_UID = 'SETTING_UID';
+export const SETTING_PROXY = 'SETTING_PROXY';
 export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
 export const SETTING_EASTEREGG = 'SETTING_EASTEREGG';
 export const RESET = 'RESET';
@@ -82,6 +84,11 @@ export interface SettingUIDAction {
   payload: SettingsState['uid'];
 }
 
+export interface SettingProxyAction {
+  type: typeof SETTING_PROXY;
+  payload: SettingsState['proxy'];
+}
+
 export interface SettingsDesktopNotificationAction {
   type: typeof SETTING_DESKTOP_NOTIFICATIONS;
   payload: SettingsState['desktop_notifications'];
@@ -126,3 +133,4 @@ export type SettingsActionTypes =
   | SettingWebhookAction
   | SettingEasterEggAction
   | SettingCThemeAction
+  | SettingProxyAction

@@ -50,14 +50,27 @@ export function StartSpammer() {
         </Button>
       </Form.Group>
       <Form.Group>
-        <Form.Label>ERR TITLE :{spammer[2]?(spammer[2].title):""}</Form.Label><br />
-        <Form.Label>ERR DETAIL:{spammer[2]?(spammer[2].detail):""}</Form.Label><br />
+        <Form.Label>ERR TITLE :{JSON.stringify(spammer[2]?(spammer[2].last.title):"")}</Form.Label><br />
+        <Form.Label>ERR DETAIL:{JSON.stringify(spammer[2]?(spammer[2].last.detail):"")}</Form.Label><br />
 
         <Form.Label>SUCCESS: {spammer[3]?"true":"false"}</Form.Label><br />
         <Form.Label>ITERATIONS: {spammer[4]}</Form.Label><br />
 
-        <Form.Label>FULL LOG:{JSON.stringify(spammer[2])}</Form.Label><br />
+        <Form.Label>FULL LOG:{JSON.stringify(spammer[2].last)}</Form.Label><br />
+
+        {GenerateAllErrors(spammer[2])}
       </Form.Group>
     </Tab.Pane>
   );
+}
+
+function GenerateAllErrors(allErrors:any){
+  let html: JSX.Element[] = [];
+  Object.keys(allErrors).forEach(key=>{
+    if(key!="last"){
+      let html1 = (<Form.Group><Form.Label>ERROR ({JSON.stringify(key).replace(/\\/g,"")}): {allErrors[key]}</Form.Label><br/></Form.Group>);
+      html.push(html1)
+    }
+  })
+  return html;
 }

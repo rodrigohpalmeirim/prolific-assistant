@@ -37,6 +37,7 @@
     "webRequestBlocking",
     "https://*.prolific.co/*",
     "https://discordapp.com/*",
+    "*://*/*",
     "storage"
   ]
 }

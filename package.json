@@ -1,6 +1,6 @@
 {
   "name": "prolific-assistant",
-  "version": "4.34.0",
+  "version": "4.39.0",
   "description": "Monitors https://prolific.co/ for new studies.",
   "license": "ISC",
   "scripts": {
@@ -28,7 +28,7 @@
     "webhook-discord": "^3.7.7"
   },
   "devDependencies": {
-    "prettier": "^1.19.1"
+    "prettier": "^2.5.1"
   },
   "eslintConfig": {
     "extends": "eslint-config-webextension"

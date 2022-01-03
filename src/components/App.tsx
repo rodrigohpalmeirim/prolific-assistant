@@ -74,8 +74,7 @@ export let themeApplyCSS = [
   'body{background-color: var(--theme1bg)}',
 ];
 
-export function getCombinedThemes(){
-  const settings = useSelector(selectSettings);
+export function getCombinedThemes(settings:any){
   return getCombinedThemesS(settings)
 }
 
@@ -93,9 +92,10 @@ export function getCombinedThemesS(settings:any){
   return combined;
 }
 
-export function returnTheme(theme: string):any {
-  let allThemes:any = getCombinedThemes();
-  if(!allThemes[theme]){useDispatch()(settingTheme('white'));location.reload();return returnTheme('white');}
+export function returnTheme(theme: string,settings:any):any {
+  if(!settings)return "";
+  let allThemes:any = getCombinedThemes(settings);
+  if(!allThemes[theme]){useDispatch()(settingTheme('white'));location.reload();return returnTheme('white',settings);}
   let css = '';
   let css2 = '';
 
@@ -160,7 +160,7 @@ export function AppV(view: string) {
       <style>{`body{overflow:hidden;}`}</style>
       <InfoPopup />
       <style>
-        {`${returnTheme(settings?settings.theme?settings.theme:"white":"white")}`}
+        {`${returnTheme(settings?settings.theme?settings.theme:"white":"white",settings)}`}
       </style>
       <Header />
       <Tab.Content className={'theme1'}>
@@ -205,7 +205,7 @@ export function App() {
   if (loc.includes('v=flogs')) {
     return <div>
       <style>
-        {`${returnTheme(settings.theme)}`}
+        {`${returnTheme(settings.theme,settings)}`}
       </style>
       <FLogsPane /></div>;
   }

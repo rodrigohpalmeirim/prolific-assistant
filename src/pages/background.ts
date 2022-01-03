@@ -17,11 +17,11 @@ import {
   prolificStudiesUpdate,
   prolificSubmissionsUpdate,
 } from '../store/prolific/actions';
-import { flogUpdate, logUpdate, popup, sessionLastChecked, spammerAction } from '../store/session/actions';
+import { flogUpdate, logUpdate, sessionLastChecked, spammerAction } from '../store/session/actions';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
 import { auth, authUrl } from '../functions/authProlific';
-import { settingUID } from '../store/settings/actions';
+import { settingUID, testingAlertSound } from '../store/settings/actions';
 import { testAutoStart } from '../functions/centsToGBP';
 import { showOKPopup } from '../containers/Popup_Info';
 
@@ -92,7 +92,7 @@ export function updateResults(results: any[]) {
     if (bestStudy && bestStudy.id && settings.autostart && results.length > 0) {
       if (!bestStudy.id.includes('TEST'))
         if (testAutoStart(settings.autostart, bestStudy.reward))
-          fetchStartStudy(authHeader, userID, bestStudy.id);
+          fetchStartStudy(authHeader, userID, bestStudy.id, store);
     }
   }
 }
@@ -123,24 +123,42 @@ async function main() {
   Update();
 }
 
-function FastUpdate() {
+let fastUpdateIndex =0;
+let differentStartLogs:any = {};
+let spammerIndex = 0;
+
+async function FastUpdate() {
+  fastUpdateIndex+=1;
+  if(fastUpdateIndex>512)fastUpdateIndex=0;
+
   const state = store.getState();
   const spammer = state.session.spammer;
   //console.log("update")
   if (authHeader && userID && state.session.spammer && state.session.spammer.length > 1 && state.session.spammer[1]) {
-    fetchStartStudy(authHeader, userID, state.session.spammer[0]);
-    if (startSuccess) {
-      store.dispatch(spammerAction([spammer[0], false, lastStartLog, startSuccess, spammer[4] + 1]));
-    } else {
-      store.dispatch(spammerAction([spammer[0], spammer[1], lastStartLog, startSuccess, spammer[4] + 1]));
+    await fetchStartStudy(authHeader, userID, state.session.spammer[0], store);
+    spammerIndex+=1;
+    if (state.session.spammer[1]) {
+      differentStartLogs["last"] = lastStartLog;
+      if(!differentStartLogs[JSON.stringify(lastStartLog)]) differentStartLogs[JSON.stringify(lastStartLog)] = 0;
+      differentStartLogs[JSON.stringify(lastStartLog)] += 1;
+      if (startSuccess) {
+        store.dispatch(spammerAction([spammer[0], false, differentStartLogs, startSuccess, spammer[4] + 1]));
+        store.dispatch(testingAlertSound());
+      } else {
+        if(spammerIndex%5==0)
+        store.dispatch(spammerAction([spammer[0], spammer[1], differentStartLogs, startSuccess, spammer[4] + 5]));
+      }
     }
 
+  }else{
+    spammerIndex = 0;
   }
 }
 
 async function Update() {
   clearTimeout(timeout);
   const state = store.getState();
+  try{
   await browser.browserAction.setBadgeText({ text: '...' });
   await browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
 
@@ -163,6 +181,7 @@ async function Update() {
           await browser.browserAction.setBadgeText({ text: 'ERR' });
           await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
           appendLog('OTHER ERROR', 'error', `Unknown ERROR Occurred\n${JSON.stringify(response.error)}`);
+          await auth();
         }
       } else {
         await browser.browserAction.setBadgeText({ text: 'OK' });
@@ -213,12 +232,14 @@ async function Update() {
     await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
     appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
     await auth();
+  }}catch (e) {
+    console.error(e);
   }
   timeout = window.setTimeout(Update, state.settings.check_interval * 1000);
 }
 
-browser.notifications.onClicked.addListener((notificationId) => {
-  browser.notifications.clear(notificationId);
+browser.notifications.onClicked.addListener(async (notificationId) => {
+  await browser.notifications.clear(notificationId);
   openProlificStudy(notificationId);
 });
 

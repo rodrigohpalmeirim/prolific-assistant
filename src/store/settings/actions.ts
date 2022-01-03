@@ -23,7 +23,7 @@ import {
   TEST_STUDY,
   TestingAlertSoundAction,
   TestingStudyAction,
-  SETTING_WEBHOOK, SettingWebhookAction, SETTING_EASTEREGG, SettingEasterEggAction,
+  SETTING_WEBHOOK, SettingWebhookAction, SETTING_EASTEREGG, SettingEasterEggAction, SETTING_PROXY, SettingProxyAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -105,6 +105,12 @@ export function settingUID(payload: SettingUIDAction['payload']): SettingUIDActi
   };
 }
 
+export function settingProxy(payload: SettingProxyAction['payload']): SettingProxyAction {
+  return {
+    type: SETTING_PROXY,
+    payload,
+  };
+}
 
 export function settingAutoStart(payload: SettingAutostartAction['payload']): SettingAutostartAction {
   return {

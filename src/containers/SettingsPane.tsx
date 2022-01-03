@@ -12,7 +12,7 @@ import {
   settingAutoStart,
   settingCheckInterval,
   settingDesktopNotifications,
-  settingLimitBypass,
+  settingLimitBypass, settingProxy,
   settingTheme,
   settingUID,
   settingWebhook,
@@ -50,6 +50,9 @@ export function SettingsPane() {
 
   function onChangeUID(uid: string) {
     dispatch(settingUID(uid));
+  }
+  function onChangeProxyBox(proxy: string) {
+    dispatch(settingProxy(proxy));
   }
 
   function onChangeCheckInterval(event: any) {
@@ -165,19 +168,23 @@ export function SettingsPane() {
         </Button>
       </Form.Group>
       <Form.Group>
+        <Form.Label>Start Proxy: "{settings.proxy}"</Form.Label>
+        <Form.Control id="proxy_box" type="text" />
+      </Form.Group>
+      <Form.Group>
+        <Button onClick={() => {
+          // @ts-ignore
+          onChangeProxyBox(document.getElementById('proxy_box').value);
+        }}>
+          SET Proxy
+        </Button>
+      </Form.Group>
+      <Form.Group>
         <Form.Check
           label="Desktop Notifications"
           type="checkbox"
           checked={settings.desktop_notifications}
           onChange={onChangeDesktopNotification}
-        />
-      </Form.Group>
-      <Form.Group>
-        <Form.Check
-          label="AutoStart Studies"
-          type="checkbox"
-          checked={settings.autostart}
-          onChange={onChangeAutoStart}
         />
       </Form.Group>
       <Form.Group>

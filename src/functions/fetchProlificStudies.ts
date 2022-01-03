@@ -1,6 +1,7 @@
 import { appendLog, authHeader, setStat, userID } from '../pages/background';
 import {  settingUID } from '../store/settings/actions';
 import { Store } from 'redux';
+import { selectSettings } from '../store/settings/selectors';
 
 export async function fetchProlificStudies(authHeader: any) {
   const { name, value } = authHeader;
@@ -23,6 +24,7 @@ export async function fetchProlificAccount(authHeader: any, userID: string) {
     appendLog('Successfully loaded user info', 'status', `Successfully loaded user info\nUserID: ${userID}\n STATUS ${response.status}`);
 
   }
+
   return json;
 }
 
@@ -45,10 +47,15 @@ export async function fetchProlificSubmissions(authHeader: any, userID: string) 
 }
 
 export let startSuccess = false;
-export let lastStartLog = "";
+export let lastStartLog:any = "";
 
-export async function fetchStartStudy(authHeader: any, userID: string, studyID: string) {
+export async function fetchStartStudy(authHeader: any, userID: string, studyID: string,store:any) {
   let url = 'https://www.prolific.co/api/v1/submissions/';
+  let proxy =selectSettings(store.getState()).proxy;
+  if(proxy!=""){
+    url = proxy;
+  }
+
   startSuccess = false;
   let req = new XMLHttpRequest();
   req.open('POST', url, false);

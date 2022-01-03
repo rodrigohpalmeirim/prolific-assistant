@@ -7,7 +7,7 @@ import {
   SETTING_CHECK_INTERVAL, SETTING_CTHEME,
   SETTING_DESKTOP_NOTIFICATIONS,
   SETTING_EASTEREGG,
-  SETTING_LIMIT_BYPASS,
+  SETTING_LIMIT_BYPASS, SETTING_PROXY,
   SETTING_THEME,
   SETTING_UID,
   SETTING_WEBHOOK,
@@ -27,6 +27,7 @@ const initialState: SettingsState = {
   limit_bypass:false,
   webhook:["","",false],
   easter_egg:{},
+  proxy:"",
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
@@ -64,6 +65,9 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         break;
       case SETTING_CTHEME:
         draftState.ctheme = action.payload;
+        break;
+      case SETTING_PROXY:
+        draftState.proxy = action.payload;
         break;
     }
   });
