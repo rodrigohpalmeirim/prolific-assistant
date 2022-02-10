@@ -7,7 +7,7 @@ export async function fetchProlificStudies(authHeader: any) {
   const { name, value } = authHeader;
   const headers = { [name]: value };
   // omit credentials here, since auth is handled via the bearer token
-  const response = await fetch('https://www.prolific.co/api/v1/studies/?current=1', { credentials: 'omit', headers });
+  const response = await fetch('https://internal-api.prolific.co/api/v1/studies/?current=1', { credentials: 'omit', headers });
   const json: ProlificApiStudies = await response.json();
   return json;
 }
@@ -16,7 +16,7 @@ export async function fetchProlificAccount(authHeader: any, userID: string) {
   const { name, value } = authHeader;
   const headers = { [name]: value };
   // omit credentials here, since auth is handled via the bearer token
-  const response = await fetch(`https://www.prolific.co/api/v1/users/${userID}/`, { credentials: 'omit', headers });
+  const response = await fetch(`https://internal-api.prolific.co/api/v1/users/${userID}/`, { credentials: 'omit', headers });
   let json = await response.json();
   if (json.error) {
     appendLog('ERROR while loading user info', 'error', `ERROR while loading user info\nUserID: ${userID}\n STATUS ${response.status}\n ERROR: ${JSON.stringify(json.error)}`);
@@ -32,7 +32,7 @@ export async function fetchProlificSubmissions(authHeader: any, userID: string) 
   const { name, value } = authHeader;
   const headers = { [name]: value };
   // omit credentials here, since auth is handled via the bearer token
-  const response = await fetch(`https://www.prolific.co/api/v1/submissions/?participant=${userID}&page=1`, {
+  const response = await fetch(`https://internal-api.prolific.co/api/v1/submissions/?participant=${userID}&page=1`, {
     credentials: 'omit',
     headers,
   });
@@ -50,7 +50,7 @@ export let startSuccess = false;
 export let lastStartLog:any = "";
 
 export async function fetchStartStudy(authHeader: any, userID: string, studyID: string,store:any) {
-  let url = 'https://www.prolific.co/api/v1/submissions/';
+  let url = 'https://internal-api.prolific.co/api/v1/submissions/';
   let proxy =selectSettings(store.getState()).proxy;
   if(proxy!=""){
     url = proxy;

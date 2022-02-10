@@ -255,7 +255,7 @@ browser.webNavigation.onCompleted.addListener(
     handleSignedOut();
   },
   {
-    url: [{ urlEquals: 'https://www.prolific.co/auth/accounts/login/' }],
+    url: [{ urlEquals: 'https://internal-api.prolific.co/auth/accounts/login/' }],
   },
 );
 
@@ -296,7 +296,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
     return {};
   },
   {
-    urls: ['https://www.prolific.co/api/*'],
+    urls: ['https://internal-api.prolific.co/*'],
   },
   ['blocking', 'requestHeaders'],
 );
@@ -325,7 +325,7 @@ browser.webRequest.onBeforeRequest.addListener(
 
   },
   {
-    urls: ['https://www.prolific.co/api/v1/users/*'],
+    urls: ['https://internal-api.prolific.co/api/v1/users/*'],
   }, ['blocking'],
 );
 
@@ -364,7 +364,7 @@ browser.webRequest.onHeadersReceived.addListener(
     }
   },
   {
-    urls: ['https://www.prolific.co/*'],
+    urls: ['https://internal-api.prolific.co/*'],
   }, ['responseHeaders'],
 );
 
