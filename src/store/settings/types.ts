@@ -20,6 +20,8 @@ export interface SettingsState {
   webhook: any;
   easter_egg: any;
   proxy:string;
+  open_study: boolean;
+  accept_study: boolean;
 }
 
 export const SETTING_ALERT_SOUND = 'SETTING_ALERT_SOUND';
@@ -38,6 +40,8 @@ export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
 export const SETTING_EASTEREGG = 'SETTING_EASTEREGG';
 export const RESET = 'RESET';
 export const RELOAD = 'RELOAD';
+export const SETTING_OPEN_STUDY = 'SETTING_OPEN_STUDY';
+export const SETTING_ACCEPT_STUDY = 'SETTING_ACCEPT_STUDY';
 
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
@@ -119,6 +123,16 @@ export interface ReloadAction {
   payload: '';
 }
 
+export interface SettingsOpenStudyAction {
+  type: typeof SETTING_OPEN_STUDY;
+  payload: SettingsState['open_study'];
+}
+
+export interface SettingsAcceptStudyAction {
+  type: typeof SETTING_ACCEPT_STUDY;
+  payload: SettingsState['accept_study'];
+}
+
 export type SettingsActionTypes =
   | SettingAlertSoundAction
   | SettingAlertVolumeAction
@@ -134,3 +148,5 @@ export type SettingsActionTypes =
   | SettingEasterEggAction
   | SettingCThemeAction
   | SettingProxyAction
+  | SettingsOpenStudyAction
+  | SettingsAcceptStudyAction;

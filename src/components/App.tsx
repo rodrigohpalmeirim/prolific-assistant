@@ -19,6 +19,13 @@ export let themes: any = {
   white: {
     hover: '#d4d4d4',
   },
+  'Rod': {
+    theme1bg: '#242933', theme1fg: 'white',
+    theme2bg: '#2E3440', theme2fg: 'white',
+    // theme3bg: '#2E3440', theme_fg: 'white', navbar: 'var(--theme3bg)',
+    theme_fg: 'white',
+    hover: '#3B4252', theme_bfg: '#007bff', theme_bfg_h: '#434C5E',
+  },
   'Dark Blue': {
     theme1bg: '#282828', theme1fg: 'white',
     theme2bg: '#151515', theme2fg: 'white',

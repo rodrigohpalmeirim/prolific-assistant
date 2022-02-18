@@ -3,13 +3,13 @@
   "name": "Prolific Assistant",
   "version": "__package.version__",
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
-    "128": "icon.png"
+    "16": "mug.png",
+    "48": "mug.png",
+    "128": "mug.png"
   },
   "browser_action": {
     "default_title": "Prolific Assistant",
-    "default_icon": "icon.png",
+    "default_icon": "mug.png",
     "default_popup": "pages/popup.html"
   },
   "background": {

@@ -17,6 +17,8 @@ const persistMigrate = {
       settings: {
         ...state.settings,
         desktop_notifications: true,
+        open_study: true,
+        accept_study: false,
       },
     };
   },

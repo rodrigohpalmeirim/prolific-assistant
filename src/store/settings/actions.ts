@@ -3,6 +3,11 @@ import {
   ReloadAction,
   RESET,
   ResetSettingsAction,
+  SettingAlertSoundAction,
+  SettingAlertVolumeAction,
+  SettingCheckIntervalAction,
+  SettingsOpenStudyAction,
+  SettingsAcceptStudyAction,
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
@@ -11,10 +16,7 @@ import {
   SETTING_THEME,
   SETTING_CTHEME,
   SETTING_UID,
-  SettingAlertSoundAction,
-  SettingAlertVolumeAction,
   SettingAutostartAction,
-  SettingCheckIntervalAction,
   SettingsDesktopNotificationAction, SettingsLimitBypassAction,
   SettingThemeAction,
   SettingCThemeAction,
@@ -24,6 +26,8 @@ import {
   TestingAlertSoundAction,
   TestingStudyAction,
   SETTING_WEBHOOK, SettingWebhookAction, SETTING_EASTEREGG, SettingEasterEggAction, SETTING_PROXY, SettingProxyAction,
+  SETTING_OPEN_STUDY,
+  SETTING_ACCEPT_STUDY,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -75,11 +79,11 @@ export function settingDesktopNotifications(
   };
 }
 
-export function settingLimitBypass(
-  payload: SettingsLimitBypassAction['payload'],
-): SettingsLimitBypassAction {
+export function settingOpenStudy(
+  payload: SettingsOpenStudyAction['payload'],
+): SettingsOpenStudyAction {
   return {
-    type: SETTING_LIMIT_BYPASS,
+    type: SETTING_OPEN_STUDY,
     payload,
   };
 }
@@ -135,5 +139,14 @@ export function resetSettings(): ResetSettingsAction {
 export function reload(): ReloadAction {
   return {
     type: RELOAD, payload: '',
+  };
+}
+
+export function settingAcceptStudy(
+  payload: SettingsAcceptStudyAction['payload'],
+): SettingsAcceptStudyAction {
+  return {
+    type: SETTING_ACCEPT_STUDY,
+    payload,
   };
 }

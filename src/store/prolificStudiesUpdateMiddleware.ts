@@ -7,6 +7,9 @@ import { playAlertSound, sendWebhook } from '../functions/playAlertSound';
 import { AppState } from '.';
 import { PROLIFIC_STUDIES_UPDATE } from './prolific/types';
 
+import { openProlificStudy } from '../functions/openProlificStudy';
+import { acceptProlificStudy } from '../functions/acceptProlificStudy';
+
 const seen: ProlificStudy['id'][] = [];
 
 export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => (action) => {
@@ -25,7 +28,7 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
             type: 'list',
             title: study.name,
             message: '',
-            iconUrl: 'icon.png',
+            iconUrl: 'mug.png',
             items: [
               {
                 title: 'Hosted By',
@@ -42,6 +45,12 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
             ],
           });
         }
+
+        if (state.settings.accept_study)
+          acceptProlificStudy(study.id)
+
+        if (state.settings.open_study && study.id)
+          openProlificStudy(study.id);
 
         return [...acc, study];
       }

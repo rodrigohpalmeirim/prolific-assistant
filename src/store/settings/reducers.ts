@@ -13,6 +13,8 @@ import {
   SETTING_WEBHOOK,
   SettingsActionTypes,
   SettingsState,
+  SETTING_OPEN_STUDY,
+  SETTING_ACCEPT_STUDY,
 } from './types';
 
 const initialState: SettingsState = {
@@ -20,7 +22,7 @@ const initialState: SettingsState = {
   alert_volume: 100,
   check_interval: 60,
   desktop_notifications: true,
-  theme: 'white',
+  theme: 'Rod',
   ctheme: [{},false],
   autostart: [false, [-1,-1],["-","-",false]],
   uid: undefined,
@@ -28,6 +30,8 @@ const initialState: SettingsState = {
   webhook:["","",false],
   easter_egg:{},
   proxy:"",
+  open_study: true,
+  accept_study: false,
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
@@ -68,6 +72,12 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         break;
       case SETTING_PROXY:
         draftState.proxy = action.payload;
+        break;
+      case SETTING_OPEN_STUDY:
+        draftState.open_study = action.payload;
+        break;
+      case SETTING_ACCEPT_STUDY:
+        draftState.accept_study = action.payload;
         break;
     }
   });

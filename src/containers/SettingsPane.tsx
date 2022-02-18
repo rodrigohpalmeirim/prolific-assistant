@@ -12,12 +12,14 @@ import {
   settingAutoStart,
   settingCheckInterval,
   settingDesktopNotifications,
-  settingLimitBypass, settingProxy,
+  settingProxy,
   settingTheme,
   settingUID,
   settingWebhook,
   testingAlertSound,
   testingStudy,
+  settingOpenStudy,
+  settingAcceptStudy,
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import Button from 'react-bootstrap/Button';
@@ -57,18 +59,9 @@ export function SettingsPane() {
 
   function onChangeCheckInterval(event: any) {
     const value = Number(event.target.value);
-    if (!settings.limit_bypass) {
-      if (15 <= value) {
-        dispatch(settingCheckInterval(Number(event.target.value)));
-      } else {
-        dispatch(settingCheckInterval(15));
-      }
-    } else {
-      if (5 <= value) {
-        dispatch(settingCheckInterval(Number(event.target.value)));
-      } else {
-        dispatch(settingCheckInterval(5));
-      }
+
+    if (1 <= value) {
+      dispatch(settingCheckInterval(Number(event.target.value)));
     }
 
   }
@@ -82,16 +75,12 @@ export function SettingsPane() {
     dispatch(settingDesktopNotifications(event.target.checked));
   }
 
-  function onChangeLimitBypass(event: any) {
-    dispatch(settingLimitBypass(event.target.checked));
-
-    if (!settings.limit_bypass && settings.check_interval < 15) {
-      dispatch(settingCheckInterval(15));
-    }
+  function onChangeOpenStudy(event: any) {
+    dispatch(settingOpenStudy(event.target.checked));
   }
 
-  function onChangeAutoStart(event: any) {
-    dispatch(settingAutoStart(event.target.checked));
+  function onChangeAcceptStudy(event: any) {
+    dispatch(settingAcceptStudy(event.target.checked));
   }
 
   function createThemesOptions() {
@@ -121,14 +110,6 @@ export function SettingsPane() {
         <Form.Control type="number" onChange={onChangeCheckInterval} value={settings.check_interval.toString()} />
       </Form.Group>
       <Form.Group>
-        <Form.Check
-          label="Allow values lower than 15"
-          type="checkbox"
-          checked={settings.limit_bypass}
-          onChange={onChangeLimitBypass}
-        />
-      </Form.Group>
-      <Form.Group>
         <Form.Label>Alert Sound</Form.Label>
         <Form.Control as="select" onChange={onChangeAlertSound} value={settings.alert_sound}>
           <option value="none">None</option>
@@ -144,15 +125,28 @@ export function SettingsPane() {
         </Form.Control>
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
-          onTestAlertSound();
-        }}>
-          TEST NOTIFICATION
-        </Button>
-      </Form.Group>
-      <Form.Group>
         <Form.Label>Alert Volume</Form.Label>
         <Form.Control type="number" onChange={onChangeAlertVolume} value={settings.alert_volume.toString()} />
+      </Form.Group>
+      <Form.Group>
+        <Form.Check
+          label="Desktop notifications"
+          type="checkbox"
+          checked={settings.desktop_notifications}
+          onChange={onChangeDesktopNotification}
+        />
+        <Form.Check
+          label="Automatically open studies in new tab"
+          type="checkbox"
+          checked={settings.open_study}
+          onChange={onChangeOpenStudy}
+        />
+        <Form.Check
+          label="Automatically accept studies"
+          type="checkbox"
+          checked={settings.accept_study}
+          onChange={onChangeAcceptStudy}
+        />
       </Form.Group>
       <Form.Group>
         <Form.Label>Prolific ID</Form.Label>
@@ -178,14 +172,6 @@ export function SettingsPane() {
         }}>
           SET Proxy
         </Button>
-      </Form.Group>
-      <Form.Group>
-        <Form.Check
-          label="Desktop Notifications"
-          type="checkbox"
-          checked={settings.desktop_notifications}
-          onChange={onChangeDesktopNotification}
-        />
       </Form.Group>
       <Form.Group>
         <Button onClick={() => {
