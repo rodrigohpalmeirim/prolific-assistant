@@ -3,10 +3,10 @@ import {
   POPUP,
   SESSION_FLOGS,
   SESSION_LAST_CHECKED,
-  SESSION_LOGS,
+  SESSION_LOGS, SESSION_PA_UPDATE,
   SessionFullLogs,
   SessionLastCheckedAction,
-  SessionLogs, SPAMMER, Spammer,
+  SessionLogs, SessionPAUpdate, SPAMMER, Spammer,
 } from './types';
 
 export function sessionLastChecked(): SessionLastCheckedAction {
@@ -40,6 +40,13 @@ export function popup(payload: Popup['payload']): Popup {
 export function spammerAction(payload: [string, boolean, string, boolean, number]): Spammer {
   return {
     type: SPAMMER,
+    payload,
+  };
+}
+
+export function canUsePAUpdate(payload: SessionPAUpdate['payload']): SessionPAUpdate {
+  return {
+    type: SESSION_PA_UPDATE,
     payload,
   };
 }

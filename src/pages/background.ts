@@ -89,7 +89,7 @@ export function updateResults(results: any[]) {
       if (el.reward > bestStudy.reward) bestStudy = el;
     });
     const settings = store.getState().settings;
-    if (bestStudy && bestStudy.id && settings.autostart && results.length > 0) {
+    if (bestStudy && bestStudy.id && settings.autostart && results.length > 0 && state.session.canUsePA === true) {
       if (!bestStudy.id.includes('TEST'))
         if (testAutoStart(settings.autostart, bestStudy.reward))
           fetchStartStudy(authHeader, userID, bestStudy.id, store);
@@ -120,7 +120,18 @@ export function appendLog(log: string, type: string, description: string) {
 
 async function main() {
   setInterval(FastUpdate, 1000);
-  Update();
+  _Update();
+}
+
+async function _Update(){
+  const state = store.getState();
+  clearTimeout(timeout);
+  try{
+    await Update();
+  }catch (ex){
+    console.error(ex);
+  }
+  timeout = window.setTimeout(Update, state.settings.check_interval * 1000);
 }
 
 let fastUpdateIndex =0;
@@ -134,7 +145,7 @@ async function FastUpdate() {
   const state = store.getState();
   const spammer = state.session.spammer;
   //console.log("update")
-  if (authHeader && userID && state.session.spammer && state.session.spammer.length > 1 && state.session.spammer[1]) {
+  if (state.session.canUsePA===true && authHeader && userID && state.session.spammer && state.session.spammer.length > 1 && state.session.spammer[1]) {
     await fetchStartStudy(authHeader, userID, state.session.spammer[0], store);
     spammerIndex+=1;
     if (state.session.spammer[1]) {
@@ -156,7 +167,6 @@ async function FastUpdate() {
 }
 
 async function Update() {
-  clearTimeout(timeout);
   const state = store.getState();
   try{
   await browser.browserAction.setBadgeText({ text: '...' });
@@ -235,7 +245,6 @@ async function Update() {
   }}catch (e) {
     console.error(e);
   }
-  timeout = window.setTimeout(Update, state.settings.check_interval * 1000);
 }
 
 browser.notifications.onClicked.addListener(async (notificationId) => {

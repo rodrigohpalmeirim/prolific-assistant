@@ -4,16 +4,20 @@ import {
   SETTING_ALERT_SOUND,
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
-  SETTING_CHECK_INTERVAL, SETTING_CTHEME,
+  SETTING_CHECK_INTERVAL,
+  SETTING_CTHEME,
   SETTING_DESKTOP_NOTIFICATIONS,
   SETTING_EASTEREGG,
-  SETTING_LIMIT_BYPASS, SETTING_PROXY,
+  SETTING_LIMIT_BYPASS,
+  SETTING_PROXY,
+  SETTING_SETTINGS,
   SETTING_THEME,
   SETTING_UID,
   SETTING_WEBHOOK,
   SettingsActionTypes,
   SettingsState,
 } from './types';
+import { act } from 'react-dom/test-utils';
 
 const initialState: SettingsState = {
   alert_sound: 'voice',
@@ -31,6 +35,9 @@ const initialState: SettingsState = {
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
+  if(action.type == SETTING_SETTINGS){
+    return action.payload;
+  }
   return produce(state, (draftState) => {
     switch (action.type) {
       case SETTING_ALERT_SOUND:

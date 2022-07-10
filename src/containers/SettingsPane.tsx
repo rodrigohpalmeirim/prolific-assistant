@@ -12,7 +12,7 @@ import {
   settingAutoStart,
   settingCheckInterval,
   settingDesktopNotifications,
-  settingLimitBypass, settingProxy,
+  settingLimitBypass, settingProxy, settingSettings,
   settingTheme,
   settingUID,
   settingWebhook,
@@ -22,6 +22,13 @@ import {
 import { browser } from 'webextension-scripts/polyfill';
 import Button from 'react-bootstrap/Button';
 import { getCombinedThemesS, hiddenThemes, themes } from '../components/App';
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, getUserPreferences, login, logout, setUserPreferences } from '../functions/firebaseAuth';
+
+function getTextById(id:string):string{
+  // @ts-ignore
+  return document.getElementById(id).value;
+}
 
 export function SettingsPane() {
   const dispatch = useDispatch();
@@ -113,6 +120,8 @@ export function SettingsPane() {
     dispatch(reload());
     location.reload();
   }
+
+  const [user, loading] = useAuthState(auth);
 
   return (
     <Tab.Pane className="p-1 settings" eventKey="settings">
@@ -213,6 +222,64 @@ export function SettingsPane() {
           RELOAD
         </Button>
       </Form.Group>
+      {user?(
+        <Form.Group>
+          <Form.Label>logged in as: {user.email}</Form.Label>
+          <br/>
+          <Button onClick={async () => {
+            await logout();
+          }}>
+            Logout
+          </Button>
+            <Button onClick={async () => {
+              try{
+                let prefs = await getUserPreferences();
+                if(!prefs)prefs = {};
+                if(!prefs.prolific)prefs.prolific = {};
+                prefs.prolific.settings = JSON.stringify(settings);
+                await setUserPreferences(prefs);
+                alert("Successfull");
+              }catch(ex){
+                alert("error: "+ex);
+              }
+            }}>
+              Backup Settings
+            </Button>
+          <Button onClick={async () => {
+            try{
+              let prefs = await getUserPreferences();
+              if(!prefs)throw "no preferences";
+              if(!prefs.prolific)throw "no preferences prolific";
+              if(!prefs.prolific.settings)throw "no preferences prolific settings";
+              dispatch(settingSettings(JSON.parse(prefs.prolific.settings)));
+              alert("Successfull");
+              Reload();
+            }catch(ex){
+              alert("error: "+ex);
+            }
+          }}>
+            Load Settings
+          </Button>
+        </Form.Group>
+      ):(
+        <Form.Group>
+          <Form.Label>Not logged in:</Form.Label>
+          <Form.Control id="email_box" type="text" placeholder="email" />
+          <br/>
+          <Form.Control id="password_box" type="password" placeholder="password" />
+          <br/>
+          <Button onClick={async () => {
+            try{
+              await login(getTextById('email_box'),getTextById('password_box'));
+              alert("Login successfull");
+            }catch (ex){
+              alert("Login error: "+ex);
+            }
+
+          }}>
+            Login
+          </Button>
+        </Form.Group>)}
     </Tab.Pane>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import ReactDom from 'react-dom';
 import { Provider, useDispatch } from 'react-redux';
 import { Store } from 'webext-redux';
@@ -13,6 +13,7 @@ import {
   settingAlertSound,
   testingAlertSound,
 } from '../store/settings/actions';
+import { canUsePA, canUseProlificAssistant } from '../functions/firebaseAuth';
 
 const store = new Store();
 console.log(location.href);

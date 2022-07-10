@@ -5,13 +5,14 @@ import {
   SESSION_FLOGS,
   SESSION_LAST_CHECKED,
   SESSION_LOGS,
+  SESSION_PA_UPDATE,
   SessionActionTypes,
   SessionState,
   SPAMMER,
 } from './types';
 
 const initialState: SessionState = {
-  last_checked: 0, logs: [], popup: {}, flogs: [], spammer: ["",false,"",false,0]
+  last_checked: 0, logs: [], popup: {}, flogs: [], spammer: ['', false, '', false, 0], canUsePA:false,
 };
 
 export function sessionReducer(state = initialState, action: SessionActionTypes) {
@@ -28,8 +29,13 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
         break;
       case POPUP:
         draftState.popup = action.payload;
+        break;
       case SPAMMER:
         draftState.spammer = action.payload;
+        break;
+      case SESSION_PA_UPDATE:
+        draftState.canUsePA = action.payload;
+        break;
     }
   });
 }

@@ -7,23 +7,32 @@ import {
   SETTING_ALERT_VOLUME,
   SETTING_AUTOSTART,
   SETTING_CHECK_INTERVAL,
-  SETTING_DESKTOP_NOTIFICATIONS, SETTING_LIMIT_BYPASS,
-  SETTING_THEME,
   SETTING_CTHEME,
+  SETTING_DESKTOP_NOTIFICATIONS,
+  SETTING_EASTEREGG,
+  SETTING_LIMIT_BYPASS,
+  SETTING_PROXY,
+  SETTING_SETTINGS,
+  SETTING_THEME,
   SETTING_UID,
+  SETTING_WEBHOOK,
   SettingAlertSoundAction,
   SettingAlertVolumeAction,
   SettingAutostartAction,
   SettingCheckIntervalAction,
-  SettingsDesktopNotificationAction, SettingsLimitBypassAction,
-  SettingThemeAction,
   SettingCThemeAction,
+  SettingEasterEggAction,
+  SettingProxyAction,
+  SettingsDesktopNotificationAction,
+  SettingSettingsAction,
+  SettingsLimitBypassAction,
+  SettingThemeAction,
   SettingUIDAction,
+  SettingWebhookAction,
   TEST_ALERT_SOUND,
   TEST_STUDY,
   TestingAlertSoundAction,
   TestingStudyAction,
-  SETTING_WEBHOOK, SettingWebhookAction, SETTING_EASTEREGG, SettingEasterEggAction, SETTING_PROXY, SettingProxyAction,
 } from './types';
 
 export function settingAlertSound(payload: SettingAlertSoundAction['payload']): SettingAlertSoundAction {
@@ -135,5 +144,11 @@ export function resetSettings(): ResetSettingsAction {
 export function reload(): ReloadAction {
   return {
     type: RELOAD, payload: '',
+  };
+}
+
+export function settingSettings(payload:any): SettingSettingsAction {
+  return {
+    type: SETTING_SETTINGS, payload,
   };
 }

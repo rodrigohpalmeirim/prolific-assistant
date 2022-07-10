@@ -84,7 +84,7 @@ export async function checkUserID(authHeader: any, userID: string, store: Store)
   if (!userID || !userID.length || userID.length < 1) {
     return false;
   }
-  const response = await fetch(`https://www.prolific.co/api/v1/users/${userID}/`, { credentials: 'omit', headers });
+  const response = await fetch(`https://internal-api.prolific.co/api/v1/users/${userID}/`, { credentials: 'omit', headers });
   if (response.status == 404) {
     appendLog('ERROR PROLIFIC ID may be Invalid', 'error', `ERROR PROLIFIC ID may be Invalid\nID: ${userID}`);
     return false;

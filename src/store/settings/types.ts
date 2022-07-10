@@ -38,6 +38,7 @@ export const SETTING_AUTOSTART = 'SETTING_AUTOSTART';
 export const SETTING_EASTEREGG = 'SETTING_EASTEREGG';
 export const RESET = 'RESET';
 export const RELOAD = 'RELOAD';
+export const SETTING_SETTINGS = 'SETTING_SETTINGS';
 
 export interface SettingAlertSoundAction {
   type: typeof SETTING_ALERT_SOUND;
@@ -119,6 +120,11 @@ export interface ReloadAction {
   payload: '';
 }
 
+export interface SettingSettingsAction {
+  type: typeof SETTING_SETTINGS;
+  payload: SettingsState;
+}
+
 export type SettingsActionTypes =
   | SettingAlertSoundAction
   | SettingAlertVolumeAction
@@ -134,3 +140,4 @@ export type SettingsActionTypes =
   | SettingEasterEggAction
   | SettingCThemeAction
   | SettingProxyAction
+  | SettingSettingsAction
