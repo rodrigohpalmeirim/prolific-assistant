@@ -5,11 +5,11 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 import { set_app_container } from '../components/App';
 import { browser } from 'webextension-scripts/polyfill';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, canUsePA } from '../functions/firebaseAuth';
+import { selectFirebase } from '../store/firebase/actions';
 
 export function WarnMsg() {
-  const [user, loading] = useAuthState(auth);
+  const user = useSelector(selectFirebase).currentUser;
+  const canUsePA = useSelector(selectFirebase).canUsePA;
   const acc_info = useSelector(selectAcc_Info);
   const error = useSelector(selectProlificError);
 
@@ -23,11 +23,11 @@ export function WarnMsg() {
     msg = generateWarnBox(`Extension is not authenticated. Please login to use all functions of this extension`, actions, '#f00');
   }
 
-  if(canUsePA() !== true){
+  if(canUsePA!== true){
     actions = generateActions([(<button className="btn btn-primary" onClick={_ => {
       set_app_container('settings');
     }}>Settings</button>)]);
-    msg = generateWarnBox(`Something wrong when authenticating: ${canUsePA()}`, actions, '#f00');
+    msg = generateWarnBox(`Something wrong when authenticating: ${canUsePA}`, actions, '#f00');
   }
 
   if (acc_info.status != 'OK') {

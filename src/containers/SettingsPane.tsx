@@ -12,25 +12,36 @@ import {
   settingAutoStart,
   settingCheckInterval,
   settingDesktopNotifications,
-  settingLimitBypass, settingProxy, settingSettings,
+  settingLimitBypass,
+  settingProxy,
+  settingSettings,
   settingTheme,
   settingUID,
-  settingWebhook,
   testingAlertSound,
   testingStudy,
 } from '../store/settings/actions';
 import { browser } from 'webextension-scripts/polyfill';
 import Button from 'react-bootstrap/Button';
-import { getCombinedThemesS, hiddenThemes, themes } from '../components/App';
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, getUserPreferences, login, logout, setUserPreferences } from '../functions/firebaseAuth';
+import { getCombinedThemesS } from '../components/App';
+import {
+  FIREBASE_LOGIN,
+  firebaseLogin,
+  firebaseLogout,
+  getUser, readPreferences,
+  selectFirebase,
+  selectUser,
+  setPreferences, uploadPreferences,
+} from '../store/firebase/actions';
+import { selectSession } from '../store/session/selectors';
+import { store, useAsyncDispatch } from '../pages/popup';
 
-function getTextById(id:string):string{
+function getTextById(id: string): string {
   // @ts-ignore
   return document.getElementById(id).value;
 }
 
 export function SettingsPane() {
+  const dispatchA = useAsyncDispatch();
   const dispatch = useDispatch();
   const settings = useSelector(selectSettings);
 
@@ -58,6 +69,7 @@ export function SettingsPane() {
   function onChangeUID(uid: string) {
     dispatch(settingUID(uid));
   }
+
   function onChangeProxyBox(proxy: string) {
     dispatch(settingProxy(proxy));
   }
@@ -121,7 +133,7 @@ export function SettingsPane() {
     location.reload();
   }
 
-  const [user, loading] = useAuthState(auth);
+  const user = useSelector(selectUser);
 
   return (
     <Tab.Pane className="p-1 settings" eventKey="settings">
@@ -147,8 +159,8 @@ export function SettingsPane() {
           <option value="sweet-alert-3">Sweet Alert 3</option>
           <option value="sweet-alert-4">Sweet Alert 4</option>
           <option value="sweet-alert-5">Sweet Alert 5</option>
-          {(settings.easter_egg&&settings.easter_egg.glowa)?(<option value="glowa">Glowa</option>):("")}
-          {(settings.easter_egg&&settings.easter_egg.trial)?(<option value="trial">Trial</option>):("")}
+          {(settings.easter_egg && settings.easter_egg.glowa) ? (<option value="glowa">Glowa</option>) : ('')}
+          {(settings.easter_egg && settings.easter_egg.trial) ? (<option value="trial">Trial</option>) : ('')}
 
         </Form.Control>
       </Form.Group>
@@ -222,60 +234,65 @@ export function SettingsPane() {
           RELOAD
         </Button>
       </Form.Group>
-      {user?(
+      {user ? (
         <Form.Group>
           <Form.Label>logged in as: {user.email}</Form.Label>
-          <br/>
+          <br />
           <Button onClick={async () => {
-            await logout();
+            await dispatchA(firebaseLogout());
           }}>
             Logout
           </Button>
-            <Button onClick={async () => {
-              try{
-                let prefs = await getUserPreferences();
-                if(!prefs)prefs = {};
-                if(!prefs.prolific)prefs.prolific = {};
-                prefs.prolific.settings = JSON.stringify(settings);
-                await setUserPreferences(prefs);
-                alert("Successfull");
-              }catch(ex){
-                alert("error: "+ex);
-              }
-            }}>
-              Backup Settings
-            </Button>
           <Button onClick={async () => {
-            try{
-              let prefs = await getUserPreferences();
-              if(!prefs)throw "no preferences";
-              if(!prefs.prolific)throw "no preferences prolific";
-              if(!prefs.prolific.settings)throw "no preferences prolific settings";
-              dispatch(settingSettings(JSON.parse(prefs.prolific.settings)));
-              alert("Successfull");
+            try {
+              await dispatchA(readPreferences());
+              let preferences = store.getState().firebase.preferences;
+              if (!preferences) preferences = {};
+              if (!preferences.prolific) preferences.prolific = {};
+              if (!preferences.prolific.settings || typeof(preferences.prolific.settings) === typeof "") preferences.prolific.settings = {};
+              preferences.prolific.settings[btoa(prompt("Enter backup name"))] = JSON.stringify(settings);
+              await dispatchA(setPreferences(preferences));
+              await dispatchA(uploadPreferences());
+              alert('Successfull');
+            } catch (ex) {
+              alert('error: ' + ex);
+            }
+          }}>
+            Backup Settings
+          </Button>
+          <Button onClick={async () => {
+            try {
+              await dispatchA(readPreferences());
+              let preferences = store.getState().firebase.preferences;
+              let backup_name = prompt("Enter backup name");
+              if (!preferences) throw 'backup not found (no preferences)';
+              if (!preferences.prolific) throw 'backup not found (no preferences.prolific)';
+              if (!preferences.prolific.settings) throw 'backup not found (no preferences.prolific.settings)';
+              if (!preferences.prolific.settings[btoa(backup_name)]) throw 'backup not found (no backup)';
+              await dispatchA(settingSettings(JSON.parse(preferences.prolific.settings[btoa(backup_name)])));
+              alert('Successfull. Extension will be reloaded.');
               Reload();
-            }catch(ex){
-              alert("error: "+ex);
+            } catch (ex) {
+              alert('error: ' + ex);
             }
           }}>
             Load Settings
           </Button>
         </Form.Group>
-      ):(
+      ) : (
         <Form.Group>
           <Form.Label>Not logged in:</Form.Label>
           <Form.Control id="email_box" type="text" placeholder="email" />
-          <br/>
+          <br />
           <Form.Control id="password_box" type="password" placeholder="password" />
-          <br/>
+          <br />
           <Button onClick={async () => {
             try{
-              await login(getTextById('email_box'),getTextById('password_box'));
-              alert("Login successfull");
-            }catch (ex){
-              alert("Login error: "+ex);
+              await dispatchA(firebaseLogin({ email: getTextById('email_box'), password: getTextById('password_box') }));
+              alert('Successfull.');
+            }catch (ex) {
+              alert('error: ' + ex);
             }
-
           }}>
             Login
           </Button>

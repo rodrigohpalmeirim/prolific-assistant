@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import ReactDom from 'react-dom';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Store } from 'webext-redux';
 
-import { App } from '../components/App';
+import { App, useForceUpdate } from '../components/App';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import './popup.css';
@@ -14,15 +14,27 @@ import {
   testingAlertSound,
 } from '../store/settings/actions';
 import { canUsePA, canUseProlificAssistant } from '../functions/firebaseAuth';
+import { selectSettings } from '../store/settings/selectors';
+import { getUser } from '../store/firebase/actions';
+import { AppState } from '../store';
+import { _awaitDispatch } from '../store/confirmCompletionMiddleware';
+import { AnyAction } from 'redux';
 
-const store = new Store();
+export const store = new Store<AppState>();
 console.log(location.href);
+
+export function useAsyncDispatch(){
+  let dispatch = useDispatch();
+  return async (action:AnyAction)=>{
+    await _awaitDispatch(dispatch,store,action)
+  }
+}
 
 store.ready().then(() => {
   try {
     ReactDom.render(
       <Provider store={store}>
-        <AppByAction />
+        <PreApp />
       </Provider>,
       document.getElementById('root'),
     );
@@ -51,11 +63,24 @@ store.ready().then(() => {
   }
 });
 
+function PreApp(){
+  const dispatch = useDispatch();
+  dispatch(getUser());
+  return <AppByAction/>
+}
+
 function AppByAction() {
   let action = location.href.includes('a=')? location.href.split('a=')[1].split('?')[0]:'';
   if (!action || action.length < 1) action = 'display';
+  const settings = useSelector(selectSettings);
 
+  const reload = useForceUpdate();
+  useEffect(()=>{
+    reload();
+  },[settings]);
+
+  if(!settings)return <></>;
   if (action == 'display') {
-    return App();
+    return <App/>
   }
 }

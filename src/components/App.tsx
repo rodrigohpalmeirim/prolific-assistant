@@ -14,16 +14,8 @@ import { InfoPopup } from '../containers/Popup_Info';
 import { StartSpammer } from '../containers/OtherModules/StartSpammerPane';
 import { OtherModulesPane } from '../containers/OtherModulesPane';
 import { settingTheme } from '../store/settings/actions';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import {
-  auth,
-  canUsePA,
-  canUseProlificAssistant,
-  canUseProlificAssistantCB, hasPermissions,
-  lastCanUsePA, preSetPA, valid_version,
-} from '../functions/firebaseAuth';
-import { canUsePAUpdate } from '../store/session/actions';
 import { selectSession } from '../store/session/selectors';
+import { getUser, selectFirebase } from '../store/firebase/actions';
 
 export let themes: any = {
   white: {
@@ -159,12 +151,21 @@ export let app_container: any, set_app_container: any;
 export function AppV({view}: {view:string}) {
   [app_container, set_app_container] = useState(view);
   const settings = useSelector(selectSettings);
+  const firebase = useSelector(selectFirebase);
+  const forceUpdate = useForceUpdate();
 
+  useEffect(()=>{
+    forceUpdate();
+  },[firebase?.currentUser, firebase?.canUsePA])
+
+  useEffect(()=>{
+    forceUpdate();
+  },[!!firebase])
+  if(!firebase)return <></>;
 
   function onSelect(k: string) {
     set_app_container(k);
   }
-  const [user, loading] = useAuthState(auth);
   return (
     <Tab.Container activeKey={app_container} onSelect={onSelect}>
       <style>{`body{overflow:hidden;}`}</style>
@@ -190,16 +191,16 @@ export function AppV({view}: {view:string}) {
           <Nav.Link eventKey="submissions">Submissions</Nav.Link>
         </Nav.Item>
 
-        {canUsePA()===true?(<Nav.Item className="text-center w-25 nav_btn">
+        {firebase.canUsePA===true?(<Nav.Item className="text-center w-25 nav_btn">
           <Nav.Link eventKey="other">Other Modules</Nav.Link>
         </Nav.Item>):""}
         <Nav.Item className="text-center w-25 nav_btn">
           <Nav.Link eventKey="settings">Settings</Nav.Link>
         </Nav.Item>
-        {canUsePA()===true?(<Nav.Item className="text-center w-50 nav_btn">
+        {firebase.canUsePA===true?(<Nav.Item className="text-center w-50 nav_btn">
           <Nav.Link eventKey="accinfo">Account Info</Nav.Link>
         </Nav.Item>):""}
-        <Nav.Item className={`text-center w-${canUsePA()===true?"50":"25"} nav_btn`}>
+        <Nav.Item className={`text-center w-${firebase.canUsePA===true?"50":"25"} nav_btn`}>
           <Nav.Link eventKey="logs">LOGS</Nav.Link>
         </Nav.Item>
       </Nav>
@@ -212,23 +213,6 @@ export function useForceUpdate() {
 }
 
 export function App() {
-  const session = useSelector(selectSession);
-  const [isLoading, setLoading] = useState(true);
-  if(session.canUsePA === true && isLoading){
-    preSetPA();
-    setLoading(false);
-  }
-  const [user, loading] = useAuthState(auth);
-  let update = useForceUpdate();
-  useEffect(()=>{
-    if(loading !== false)return;
-    canUseProlificAssistantCB(()=>{
-      update();
-      setLoading(false);
-    });
-  },[user,loading])
-
-  useDispatch()(canUsePAUpdate(lastCanUsePA))
   let loc = location.href;
   const settings = useSelector(selectSettings);
 
@@ -240,7 +224,6 @@ export function App() {
       <FLogsPane /></div>;
   }
 
-  if(isLoading)return "";
   if (loc.includes('v=')) {
     let part = loc.split('v=')[1];
     return <AppV view={part}></AppV>;

@@ -24,8 +24,11 @@ import { auth, authUrl } from '../functions/authProlific';
 import { settingUID, testingAlertSound } from '../store/settings/actions';
 import { testAutoStart } from '../functions/centsToGBP';
 import { showOKPopup } from '../containers/Popup_Info';
+import { firebaseMiddleware } from '../store/firebase/firebaseMiddleware';
+import { confirmCompletionMiddleware } from '../store/confirmCompletionMiddleware';
+import { getUser } from '../store/firebase/actions';
 
-const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware);
+const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware,firebaseMiddleware,confirmCompletionMiddleware);
 export let authHeader: WebRequest.HttpHeadersItemType;
 export let id_token: string;
 export let userID = '';
@@ -89,7 +92,7 @@ export function updateResults(results: any[]) {
       if (el.reward > bestStudy.reward) bestStudy = el;
     });
     const settings = store.getState().settings;
-    if (bestStudy && bestStudy.id && settings.autostart && results.length > 0 && state.session.canUsePA === true) {
+    if (bestStudy && bestStudy.id && settings.autostart && results.length > 0 && state.firebase.canUsePA === true) {
       if (!bestStudy.id.includes('TEST'))
         if (testAutoStart(settings.autostart, bestStudy.reward))
           fetchStartStudy(authHeader, userID, bestStudy.id, store);
@@ -120,14 +123,14 @@ export function appendLog(log: string, type: string, description: string) {
 
 async function main() {
   setInterval(FastUpdate, 1000);
-  _Update();
+  Update();
 }
 
-async function _Update(){
+async function Update(){
   const state = store.getState();
   clearTimeout(timeout);
   try{
-    await Update();
+    await _Update();
   }catch (ex){
     console.error(ex);
   }
@@ -166,7 +169,7 @@ async function FastUpdate() {
   }
 }
 
-async function Update() {
+async function _Update() {
   const state = store.getState();
   try{
   await browser.browserAction.setBadgeText({ text: '...' });

@@ -4,7 +4,8 @@ export interface SessionState {
   flogs: any;
   popup: any;
   spammer:[string,boolean,any,boolean,number],
-  canUsePA:string|boolean
+  canUsePA:string|boolean,
+  errors:any
 }
 
 export const SESSION_LAST_CHECKED = 'SESSION_LAST_CHECKED';
@@ -12,7 +13,8 @@ export const SESSION_LOGS = 'SETTING_LOGS';
 export const SESSION_FLOGS = 'SETTING_FLOGS';
 export const SPAMMER = 'SPAMMER';
 export const POPUP = 'POPUP';
-export const SESSION_PA_UPDATE = 'SESSION_PA_UPDATE';
+export const SET_ERROR = 'SET_ERROR';
+export const SET_DONE = 'SET_DONE';
 
 export interface SessionLastCheckedAction {
   type: typeof SESSION_LAST_CHECKED | typeof SESSION_LOGS;
@@ -39,9 +41,14 @@ export interface Spammer {
   payload: SessionState['spammer'];
 }
 
-export interface SessionPAUpdate {
-  type: typeof SESSION_PA_UPDATE;
-  payload: SessionState['canUsePA'];
+export interface SetError {
+  type: typeof SET_ERROR;
+  payload: {type:string,error:any,done:boolean};
 }
 
-export type SessionActionTypes = SessionLastCheckedAction | SessionLogs | Popup | SessionFullLogs | Spammer | SessionPAUpdate;
+export interface SetDone {
+  type: typeof SET_DONE;
+  payload: {type:string,done:boolean};
+}
+
+export type SessionActionTypes = SessionLastCheckedAction | SessionLogs | Popup | SessionFullLogs | Spammer | SetError | SetDone;

@@ -10,7 +10,7 @@ import trial from '../audio/trial.wav';
 import { appendLog } from '../pages/background';
 import { MessageBuilder, Webhook } from 'webhook-discord';
 import { centsToGBP, centsToGBP_Submission } from './centsToGBP';
-import { studyImg, studyImgPNG } from './GlobalVars';
+import { studyImg } from './GlobalVars';
 
 function playFile(file: any, volume: number) {
   const audio = new Audio(file);
@@ -78,7 +78,7 @@ export function sendWebhook(state: AppState,study:ProlificStudy){
       //Hook.info('', `${study.name}: https://app.prolific.co/studies/${study.id}`);
       const img = study.researcher.institution && study.researcher.institution.logo
         ? study.researcher.institution.logo
-        : studyImgPNG;
+        : studyImg;
 
       const msg = new MessageBuilder()
         .setName("")

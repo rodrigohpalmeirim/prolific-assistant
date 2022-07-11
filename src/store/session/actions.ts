@@ -3,10 +3,10 @@ import {
   POPUP,
   SESSION_FLOGS,
   SESSION_LAST_CHECKED,
-  SESSION_LOGS, SESSION_PA_UPDATE,
+  SESSION_LOGS,
   SessionFullLogs,
   SessionLastCheckedAction,
-  SessionLogs, SessionPAUpdate, SPAMMER, Spammer,
+  SessionLogs, SET_DONE, SET_ERROR, SetDone, SetError, SPAMMER, Spammer,
 } from './types';
 
 export function sessionLastChecked(): SessionLastCheckedAction {
@@ -44,9 +44,23 @@ export function spammerAction(payload: [string, boolean, string, boolean, number
   };
 }
 
-export function canUsePAUpdate(payload: SessionPAUpdate['payload']): SessionPAUpdate {
+export function reportErrorAction(payload: {type:string,error:any}): SetError {
   return {
-    type: SESSION_PA_UPDATE,
+    type: SET_ERROR,
+    payload:{type:payload.type,error:payload.error,done:true},
+  };
+}
+
+export function setErrorAction(payload: {type:string,error:any,done:boolean}): SetError {
+  return {
+    type: SET_ERROR,
+    payload,
+  };
+}
+
+export function setDoneAction(payload: {type:string,done:boolean}): SetDone {
+  return {
+    type: SET_DONE,
     payload,
   };
 }

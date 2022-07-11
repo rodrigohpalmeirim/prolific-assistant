@@ -7,6 +7,7 @@ import { wrapStore } from 'webext-redux';
 import { prolificReducer } from './prolific/reducers';
 import { sessionReducer } from './session/reducers';
 import { settingsReducer } from './settings/reducers';
+import { firebaseReducer } from './firebase/reducers';
 
 const logger = createLogger();
 
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   prolific: prolificReducer,
   session: sessionReducer,
   settings: settingsReducer,
+  firebase: firebaseReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -45,4 +47,8 @@ export function configureStore(...middlewares: Middleware[]) {
   persistStore(store);
   wrapStore(store);
   return store;
+}
+
+export function selectState(state: AppState) {
+  return state;
 }
