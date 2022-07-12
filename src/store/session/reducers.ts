@@ -1,12 +1,12 @@
 import produce from 'immer';
 
 import {
+  APPEND_LOG, CLEAR_LOGS,
   POPUP,
-  SESSION_FLOGS,
   SESSION_LAST_CHECKED,
-  SESSION_LOGS,
   SessionActionTypes,
-  SessionState, SET_DONE,
+  SessionState,
+  SET_DONE,
   SET_ERROR,
   SPAMMER,
 } from './types';
@@ -21,11 +21,23 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
       case SESSION_LAST_CHECKED:
         draftState.last_checked = action.payload;
         break;
-      case SESSION_LOGS:
-        draftState.logs = action.payload;
+      case APPEND_LOG:
+        if(!draftState.logs)draftState.logs = [];
+        if(!draftState.flogs)draftState.flogs = [];
+        let logItem = { data: action.payload.log, type: action.payload.type, timestamp: (+new Date()), desc: action.payload.description }
+        draftState.logs.push(logItem);
+        draftState.flogs.push(logItem);
+
+        while (draftState.logs > 299) {
+          draftState.logs.shift();
+        }
+        while (draftState.flogs > 3000) {
+          draftState.flogs.shift();
+        }
         break;
-      case SESSION_FLOGS:
-        draftState.flogs = action.payload;
+      case CLEAR_LOGS:
+        draftState.logs = [];
+        draftState.flogs = [];
         break;
       case POPUP:
         draftState.popup = action.payload;

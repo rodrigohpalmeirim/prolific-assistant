@@ -1,4 +1,5 @@
 import { AppState } from '../index';
+import { Statistics } from '../../pages/background';
 
 export function selectFirebase(state: AppState) {
   return state.firebase;
@@ -108,6 +109,20 @@ export function setUser() {
   };
 }
 
+export const SET_STATISTICS = 'SET_STATISTICS';
+
+export interface setStatisticsAction {
+  type: typeof SET_STATISTICS;
+  payload: "";
+}
+
+export function setStatistics(payload:Statistics) {
+  return {
+    type: SET_STATISTICS,
+    payload,
+  };
+}
+
 
 export type FirebaseActionTypes =
   readPreferencesAction
@@ -115,4 +130,5 @@ export type FirebaseActionTypes =
   | setPreferencesAction
   | getUserAction
   | uploadPreferencesAction
-  | setUserAction;
+  | setUserAction
+| setStatisticsAction

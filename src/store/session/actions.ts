@@ -1,13 +1,18 @@
 import {
+  APPEND_LOG,
+  AppendLog, CLEAR_LOGS, ClearLogs,
   Popup,
   POPUP,
-  SESSION_FLOGS,
   SESSION_LAST_CHECKED,
-  SESSION_LOGS,
-  SessionFullLogs,
   SessionLastCheckedAction,
-  SessionLogs, SET_DONE, SET_ERROR, SetDone, SetError, SPAMMER, Spammer,
+  SET_DONE,
+  SET_ERROR,
+  SetDone,
+  SetError,
+  SPAMMER,
+  Spammer,
 } from './types';
+import { LogType } from '../../pages/background';
 
 export function sessionLastChecked(): SessionLastCheckedAction {
   return {
@@ -16,17 +21,17 @@ export function sessionLastChecked(): SessionLastCheckedAction {
   };
 }
 
-export function logUpdate(payload: SessionLogs['payload']): SessionLogs {
+export function appendLogAction(payload: {log:string,type:LogType,description:string}): AppendLog {
   return {
-    type: SESSION_LOGS,
+    type: APPEND_LOG,
     payload,
   };
 }
 
-export function flogUpdate(payload: SessionFullLogs['payload']): SessionFullLogs {
+export function clearLogsAction(): ClearLogs {
   return {
-    type: SESSION_FLOGS,
-    payload,
+    type: CLEAR_LOGS,
+    payload:"",
   };
 }
 

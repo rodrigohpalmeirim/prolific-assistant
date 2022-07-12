@@ -17,22 +17,57 @@ import {
   prolificStudiesUpdate,
   prolificSubmissionsUpdate,
 } from '../store/prolific/actions';
-import { flogUpdate, logUpdate, sessionLastChecked, spammerAction } from '../store/session/actions';
+import { appendLogAction, sessionLastChecked, spammerAction } from '../store/session/actions';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
-import { auth, authUrl } from '../functions/authProlific';
+import { auth } from '../functions/authProlific';
 import { settingUID, testingAlertSound } from '../store/settings/actions';
 import { testAutoStart } from '../functions/centsToGBP';
 import { showOKPopup } from '../containers/Popup_Info';
 import { firebaseMiddleware } from '../store/firebase/firebaseMiddleware';
 import { confirmCompletionMiddleware } from '../store/confirmCompletionMiddleware';
-import { getUser } from '../store/firebase/actions';
+import { getUser, setStatistics } from '../store/firebase/actions';
+import { incrementStatistic, incrementStatistics, setStatistic, transactStatistics } from '../functions/firebase';
+import { authUrl } from '../functions/GlobalVars';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware,firebaseMiddleware,confirmCompletionMiddleware);
 export let authHeader: WebRequest.HttpHeadersItemType;
 export let id_token: string;
 export let userID = '';
 export let acc_info: any = {};
+
+export type LogType = '0-studies' | 'studies' | 'error' | 'status' | 'success'
+export type StatField = 'refreshes' | 'found' | 'started' | 'spammer_count' | 'total_start_amount'
+export type Statistics = {
+  [key in StatField]: number;
+};
+
+export async function incStat(field:StatField, count:number, isMoney:boolean=false){
+  try{
+    let stats = await incrementStatistic(field,count,isMoney);
+    await store.dispatch(setStatistics(stats))
+  }catch (ex){
+    appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
+  }
+}
+
+export async function setStat(field:StatField, value:number, isMoney:boolean=false){
+  try{
+    let stats = await setStatistic(field,value,isMoney);
+    await store.dispatch(setStatistics(stats))
+  }catch (ex){
+    appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
+  }
+}
+
+export async function incStats(fields:StatField[], counts:number[], isMoney:boolean[]){
+  try{
+    let stats = await incrementStatistics(fields,counts,isMoney);
+    await store.dispatch(setStatistics(stats))
+  }catch (ex){
+    appendLog(`ERROR while changing statistics - ${JSON.stringify(fields)}`, 'error', `ERROR while changing statistics: ${ex}`);
+  }
+}
 
 function doEasterEggStudy(results: any[]) {
   let settings = store.getState().settings;
@@ -78,7 +113,6 @@ export function updateResults(results: any[]) {
   browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
   browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
 
-
   if (results.length < 1) {
     browser.browserAction.setBadgeText({ text: 'OK' });
     browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
@@ -102,23 +136,8 @@ export function updateResults(results: any[]) {
 
 let timeout = window.setTimeout(main);
 
-export function setStat(stats: any, key: string, value: any) {
-  stats[key] = value;
-  return stats;
-}
-
-export function appendLog(log: string, type: string, description: string) {
-  let logs = store.getState().session.logs;
-  let flogs = store.getState().session.flogs;
-  if (!logs) logs = [];
-  if (!flogs) flogs = [];
-  while (logs.length > 299) {
-    logs.shift();
-  }
-  logs.push({ data: log, type: type, timestamp: (+new Date()), desc: description });
-  flogs.push({ data: log, type: type, timestamp: (+new Date()), desc: description });
-  store.dispatch(logUpdate(logs));
-  store.dispatch(flogUpdate(flogs));
+export function appendLog(log: string, type: LogType, description: string) {
+  store.dispatch(appendLogAction({log,type,description}))
 }
 
 async function main() {
@@ -131,6 +150,7 @@ async function Update(){
   clearTimeout(timeout);
   try{
     await _Update();
+    await incStat("refreshes", 1);
   }catch (ex){
     console.error(ex);
   }
@@ -161,6 +181,7 @@ async function FastUpdate() {
       } else {
         if(spammerIndex%5==0)
         store.dispatch(spammerAction([spammer[0], spammer[1], differentStartLogs, startSuccess, spammer[4] + 5]));
+        await incStat("spammer_count", 5);
       }
     }
 
@@ -228,8 +249,25 @@ async function _Update() {
 
       if (userID) {
         let response = await fetchProlificSubmissions(authHeader, userID);
+        console.log(response);
         if (response.results) {
           store.dispatch(prolificSubmissionsUpdate(response.results));
+        }
+        if(response.meta){
+          try{
+            let count = response.meta.count;
+            let earned = response.meta.total_earned;
+            let approved = response.meta.total_approved;
+            let stats = await transactStatistics((old:Statistics|any)=>{
+              old[`:${userID}:submissions`] = {value:count,isMoney:false};
+              old[`:${userID}:earned`] = {value:earned,isMoney:true};
+              old[`:${userID}:approved`] = {value:approved,isMoney:false};
+              return old;
+            });
+            await store.dispatch(setStatistics(stats))
+          }catch (ex){
+            appendLog(`ERROR while changing statistics - meta`, 'error', `ERROR while changing statistics: ${ex}`);
+          }
         }
       }
     } catch (error) {

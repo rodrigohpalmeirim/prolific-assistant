@@ -16,6 +16,7 @@ import { OtherModulesPane } from '../containers/OtherModulesPane';
 import { settingTheme } from '../store/settings/actions';
 import { selectSession } from '../store/session/selectors';
 import { getUser, selectFirebase } from '../store/firebase/actions';
+import { StatisticsPane } from '../containers/StatisticsPane';
 
 export let themes: any = {
   white: {
@@ -181,6 +182,7 @@ export function AppV({view}: {view:string}) {
         <LogsPane />
         <SubmissionsPage />
         <OtherModulesPane />
+        <StatisticsPane/>
       </Tab.Content>
 
       <Nav className={'w-100 theme2'} variant="pills">
@@ -197,8 +199,11 @@ export function AppV({view}: {view:string}) {
         <Nav.Item className="text-center w-25 nav_btn">
           <Nav.Link eventKey="settings">Settings</Nav.Link>
         </Nav.Item>
-        {firebase.canUsePA===true?(<Nav.Item className="text-center w-50 nav_btn">
+        {firebase.canUsePA===true?(<Nav.Item className="text-center w-25 nav_btn">
           <Nav.Link eventKey="accinfo">Account Info</Nav.Link>
+        </Nav.Item>):""}
+        {firebase.canUsePA===true?(<Nav.Item className="text-center w-25 nav_btn">
+          <Nav.Link eventKey="statistics">Statistics</Nav.Link>
         </Nav.Item>):""}
         <Nav.Item className={`text-center w-${firebase.canUsePA===true?"50":"25"} nav_btn`}>
           <Nav.Link eventKey="logs">LOGS</Nav.Link>

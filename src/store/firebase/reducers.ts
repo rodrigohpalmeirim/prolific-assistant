@@ -4,7 +4,7 @@ import {
   FirebaseActionTypes,
   GET_USER,
   READ_PREFERENCES,
-  SET_PREFERENCES, SET_USER,
+  SET_PREFERENCES, SET_STATISTICS, SET_USER,
   UPLOAD_PREFERENCES,
 } from './actions';
 import {
@@ -15,17 +15,20 @@ import {
   login,
   setUserPreferences,
 } from '../../functions/firebaseAuth';
+import { Statistics } from '../../pages/background';
 
 export type FirebaseState={
   preferences: {prolific:{}}|any,
   currentUser:any,
   canUsePA:boolean|string,
+  statistics: Statistics|any
 }
 
 const initialState: FirebaseState = {
   preferences: {prolific:{}} = {prolific:{}},
   currentUser:undefined,
   canUsePA:false,
+  statistics:{}
 };
 
 export function firebaseReducer(state = initialState, action: FirebaseActionTypes) {
@@ -37,6 +40,9 @@ export function firebaseReducer(state = initialState, action: FirebaseActionType
       case SET_USER:
         draftState.canUsePA = canUsePA();
         draftState.currentUser = JSON.parse(JSON.stringify(auth.currentUser));
+        break;
+      case SET_STATISTICS:
+        draftState.statistics = action.payload;
         break;
     }
   });

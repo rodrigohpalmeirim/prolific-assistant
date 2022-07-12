@@ -6,6 +6,7 @@ import { playAlertSound, sendWebhook } from '../functions/playAlertSound';
 
 import { AppState } from '.';
 import { PROLIFIC_STUDIES_UPDATE } from './prolific/types';
+import { incStat } from '../pages/background';
 
 const seen: ProlificStudy['id'][] = [];
 
@@ -19,7 +20,7 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
     const newStudies = studies.reduce((acc: ProlificStudy[], study) => {
       if (!seen.includes(study.id)) {
         seen.push(study.id);
-
+        incStat("found", 1);
         if (state.settings.desktop_notifications) {
           browser.notifications.create(study.id, {
             type: 'list',
