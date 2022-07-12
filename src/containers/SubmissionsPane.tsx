@@ -9,7 +9,7 @@ import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-import { centsToGBP_Submission, getAllReward, getBonusReward, isBonus } from '../functions/centsToGBP';
+import { centsToGBP, getFullReward } from '../functions/centsToGBP';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { selectProlificError, selectProlificSubmissions } from '../store/prolific/selectors';
 import Form from 'react-bootstrap/Form';
@@ -54,7 +54,7 @@ export function SubmissionsPage() {
         <option value="approved">{`APPROVED (${count(submissions, 'approved')})`}</option>
       </Form.Control>
       {(submissions && submissions.length && count(submissions, submissionType) > 0) ? (
-        submissions.map((submission: any) => (
+        submissions.map((submission: ProlificSubmission) => (
           (submissionTypes.includes(submission.status.toLowerCase()) || submissionTypes.includes('all')) ?
             <Card className="study-card" key={submission.study.id}
                   onClick={() => openProlificStudy(submission.study.id)}>
@@ -141,7 +141,7 @@ export function SubmissionsPage() {
   );
 }
 
-function formatDate(submission: any) {
+function formatDate(submission: ProlificSubmission) {
   let datestr = submission.completed_at ? submission.completed_at : submission.started_at;
   let date = new Date(datestr);
 
@@ -194,72 +194,56 @@ function getTypes(type: string) {
   return submissionTypes;
 }
 
-function createReward(submission: any) {
-  let reward = centsToGBP_Submission(submission.reward);
-  let bonus = centsToGBP_Submission(getBonusReward(submission));
-  let all = centsToGBP_Submission(getAllReward(submission));
-  if (isBonus(submission)) {
-    return <div className="inline c-blue">{all}</div>;
-  }
-  return <div className="inline">{reward}</div>;
+function createReward(submission: ProlificSubmission) {
+  let reward = getFullReward(submission);
+  if(reward.bonus > 0) return <div className="inline c-blue">{centsToGBP(reward.all)}</div>;
+  if(reward.adjustment > 0) return <div className="inline c-green">{centsToGBP(reward.all)}</div>;
+  return <div className="inline">{centsToGBP(reward.all)}</div>;
 }
 
-function effTooltip(submission:any) {
-  if(!submission.time_taken||submission.time_taken<=0)return (<div/>)
-  if(!isFinite(getEfficiency(submission)))return (<div/>)
+function effTooltip(submission: ProlificSubmission) {
+  if(!submission.time_taken||submission.time_taken<=0)return (<></>)
+  let efficiency = getEfficiency(submission);
+  if(!isFinite(efficiency))return (<></>)
   return(<div>
     <div className="inline balance_type">Efficiency:</div>
-    <div className="inline"><strong>{centsToGBP_Submission(getEfficiency(submission))}/h</strong></div>
+    <div className="inline"><strong>{centsToGBP(efficiency)}/h</strong></div>
   </div>)
 }
 
-function createRewardTooltip(submission: any) {
-  if (!isBonus(submission)) {
-    return (<div>
-      <div>
-        <div className="inline balance_type">Reward:</div>
-        <div className="inline"><strong>{centsToGBP_Submission(submission.reward)}</strong></div>
-      </div>
-      {effTooltip(submission)}
-    </div>);
-  } else {
-    let reward = submission.reward;
-    let bonus = getBonusReward(submission);
-    let total = reward + bonus;
+function createRewardTooltip(submission: ProlificSubmission) {
+  let reward = getFullReward(submission);
 
-    let reward_f = centsToGBP_Submission(reward);
-    let bonus_f = centsToGBP_Submission(bonus);
-    let total_f = centsToGBP_Submission(total);
-
-    return (<div>
-      <div>
-        <div className="inline balance_type">Reward:</div>
-        <div className="inline"><strong>{reward_f}</strong></div>
-      </div>
-      <div>
-        <div className="inline balance_type">Bonus:</div>
-        <div className="inline c-blue"><strong>{bonus_f}</strong></div>
-      </div>
-      <div>
-        <div className="inline balance_type">Total:</div>
-        <div className="inline"><strong>{total_f}</strong></div>
-      </div>
-      {effTooltip(submission)}
-    </div>);
-  }
+  return (<div>
+    <div>
+      <div className="inline balance_type">Reward:</div>
+      <div className="inline"><strong>{centsToGBP(reward.base)}</strong></div>
+    </div>
+    {reward.bonus>0?<div>
+      <div className="inline balance_type">Bonus:</div>
+      <div className="inline c-blue"><strong>{centsToGBP(reward.bonus)}</strong></div>
+    </div>:<></>}
+    {reward.adjustment>0?<div>
+      <div className="inline balance_type">Adjustment:</div>
+      <div className="inline c-green"><strong>{centsToGBP(reward.adjustment)}</strong></div>
+    </div>:<></>}
+    <div>
+      <div className="inline balance_type">Total:</div>
+      <div className="inline"><strong>{centsToGBP(reward.all)}</strong></div>
+    </div>
+    {effTooltip(submission)}
+  </div>);
 }
 
-function getEfficiency(submission:any){
+function getEfficiency(submission: ProlificSubmission){
   let mins = Math.round(submission.time_taken/60)
-  let reward = getAllReward(submission)
-
-  let rpm = reward/mins;
-  let rph = reward/mins*60;
+  let reward = getFullReward(submission);
+  let rph = reward.all/mins*60;
   let rphround = Math.round(rph*100)/100
   return rphround;
 }
 
-function createTimeTaken(submission:any){
+function createTimeTaken(submission: ProlificSubmission){
   if(submission.time_taken){
     return <div><div className="balance_type">Time Taken:</div><strong>{Math.round(submission.time_taken/60)} minutes</strong></div>
   }else {

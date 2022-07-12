@@ -170,3 +170,11 @@
     padding-right: 0;
     margin-left: 20px;
 }
+
+.w-33 {
+    width: 33% !important
+}
+
+.inline-block {
+    display: inline-block;
+}

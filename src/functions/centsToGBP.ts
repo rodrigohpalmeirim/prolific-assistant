@@ -7,21 +7,15 @@ export function centsToGBP(cents: number) {
   }).format(cents * 0.01);
 }
 
-export function centsToGBP_Submission(cents: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'GBP',
-  }).format(cents * 0.0001);
-}
-
-export function efficiency(submissions: any) {
+export function efficiency(submissions: ProlificSubmission[]) {
   let total = 0;
   let totalTime = 0;
   try {
     if (submissions) {
       submissions.forEach((el: any) => {
-        if (getAllReward(el) > 0) {
-          total += getAllReward(el);
+        let reward = getFullReward(el).all;
+        if (reward > 0) {
+          total += reward;
           totalTime += Math.round(el.time_taken / 60 / 15);
         }
       });
@@ -32,40 +26,20 @@ export function efficiency(submissions: any) {
   return Math.round(total / (totalTime / 4));
 }
 
-export function isBonus(submission: any) {
-  try {
-    return submission.bonus_payments && submission.bonus_payments.length && submission.bonus_payments.length > 0;
-  } catch {
-    return false;
+export function getFullReward(submission: ProlificSubmission):{all:number,bonus:number,adjustment:number,base:number}{
+  let reward = {base:submission.reward/100,bonus:0,adjustment:0,all:0};
+  if(submission.bonus_payments){
+    reward.bonus = submission.bonus_payments.reduce((prev,cur)=>{
+      return prev+cur;
+    },0)
   }
-
-}
-
-export function getBonusReward(submission: any) {
-  try {
-    let reward: number = 0;
-    if (isBonus(submission)) {
-      submission.bonus_payments.forEach((el: any) => {
-        reward += ((el) as number);
-      });
-
-      return reward * 100;
-    }
-  } catch {
+  if(submission.adjustment_payments){
+    reward.adjustment = submission.adjustment_payments.reduce((prev,cur)=>{
+      return prev+cur;
+    },0)
   }
-  return 0;
-
-}
-
-export function getAllReward(submission: any) {
-  try {
-    if (isBonus(submission)) {
-      return submission.reward + getBonusReward(submission);
-    }
-    return submission.reward;
-  } catch {
-  }
-  return 0;
+  reward.all = reward.base+reward.bonus+reward.adjustment;
+  return reward;
 }
 
 export function priceRange(prices: any): any {

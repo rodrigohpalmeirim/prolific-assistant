@@ -27,7 +27,13 @@ import { showOKPopup } from '../containers/Popup_Info';
 import { firebaseMiddleware } from '../store/firebase/firebaseMiddleware';
 import { confirmCompletionMiddleware } from '../store/confirmCompletionMiddleware';
 import { getUser, setStatistics } from '../store/firebase/actions';
-import { incrementStatistic, incrementStatistics, setStatistic, transactStatistics } from '../functions/firebase';
+import {
+  incrementStatistic,
+  incrementStatistics,
+  last_full_stats,
+  setStatistic,
+  transactStatistics,
+} from '../functions/firebase';
 import { authUrl } from '../functions/GlobalVars';
 
 const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware,firebaseMiddleware,confirmCompletionMiddleware);
@@ -37,15 +43,18 @@ export let userID = '';
 export let acc_info: any = {};
 
 export type LogType = '0-studies' | 'studies' | 'error' | 'status' | 'success'
-export type StatField = 'refreshes' | 'found' | 'started' | 'spammer_count' | 'total_start_amount'
+export type StatField = 'refreshes' | 'found' | 'started' | 'spammer_count' | 'total_start_amount' | 'submissions' | 'earned' | 'approved'
 export type Statistics = {
-  [key in StatField]: number;
+  [key in StatField]?: {value:number,isMoney:boolean};
 };
+export type FullStatistics = {
+  [key:string]:Statistics
+}
 
 export async function incStat(field:StatField, count:number, isMoney:boolean=false){
   try{
     let stats = await incrementStatistic(field,count,isMoney);
-    await store.dispatch(setStatistics(stats))
+    await store.dispatch(setStatistics(last_full_stats))
   }catch (ex){
     appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
   }
@@ -54,7 +63,7 @@ export async function incStat(field:StatField, count:number, isMoney:boolean=fal
 export async function setStat(field:StatField, value:number, isMoney:boolean=false){
   try{
     let stats = await setStatistic(field,value,isMoney);
-    await store.dispatch(setStatistics(stats))
+    await store.dispatch(setStatistics(last_full_stats))
   }catch (ex){
     appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
   }
@@ -63,7 +72,7 @@ export async function setStat(field:StatField, value:number, isMoney:boolean=fal
 export async function incStats(fields:StatField[], counts:number[], isMoney:boolean[]){
   try{
     let stats = await incrementStatistics(fields,counts,isMoney);
-    await store.dispatch(setStatistics(stats))
+    await store.dispatch(setStatistics(last_full_stats))
   }catch (ex){
     appendLog(`ERROR while changing statistics - ${JSON.stringify(fields)}`, 'error', `ERROR while changing statistics: ${ex}`);
   }
@@ -258,13 +267,13 @@ async function _Update() {
             let count = response.meta.count;
             let earned = response.meta.total_earned;
             let approved = response.meta.total_approved;
-            let stats = await transactStatistics((old:Statistics|any)=>{
-              old[`:${userID}:submissions`] = {value:count,isMoney:false};
-              old[`:${userID}:earned`] = {value:earned,isMoney:true};
-              old[`:${userID}:approved`] = {value:approved,isMoney:false};
+            let stats = await transactStatistics((old:Statistics)=>{
+              old[`submissions`] = {value:count,isMoney:false};
+              old[`earned`] = {value:earned,isMoney:true};
+              old[`approved`] = {value:approved,isMoney:false};
               return old;
             });
-            await store.dispatch(setStatistics(stats))
+            await store.dispatch(setStatistics(last_full_stats))
           }catch (ex){
             appendLog(`ERROR while changing statistics - meta`, 'error', `ERROR while changing statistics: ${ex}`);
           }

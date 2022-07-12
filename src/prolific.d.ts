@@ -27,6 +27,22 @@ interface ProlificStudy {
   total_available_places: number;
 }
 
+interface ProlificSubmission{
+  study:ProlificStudy,
+  id:string,
+  participant_id:string,
+  started_at:string,
+  completed_at:string,
+  is_complete:boolean,
+  time_taken:number,
+  reward:number,
+  status:"APPROVED"|"RETURNED"|"REJECTED"|"TIMED-OUT"|"AWAITING REVIEW",
+  study_code:string,
+  star_awarded:boolean,
+  bonus_payments:number[],
+  adjustment_payments:number[]
+}
+
 interface ProlificApiStudies {
   error: {
     additional_information: '/api/v1/errors/';

@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { get, getDatabase, ref, set } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
 import { auth } from './firebaseAuth';
-import { Statistics } from '../pages/background';
+import { FullStatistics, Statistics, userID } from '../pages/background';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCmNeZHXFDSm8Ci4wgbXQYhDeVqS3L98ao',
@@ -38,13 +38,16 @@ export async function writeState(state: any) {
   await writeData('state', state);
 }
 
+export let last_full_stats:FullStatistics;
 export async function readStatistics(): Promise<Statistics> {
   // @ts-ignore
-  return await readData('statistics');
+  last_full_stats = await readData(`statistics`);
+  return last_full_stats[userID]||{};
 }
 
 export async function writeStatistics(stats: Statistics): Promise<Statistics> {
-  await writeData('statistics', stats);
+  if(!userID)return stats;
+  await writeData(`statistics/${userID}`, stats);
   return stats;
 }
 

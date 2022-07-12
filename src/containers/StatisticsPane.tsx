@@ -1,39 +1,43 @@
-import { store, useAsyncDispatch } from '../pages/popup';
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { store } from '../pages/popup';
 import React from 'react';
 import Tab from 'react-bootstrap/Tab';
-import { Statistics } from '../pages/background';
+import { StatField, Statistics, userID } from '../pages/background';
 import { centsToGBP } from '../functions/centsToGBP';
 
-export function StatisticsPane(){
-  const dispatch = useDispatch();
-  let stats = store.getState().firebase.statistics;
-  let new_stats:any|Statistics = {};
+export function StatisticsPane() {
+  let fstats = store.getState().firebase.statistics;
+  let stats: Statistics = {};
+  let stats_this = fstats[userID];
+  Object.keys(fstats).forEach(key => {
+    let accStats = fstats[key];
+    Object.keys(accStats).forEach((key: StatField) => {
+      if (!stats[key]) stats[key] = { value: 0, isMoney: accStats[key].isMoney };
+      stats[key].value += accStats[key].value;
+    });
+  });
 
-  Object.keys(stats).forEach(key=>{
-    if(key.startsWith(":")){
-      let id = key.split(":")[1];
-      let nkey = key.split(":")[2];
-      if(new_stats[nkey] === undefined)new_stats[nkey]={value:0,isMoney:stats[key].isMoney};
-      new_stats[nkey].value += stats[key].value;
-    }else{
-      new_stats[key] =  stats[key];
-    }
-  })
-
+  if(!userID)return <></>
   return <Tab.Pane className="p-1 settings" eventKey="statistics">
-    {Object.keys(new_stats).map(key=>{
-      let value = new_stats[key].value;
-      let isMoney = new_stats[key].isMoney;
-      if(isMoney) value = centsToGBP(value);
+    <div className="acc_property_h_f acc_full">
+      <div className="acc_property acc_f_f_i inline-block w-33">Statistic</div>
+      <div className="acc_value acc_f_f_i inline-block w-33">All prolific accounts</div>
+      <div className="acc_value acc_f_f_i inline-block w-33">This prolific account</div>
+    </div>
+    {Object.keys(stats).map((key: StatField) => {
+      let value = String(stats[key].value);
+      let isMoney = stats[key].isMoney;
+      if (isMoney) value = centsToGBP(stats[key].value);
+
+      let value_this = String(stats_this[key].value);
+      if (isMoney) value_this = centsToGBP(stats_this[key].value);
 
       return <div className="acc_property_h_f acc_full" key={key}>
-        <div className="acc_property acc_f_f_i">{key}</div>
-        <div className="acc_value acc_f_f_i">{value}</div>
-      </div>
+        <div className="acc_property acc_f_f_i inline-block w-33">{key}</div>
+        <div className="acc_value acc_f_f_i inline-block w-33">{value}</div>
+        <div className="acc_value acc_f_f_i inline-block w-33">{value_this}</div>
+      </div>;
     })}
-  </Tab.Pane>
+  </Tab.Pane>;
 
 
 }

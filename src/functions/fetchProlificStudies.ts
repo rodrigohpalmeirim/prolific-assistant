@@ -45,7 +45,7 @@ export async function fetchProlificAccount(authHeader: any, userID: string) {
   return json;
 }
 
-export type fetchProlificSubmissionsType = {results:ProlificStudy[],meta:{count:number,total_approved:number,total_earned:number}}
+export type fetchProlificSubmissionsType = {results:ProlificSubmission[],meta:{count:number,total_approved:number,total_earned:number}}
 export async function fetchProlificSubmissions(authHeader: any, userID: string):Promise<fetchProlificSubmissionsType> {
   const { name, value } = authHeader;
   const headers = { [name]: value };

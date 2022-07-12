@@ -1,4 +1,5 @@
 export interface ProlificState {
+  submissions: ProlificSubmission[];
   error: number;
   studies: ProlificStudy[];
   acc_info: any
@@ -21,7 +22,7 @@ export interface ProlificStudiesUpdateAction {
 
 export interface ProlificSubmissionsUpdateAction {
   type: typeof PROLIFIC_SUBMISSIONS_UPDATE;
-  payload: ProlificStudy[];
+  payload: ProlificSubmission[];
 }
 
 export interface AccInfoUpdateAction {

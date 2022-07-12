@@ -5,17 +5,18 @@ import {
   PROLIFIC_ERROR_UPDATE,
   PROLIFIC_STUDIES_UPDATE,
   PROLIFIC_SUBMISSIONS_UPDATE,
-  ProlificActionTypes,
+  ProlificActionTypes, ProlificState,
 } from './types';
 
-const initialState: any = {
+const initialState: ProlificState = {
   error: undefined,
   studies: [],
   acc_info: {},
+  submissions:[]
 };
 
 export function prolificReducer(state = initialState, action: ProlificActionTypes) {
-  return produce(state, (draftState: any) => {
+  return produce(state, (draftState: ProlificState) => {
     switch (action.type) {
       case PROLIFIC_ERROR_UPDATE:
         draftState.error = action.payload;

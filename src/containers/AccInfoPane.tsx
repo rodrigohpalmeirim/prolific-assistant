@@ -5,7 +5,7 @@ import Tab from 'react-bootstrap/Tab';
 
 import { selectAcc_Info, selectProlificSubmissions } from '../store/prolific/selectors';
 import Nav from 'react-bootstrap/Nav';
-import { centsToGBP, centsToGBP_Submission, efficiency } from '../functions/centsToGBP';
+import { centsToGBP, efficiency } from '../functions/centsToGBP';
 
 export function AccountInfoPane() {
   const acc_info = useSelector(selectAcc_Info);
@@ -125,7 +125,7 @@ function createEfficiency(submissions: any) {
   try {
 
     let eff = efficiency(submissions);
-    if (eff >= 0) gbpph = String(centsToGBP_Submission(eff));
+    if (eff >= 0) gbpph = String(centsToGBP(eff));
 
 
   } catch {

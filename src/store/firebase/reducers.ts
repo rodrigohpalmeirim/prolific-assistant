@@ -15,13 +15,13 @@ import {
   login,
   setUserPreferences,
 } from '../../functions/firebaseAuth';
-import { Statistics } from '../../pages/background';
+import { FullStatistics } from '../../pages/background';
 
 export type FirebaseState={
   preferences: {prolific:{}}|any,
   currentUser:any,
   canUsePA:boolean|string,
-  statistics: Statistics|any
+  statistics: FullStatistics
 }
 
 const initialState: FirebaseState = {

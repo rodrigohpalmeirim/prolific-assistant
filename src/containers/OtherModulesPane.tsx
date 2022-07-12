@@ -3,9 +3,7 @@ import { useSelector } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 
-import { selectAcc_Info, selectProlificSubmissions } from '../store/prolific/selectors';
 import Nav from 'react-bootstrap/Nav';
-import { centsToGBP, centsToGBP_Submission, efficiency } from '../functions/centsToGBP';
 import { StartSpammer } from './OtherModules/StartSpammerPane';
 import { WebHookPane } from './OtherModules/WebHookPane';
 import { EasterEggPane } from './OtherModules/EasterEggPane';
@@ -14,12 +12,7 @@ import { CustomThemePane } from './OtherModules/CustomThemePane';
 import { selectSettings } from '../store/settings/selectors';
 
 export function OtherModulesPane() {
-  const acc_info = useSelector(selectAcc_Info);
   const settings = useSelector(selectSettings);
-  const elements: any = [];
-  const s_elements: any = [];
-  const f_elements: any = [];
-  const submissions = useSelector(selectProlificSubmissions);
 
   let [key, setKey] = useState('short');
 
@@ -78,17 +71,4 @@ export function OtherModulesPane() {
 
       </Tab.Container></Tab.Pane>
   );
-}
-
-function createEfficiency(submissions: any) {
-  let gbpph = '£---';
-  try {
-
-    let eff = efficiency(submissions);
-    if (eff >= 0) gbpph = String(centsToGBP_Submission(eff));
-
-
-  } catch {
-  }
-  return `${gbpph}/h`;
 }
