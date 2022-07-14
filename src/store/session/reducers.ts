@@ -30,10 +30,10 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
         draftState.logs.push(logItem);
         draftState.flogs.push(logItem);
 
-        while (draftState.logs > 299) {
+        while (draftState.logs.length > 299) {
           draftState.logs.shift();
         }
-        while (draftState.flogs > 3000) {
+        while (draftState.flogs.length > 3000) {
           draftState.flogs.shift();
         }
         break;

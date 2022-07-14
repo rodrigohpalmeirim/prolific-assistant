@@ -18,16 +18,24 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 
+export const FIREBASE_DATA_VERSION = 2;
+export function firebaseRootPath(){
+  return `data/v${FIREBASE_DATA_VERSION}/prolific`
+}
+export function firebasePath(accountID:string,path:string){
+  return `${firebaseRootPath()}/${accountID}/${path}`;
+}
+
 export async function writeData(path: string, data: any) {
   if (!auth.currentUser) return;
   const db = getDatabase(app);
-  await set(ref(db, `data/${auth.currentUser.uid}/prolific/${path}`), data);
+  await set(ref(db, firebasePath(auth.currentUser.uid,path)), data);
 }
 
 export async function readData(path: string) {
   if (!auth.currentUser) return;
   const db = getDatabase(app);
-  let snapshot = await get(ref(db, `data/${auth.currentUser.uid}/prolific/${path}`));
+  let snapshot = await get(ref(db, firebasePath(auth.currentUser.uid,path)));
   if (snapshot.exists()) {
     return (snapshot.val());
   } else {
@@ -38,7 +46,7 @@ export async function readData(path: string) {
 export async function readBulkData(path: string) {
   if (!auth.currentUser) return;
   const db = getDatabase(app);
-  let snapshot = await get(ref(db, `data/_bulk/prolific/${path}`));
+  let snapshot = await get(ref(db, firebasePath("_bulk",path)));
   if (snapshot.exists()) {
     return (snapshot.val());
   } else {
@@ -78,7 +86,7 @@ export async function transactStatistics(cb: { (arg0: Statistics): Statistics; }
 export async function incrementStatistic(field: StatField, count: number, isMoney:boolean): Promise<Statistics> {
   return await transactStatistics(((old: Statistics) => {
     if (!old.statistics[field]) old.statistics[field] = statisticObject(0,isMoney);
-    old.statistics[field].value += count;
+    old.statistics[field] = statisticObject(old.statistics[field].value + count,isMoney)
     return old;
   }));
 }
@@ -95,7 +103,7 @@ export async function incrementStatistics(fields: StatField[], counts: number[],
     fields.forEach((field,i)=>{
       let count = counts[i];
       if (!old.statistics[field]) old.statistics[field] = statisticObject(0,isMoney[i]);
-      old.statistics[field].value += count;
+      old.statistics[field] = statisticObject(old.statistics[field].value + count,isMoney[i])
     })
 
     return old;

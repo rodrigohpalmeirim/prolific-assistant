@@ -11,9 +11,7 @@ import { ProlificStudy } from '../types';
 
 const seen: ProlificStudy['id'][] = [];
 
-export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => (action) => {
-  const result = next(action);
-
+export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => async (action) => {
   if (action.type === PROLIFIC_STUDIES_UPDATE) {
     const state: AppState = store.getState();
     const studies: ProlificStudy[] = action.payload;
@@ -21,7 +19,6 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
     const newStudies = studies.reduce((acc: ProlificStudy[], study) => {
       if (!seen.includes(study.id)) {
         seen.push(study.id);
-        incStats(["found","found_amount"], [1,study.reward],[false,true]);
         if (state.settings.desktop_notifications) {
           browser.notifications.create(study.id, {
             type: 'list',
@@ -53,11 +50,15 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
 
     if (newStudies.length) {
       playAlertSound(state);
-      newStudies.forEach(el=>{
-        sendWebhook(state,el)
+      newStudies.forEach(el => {
+        sendWebhook(state, el)
       })
+      let totalReward = newStudies.reduce((old, curr) => {
+        return old + curr.reward;
+      }, 0)
+      await incStats(["found", "found_amount"], [newStudies.length, totalReward], [false, true]);
     }
   }
 
-  return result;
+  return next(action);
 };
