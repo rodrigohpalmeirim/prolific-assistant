@@ -55,6 +55,9 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
           delete draftState.spammer_conf.studies[action.payload.studyID];
           delete draftState.spammer_output.studies[action.payload.studyID];
         }
+        if(action.payload.type === "clear"){
+          draftState.spammer_conf.studies = {};
+        }
 
         break;
       case SET_ERROR:

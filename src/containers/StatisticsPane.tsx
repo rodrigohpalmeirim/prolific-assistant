@@ -21,6 +21,9 @@ export function StatisticsPane() {
         if (!stats.statistics[key]) stats.statistics[key] = { value: 0, isMoney: accStats[key].isMoney };
         stats.statistics[key].value += accStats[key].value;
       });
+      Object.keys(fstats?.bulk?.default?.statistics || {}).forEach((key: StatField) => {
+        if (!stats.statistics[key]) stats.statistics[key] = { value: 0, isMoney: fstats?.bulk?.default?.statistics[key].isMoney };
+      });
     }
   });
 
@@ -36,24 +39,23 @@ export function StatisticsPane() {
       let isMoney = stats.statistics[key].isMoney;
       if (isMoney) value = centsToGBP(stats.statistics[key].value);
 
-      let value_this = "undefined"
+      let value_this = isMoney?centsToGBP(0):0;
       if(userID && stats_this[userID] && stats_this[userID].statistics && stats_this[userID].statistics[key] && stats_this[userID].statistics[key].value !== undefined){
         value_this = String(stats_this[userID].statistics[key].value);
         if (isMoney) value_this = centsToGBP(stats_this[userID].statistics[key].value);
       }
 
-      let value_community = "cannot load community"
+      let value_community = isMoney?centsToGBP(0):0;
       if(fstats?.bulk?.default?.statistics[key] && fstats?.bulk?.default?.statistics[key].value){
         value_community = String(fstats.bulk.default.statistics[key].value);
         if (isMoney) value_community = centsToGBP(fstats.bulk.default.statistics[key].value);
-
       }
 
       return <div className="acc_property_h_f acc_full" key={key}>
         <div className="acc_property acc_f_f_i inline-block w-25">{key}</div>
-        <div className="acc_value acc_f_f_i inline-block w-25">{value}</div>
-        <div className="acc_value acc_f_f_i inline-block w-25">{value_this}</div>
-        <div className="acc_value acc_f_f_i inline-block w-25">{"W.I.P"}</div>
+        <div className="acc_value acc_f_f_i inline-block w-25">{value || "0"}</div>
+        <div className="acc_value acc_f_f_i inline-block w-25">{value_this || "0"}</div>
+        <div className="acc_value acc_f_f_i inline-block w-25">{value_community || "0"}</div>
       </div>;
     })}
 

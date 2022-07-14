@@ -39,6 +39,10 @@ export function StartSpammer() {
     dispatch(spammerAction({type:"delete",studyID}));
   }
 
+  function clearStudies(){
+    dispatch(spammerAction({type:"clear"}));
+  }
+
   if(!spammer || !spammerConfig)return <></>
 
   let active_studies = Object.keys(spammerConfig.studies).reduce((prev,curr)=>{
@@ -62,6 +66,12 @@ export function StartSpammer() {
           addStudy(document.getElementById('study_id_box').value);
         }}>
           Add
+        </Button>
+        <Button onClick={() => {
+          // @ts-ignore
+          clearStudies();
+        }}>
+          Clear All
         </Button>
       </Form.Group>
       <Form.Group>

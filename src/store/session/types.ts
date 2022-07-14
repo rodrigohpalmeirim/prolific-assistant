@@ -43,6 +43,7 @@ export type spammerActionPayload =
   { data: { enabled: boolean }, type: 'config', studyID: string }
   | { data: { success: boolean, error: any, iterations: number }, type: 'output', studyID: string }
   | { type: 'delete', studyID: string }
+  | { type: 'clear' }
 
 export interface Spammer {
   type: typeof SPAMMER;
