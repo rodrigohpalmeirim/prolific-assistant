@@ -17,7 +17,6 @@ import {
   SettingsActionTypes,
   SettingsState,
 } from './types';
-import { act } from 'react-dom/test-utils';
 
 const initialState: SettingsState = {
   alert_sound: 'voice',

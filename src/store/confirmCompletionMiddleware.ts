@@ -1,20 +1,5 @@
 import { AnyAction, Dispatch, Middleware } from 'redux';
-import {
-  FIREBASE_LOGIN,
-  FIREBASE_LOGOUT,
-  GET_USER,
-  READ_PREFERENCES,
-  setPreferences,
-  setUser, UPLOAD_PREFERENCES,
-} from './firebase/actions';
 import { setDoneAction, setErrorAction } from './session/actions';
-import {
-  canUseProlificAssistant,
-  getUserPreferences,
-  login,
-  logout,
-  setUserPreferences,
-} from '../functions/firebaseAuth';
 import { AppState } from './index';
 import { SET_DONE, SET_ERROR } from './session/types';
 

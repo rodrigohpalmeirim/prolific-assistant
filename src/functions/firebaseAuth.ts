@@ -1,4 +1,3 @@
-import * as firebaseAuth from "firebase/auth";
 import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import * as firebase from "./firebase";
 import { app } from "./firebase";
@@ -7,19 +6,13 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 export const auth = getAuth(app);
 const pjson = require('../../package.json');
 
-export let valid_version = false;
-export let hasPermissions = false;
+export let valid_version:boolean|undefined = undefined;
+export let hasPermissions:boolean|undefined = undefined;
 export let lastCanUsePA:string|boolean = "";
 
-export function preSetPA(){
-  valid_version = true;
-  hasPermissions = true;
-  lastCanUsePA = true;
-}
-
 export function _canUsePA(){
-  if(!auth.currentUser)return "not logged in";
   if(!valid_version)return "wrong version";
+  if(!auth.currentUser)return "not logged in";
   if(!hasPermissions)return "no permissions";
   return true;
 }
@@ -32,10 +25,6 @@ export function canUsePA(){
 export async function canUseProlificAssistant(){
   await _canUseProlificAssistant();
   return canUsePA();
-}
-
-export function canUseProlificAssistantCB(cb:any){
-  canUseProlificAssistant().then(cb).catch(cb);
 }
 
 export async function _canUseProlificAssistant(){
@@ -53,7 +42,8 @@ export async function login(username: string, password: string) {
 }
 
 export async function logout() {
-  return await signOut(auth);
+  await signOut(auth);
+  await canUseProlificAssistant();
 }
 
 export async function getAccountList() {
@@ -64,30 +54,6 @@ export async function getAccountList() {
 export async function getAccount(uid: string) {
   let sn = await getDoc(doc(firebase.firestore_db, "accounts", uid));
   return sn.data();
-}
-
-export async function unlinkAccount(uid: any) {
-  try {
-    let resp = await fetch('https://mc.atos.mooo.com:21370/firebase/functions/accountDelete', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ token: await getAuthToken(), uid: uid })
-    });
-    const content = await resp.json();
-    if (content.success !== true) {
-      throw content.response;
-    }
-  } catch (ex) {
-    throw ("Error during account unlinking. " + ex);
-  }
-}
-
-export async function getAuthToken() {
-  let originalUser = auth.currentUser
-  return (await originalUser?.getIdToken());
 }
 
 export async function resetPassword(email: string) {

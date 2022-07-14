@@ -14,6 +14,7 @@ import { openProlificStudy } from '../functions/openProlificStudy';
 import { selectProlificError, selectProlificSubmissions } from '../store/prolific/selectors';
 import Form from 'react-bootstrap/Form';
 import { studyImg } from '../functions/GlobalVars';
+import { ProlificSubmission } from '../types';
 
 export function SubmissionsPage() {
   let [submissionType, setSubmissionType] = useState('awaiting review');
@@ -239,8 +240,7 @@ function getEfficiency(submission: ProlificSubmission){
   let mins = Math.round(submission.time_taken/60)
   let reward = getFullReward(submission);
   let rph = reward.all/mins*60;
-  let rphround = Math.round(rph*100)/100
-  return rphround;
+  return Math.round(rph * 100) / 100;
 }
 
 function createTimeTaken(submission: ProlificSubmission){

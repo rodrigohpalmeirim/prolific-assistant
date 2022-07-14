@@ -20,7 +20,7 @@ import {
 import { appendLogAction, sessionLastChecked, spammerAction } from '../store/session/actions';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
 import { settingsAlertSoundMiddleware } from '../store/settingsAlertSoundMiddleware';
-import { auth } from '../functions/authProlific';
+import { authProlific } from '../functions/authProlific';
 import { settingUID, testingAlertSound } from '../store/settings/actions';
 import { testAutoStart } from '../functions/centsToGBP';
 import { showOKPopup } from '../containers/Popup_Info';
@@ -32,48 +32,43 @@ import {
   incrementStatistics,
   last_full_stats,
   setStatistic,
+  statisticObject,
   transactStatistics,
 } from '../functions/firebase';
 import { authUrl } from '../functions/GlobalVars';
+import * as firebaseAuth from '../functions/firebaseAuth';
+import { hasPermissions, valid_version } from '../functions/firebaseAuth';
+import { LogObject, LogType, ProlificStudy, StatField, Statistics } from '../types';
 
-const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware,firebaseMiddleware,confirmCompletionMiddleware);
+const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware, firebaseMiddleware, confirmCompletionMiddleware);
 export let authHeader: WebRequest.HttpHeadersItemType;
 export let id_token: string;
 export let userID = '';
 export let acc_info: any = {};
 
-export type LogType = '0-studies' | 'studies' | 'error' | 'status' | 'success'
-export type StatField = 'refreshes' | 'found' | 'started' | 'spammer_count' | 'total_start_amount' | 'submissions' | 'earned' | 'approved'
-export type Statistics = {
-  [key in StatField]?: {value:number,isMoney:boolean};
-};
-export type FullStatistics = {
-  [key:string]:Statistics
-}
-
-export async function incStat(field:StatField, count:number, isMoney:boolean=false){
-  try{
-    let stats = await incrementStatistic(field,count,isMoney);
-    await store.dispatch(setStatistics(last_full_stats))
-  }catch (ex){
+export async function incStat(field: StatField, count: number, isMoney: boolean = false) {
+  try {
+    await incrementStatistic(field, count, isMoney);
+    await store.dispatch(setStatistics(last_full_stats));
+  } catch (ex) {
     appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
   }
 }
 
-export async function setStat(field:StatField, value:number, isMoney:boolean=false){
-  try{
-    let stats = await setStatistic(field,value,isMoney);
-    await store.dispatch(setStatistics(last_full_stats))
-  }catch (ex){
+export async function setStat(field: StatField, value: number, isMoney: boolean = false) {
+  try {
+    await setStatistic(field, value, isMoney);
+    await store.dispatch(setStatistics(last_full_stats));
+  } catch (ex) {
     appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
   }
 }
 
-export async function incStats(fields:StatField[], counts:number[], isMoney:boolean[]){
-  try{
-    let stats = await incrementStatistics(fields,counts,isMoney);
-    await store.dispatch(setStatistics(last_full_stats))
-  }catch (ex){
+export async function incStats(fields: StatField[], counts: number[], isMoney: boolean[]) {
+  try {
+    await incrementStatistics(fields, counts, isMoney);
+    await store.dispatch(setStatistics(last_full_stats));
+  } catch (ex) {
     appendLog(`ERROR while changing statistics - ${JSON.stringify(fields)}`, 'error', `ERROR while changing statistics: ${ex}`);
   }
 }
@@ -115,16 +110,16 @@ function doEasterEggStudy(results: any[]) {
   return results;
 }
 
-export function updateResults(results: any[]) {
+export async function updateResults(results: any[]) {
   results = doEasterEggStudy(results);
   store.dispatch(prolificStudiesUpdate(results));
   store.dispatch(sessionLastChecked());
-  browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-  browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
+  await browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
+  await browser.browserAction.setBadgeText({ text: results.length ? results.length.toString() : '' });
 
   if (results.length < 1) {
-    browser.browserAction.setBadgeText({ text: 'OK' });
-    browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
+    await browser.browserAction.setBadgeText({ text: 'OK' });
+    await browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
     appendLog(`${results.length} STUDIES FOUND`, '0-studies', `no studies found.`);
   } else {
     const state = store.getState();
@@ -136,9 +131,15 @@ export function updateResults(results: any[]) {
     });
     const settings = store.getState().settings;
     if (bestStudy && bestStudy.id && settings.autostart && results.length > 0 && state.firebase.canUsePA === true) {
-      if (!bestStudy.id.includes('TEST'))
-        if (testAutoStart(settings.autostart, bestStudy.reward))
-          fetchStartStudy(authHeader, userID, bestStudy.id, store);
+      if (!bestStudy.id.includes('TEST')){
+        let testRes = testAutoStart(settings.autostart, bestStudy.reward);
+        if (testRes === true)
+          await fetchStartStudy(authHeader, userID, bestStudy.id, store);
+        else if (testRes !== false){
+          appendLogObj(testRes);
+        }
+      }
+
     }
   }
 }
@@ -146,153 +147,206 @@ export function updateResults(results: any[]) {
 let timeout = window.setTimeout(main);
 
 export function appendLog(log: string, type: LogType, description: string) {
-  store.dispatch(appendLogAction({log,type,description}))
+  store.dispatch(appendLogAction({ log, type, description }));
 }
 
+export function appendLogObj(log: LogObject) {
+  store.dispatch(appendLogAction(log));
+}
+
+let freshlyLaunched = false;
 async function main() {
+  freshlyLaunched = true;
   setInterval(FastUpdate, 1000);
   Update();
 }
 
-async function Update(){
+async function Update() {
   const state = store.getState();
   clearTimeout(timeout);
-  try{
+  try {
     await _Update();
-    await incStat("refreshes", 1);
-  }catch (ex){
+    await incStat('refreshes', 1);
+  } catch (ex) {
     console.error(ex);
   }
   timeout = window.setTimeout(Update, state.settings.check_interval * 1000);
 }
 
-let fastUpdateIndex =0;
-let differentStartLogs:any = {};
+let fastUpdateIndex = 0;
 let spammerIndex = 0;
+let statisticSpammerCountQueue = 0;
 
 async function FastUpdate() {
-  fastUpdateIndex+=1;
-  if(fastUpdateIndex>512)fastUpdateIndex=0;
-
+  fastUpdateIndex += 1;
+  if (fastUpdateIndex > 512) fastUpdateIndex = 0;
   const state = store.getState();
-  const spammer = state.session.spammer;
-  //console.log("update")
-  if (state.session.canUsePA===true && authHeader && userID && state.session.spammer && state.session.spammer.length > 1 && state.session.spammer[1]) {
-    await fetchStartStudy(authHeader, userID, state.session.spammer[0], store);
-    spammerIndex+=1;
-    if (state.session.spammer[1]) {
-      differentStartLogs["last"] = lastStartLog;
-      if(!differentStartLogs[JSON.stringify(lastStartLog)]) differentStartLogs[JSON.stringify(lastStartLog)] = 0;
-      differentStartLogs[JSON.stringify(lastStartLog)] += 1;
-      if (startSuccess) {
-        store.dispatch(spammerAction([spammer[0], false, differentStartLogs, startSuccess, spammer[4] + 1]));
-        store.dispatch(testingAlertSound());
-      } else {
-        if(spammerIndex%5==0)
-        store.dispatch(spammerAction([spammer[0], spammer[1], differentStartLogs, startSuccess, spammer[4] + 5]));
-        await incStat("spammer_count", 5);
-      }
-    }
 
-  }else{
-    spammerIndex = 0;
+  if (state.firebase.canUsePA !== true) {
+    await browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
+    await browser.browserAction.setBadgeText({ text: 'noa' });
+  } else {
+    if (await browser.browserAction.getBadgeText({}) === 'noa') {
+      await browser.browserAction.setBadgeBackgroundColor({ color: 'green' });
+      await browser.browserAction.setBadgeText({ text: 'IDL' });
+    }
+    if(freshlyLaunched){
+      await incStat("launches",1);
+      freshlyLaunched = false;
+    }
   }
+
+  if (firebaseAuth.auth.currentUser && (valid_version === undefined || hasPermissions === undefined)) {
+    store.dispatch(getUser());
+  }
+
+  let spammerRes = await SpammerUpdate();
+  if (statisticSpammerCountQueue > 15 || (!spammerRes && statisticSpammerCountQueue > 0)) {
+    await incStat('spammer_count', statisticSpammerCountQueue);
+    statisticSpammerCountQueue = 0;
+  }
+}
+
+async function SpammerUpdate():Promise<boolean>{
+  const state = store.getState();
+  const spammer = state.session.spammer_conf;
+  //console.log("update")
+  if (state.firebase.canUsePA !== true || !authHeader || !userID || !spammer.studies || Object.keys(spammer.studies).length <= 0) {
+    spammerIndex = 0;
+    return false;
+  }
+
+  let active_studies = Object.keys(spammer.studies).reduce((prev, curr) => {
+    if (spammer.studies[curr].enabled) prev.push(curr);
+    return prev;
+  }, []);
+  if (active_studies.length <= 0) return false;
+
+  let studyID = active_studies[spammerIndex % active_studies.length];
+  await fetchStartStudy(authHeader, userID, studyID, store);
+  spammerIndex += 1;
+  statisticSpammerCountQueue += 1;
+  if (startSuccess) {
+    store.dispatch(spammerAction({
+      type: 'output',
+      studyID,
+      data: {
+        error: lastStartLog,
+        success: startSuccess,
+        iterations: state.session.spammer_output.studies[studyID].iterations + 1,
+      },
+    }));
+    store.dispatch(spammerAction({ type: 'config', studyID, data: { enabled: false } }));
+    store.dispatch(testingAlertSound());
+  } else {
+    store.dispatch(spammerAction({
+      type: 'output',
+      studyID,
+      data: {
+        error: lastStartLog,
+        success: startSuccess,
+        iterations: state.session.spammer_output.studies[studyID].iterations + 1,
+      },
+    }));
+  }
+  return true;
 }
 
 async function _Update() {
   const state = store.getState();
-  try{
-  await browser.browserAction.setBadgeText({ text: '...' });
-  await browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
+  try {
+    await browser.browserAction.setBadgeText({ text: '...' });
+    await browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
 
-  if (authHeader) {
-    try {
-      const response = await fetchProlificStudies(authHeader);
-      await browser.browserAction.setBadgeText({ text: 'ERR' });
-      await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+    if (authHeader) {
+      try {
+        const response = await fetchProlificStudies(authHeader);
+        await browser.browserAction.setBadgeText({ text: 'ERR' });
+        await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
 
 
-      if (response.error) {
-        if (response.error.status === 401) {
-          store.dispatch(prolificErrorUpdate(401));
-          await browser.browserAction.setBadgeText({ text: '!' });
-          await browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-          appendLog('AUTHENTICATION ERROR', 'error', `ERROR 401 Occurred\n${JSON.stringify(response.error)}`);
-          await auth();
+        if (response.error) {
+          if (response.error.status === 401) {
+            store.dispatch(prolificErrorUpdate(401));
+            await browser.browserAction.setBadgeText({ text: '!' });
+            await browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
+            appendLog('AUTHENTICATION ERROR', 'error', `ERROR 401 Occurred\n${JSON.stringify(response.error)}`);
+            appendLogObj(await authProlific());
+          } else {
+            store.dispatch(prolificStudiesUpdate([]));
+            await browser.browserAction.setBadgeText({ text: 'ERR' });
+            await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+            appendLog('OTHER ERROR', 'error', `Unknown ERROR Occurred\n${JSON.stringify(response.error)}`);
+            appendLogObj(await authProlific());
+          }
         } else {
-          store.dispatch(prolificStudiesUpdate([]));
-          await browser.browserAction.setBadgeText({ text: 'ERR' });
-          await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-          appendLog('OTHER ERROR', 'error', `Unknown ERROR Occurred\n${JSON.stringify(response.error)}`);
-          await auth();
-        }
-      } else {
-        await browser.browserAction.setBadgeText({ text: 'OK' });
-        await browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
-        appendLog('OK!', 'status', `Everything seems to be fine`);
-      }
-
-      if (response.results) {
-        updateResults(response.results);
-      }
-      if (userID) {
-        acc_info = await fetchProlificAccount(authHeader, userID);
-        if (state.settings.easter_egg && state.settings.easter_egg.atos) {
-          acc_info.status = 'SHADOWBANNED';
+          await browser.browserAction.setBadgeText({ text: 'OK' });
+          await browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
+          appendLog('OK!', 'status', `Everything seems to be fine`);
         }
 
-        if (!acc_info.id || acc_info.id == !userID) {
+        if (response.results) {
+          await updateResults(response.results);
+        }
+        if (userID) {
+          acc_info = await fetchProlificAccount(authHeader, userID);
+          if (state.settings.easter_egg && state.settings.easter_egg.atos) {
+            acc_info.status = 'SHADOWBANNED';
+          }
+
+          if (!acc_info.id || acc_info.id == !userID) {
+            if (await checkUserID(authHeader, state.settings.uid, store)) {
+              userID = state.settings.uid;
+            }
+          }
+          store.dispatch(accInfoUpdate(acc_info));
+        } else {
           if (await checkUserID(authHeader, state.settings.uid, store)) {
             userID = state.settings.uid;
+            appendLog(`Successfully Gathered Prolific ID from settings`, 'success', `Successfully Gathered Prolific ID from settings\nID: ${state.settings.uid}`);
+          } else {
+            appendLog('Prolific ID from settings is invalid', 'error', `Prolific ID from settings is invalid. \nID: ${state.settings.uid}`);
           }
         }
-        store.dispatch(accInfoUpdate(acc_info));
-      } else {
-        if (await checkUserID(authHeader, state.settings.uid, store)) {
-          userID = state.settings.uid;
-          appendLog(`Successfully Gathered Prolific ID from settings`, 'success', `Successfully Gathered Prolific ID from settings\nID: ${state.settings.uid}`);
-        } else {
-          appendLog('Prolific ID from settings is invalid', 'error', `Prolific ID from settings is invalid. \nID: ${state.settings.uid}`);
-        }
-      }
 
-      if (userID) {
-        let response = await fetchProlificSubmissions(authHeader, userID);
-        console.log(response);
-        if (response.results) {
-          store.dispatch(prolificSubmissionsUpdate(response.results));
-        }
-        if(response.meta){
-          try{
-            let count = response.meta.count;
-            let earned = response.meta.total_earned;
-            let approved = response.meta.total_approved;
-            let stats = await transactStatistics((old:Statistics)=>{
-              old[`submissions`] = {value:count,isMoney:false};
-              old[`earned`] = {value:earned,isMoney:true};
-              old[`approved`] = {value:approved,isMoney:false};
-              return old;
-            });
-            await store.dispatch(setStatistics(last_full_stats))
-          }catch (ex){
-            appendLog(`ERROR while changing statistics - meta`, 'error', `ERROR while changing statistics: ${ex}`);
+        if (userID) {
+          let response = await fetchProlificSubmissions(authHeader, userID);
+          console.log(response);
+          if (response.results) {
+            store.dispatch(prolificSubmissionsUpdate(response.results));
+          }
+          if (response.meta) {
+            try {
+              let count = response.meta.count;
+              let earned = response.meta.total_earned;
+              let approved = response.meta.total_approved;
+              await transactStatistics((old: Statistics) => {
+                old.statistics[`submissions`] = statisticObject(count, false);
+                old.statistics[`earned`] = statisticObject(earned, true);
+                old.statistics[`approved`] = statisticObject(approved, false);
+                return old;
+              });
+              await store.dispatch(setStatistics(last_full_stats));
+            } catch (ex) {
+              appendLog(`ERROR while changing statistics - meta`, 'error', `ERROR while changing statistics: ${ex}`);
+            }
           }
         }
+      } catch (error) {
+        store.dispatch(prolificStudiesUpdate([]));
+        await browser.browserAction.setBadgeText({ text: 'ERR' });
+        await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+        appendLog(`ERROR - fetchProlificStudies`, 'error', `Exception occurred:\n${error}`);
+        window.console.error('fetchProlificStudies error', error);
       }
-    } catch (error) {
-      store.dispatch(prolificStudiesUpdate([]));
+    } else {
+      store.dispatch(prolificErrorUpdate(401));
       await browser.browserAction.setBadgeText({ text: 'ERR' });
       await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-      appendLog(`ERROR - fetchProlificStudies`, 'error', `Exception occurred:\n${error}`);
-      window.console.error('fetchProlificStudies error', error);
+      appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
+      appendLogObj(await authProlific());
     }
-  } else {
-    store.dispatch(prolificErrorUpdate(401));
-    await browser.browserAction.setBadgeText({ text: 'ERR' });
-    await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-    appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
-    await auth();
-  }}catch (e) {
+  } catch (e) {
     console.error(e);
   }
 }

@@ -2,7 +2,6 @@ import { browser } from 'webextension-scripts/polyfill';
 
 import React from 'react';
 import { useSelector } from 'react-redux';
-import moment from 'moment';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -10,7 +9,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
 import { selectSessionLastChecked } from '../store/session/selectors';
-import { centsToGBP } from '../functions/centsToGBP';
+import { centsToGBP, formatTimestamp } from '../functions/centsToGBP';
 import { selectAcc_Info } from '../store/prolific/selectors';
 import { WarnMsg } from './WarnMsg';
 
@@ -51,7 +50,7 @@ export function Header() {
         <Nav.Item className="text-light">
           <OverlayTrigger placement="left" overlay={<Tooltip id="check-tooltip">Click to check for studies</Tooltip>}>
             <Button onClick={() => browser.runtime.sendMessage('check_for_studies')}>
-              Last checked: {last_checked ? moment(last_checked).format('LTS') : 'Never'}
+              Last checked: {formatTimestamp(last_checked)}
             </Button>
           </OverlayTrigger>
         </Nav.Item>

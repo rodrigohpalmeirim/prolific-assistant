@@ -1,8 +1,7 @@
-import { appendLog, authHeader, incStat, incStats, setStat, userID } from '../pages/background';
+import { appendLog, incStats } from '../pages/background';
 import {  settingUID } from '../store/settings/actions';
 import { Store } from 'redux';
 import { selectSettings } from '../store/settings/selectors';
-import { incrementStatistic } from './firebase';
 import {
   fetchAccountInfoUrl,
   fetchStartStudyUrl,
@@ -10,6 +9,7 @@ import {
   fetchStudyUrl,
   fetchSubmissionsUrl,
 } from './GlobalVars';
+import { ProlificApiStudies, ProlificStudy, ProlificSubmission } from '../types';
 
 export async function fetchProlificStudies(authHeader: any) {
   const { name, value } = authHeader;
@@ -46,11 +46,11 @@ export async function fetchProlificAccount(authHeader: any, userID: string) {
 }
 
 export type fetchProlificSubmissionsType = {results:ProlificSubmission[],meta:{count:number,total_approved:number,total_earned:number}}
-export async function fetchProlificSubmissions(authHeader: any, userID: string):Promise<fetchProlificSubmissionsType> {
+export async function fetchProlificSubmissions(authHeader: any, userID: string, page:number=1, pageSize:number=20):Promise<fetchProlificSubmissionsType> {
   const { name, value } = authHeader;
   const headers = { [name]: value };
   // omit credentials here, since auth is handled via the bearer token
-  const response = await fetch(fetchSubmissionsUrl(userID), {
+  const response = await fetch(fetchSubmissionsUrl(userID,page,pageSize), {
     credentials: 'omit',
     headers,
   });

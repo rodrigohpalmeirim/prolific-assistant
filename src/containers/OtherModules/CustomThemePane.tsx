@@ -4,15 +4,14 @@ import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 import { selectSettings } from '../../store/settings/selectors';
 import Button from 'react-bootstrap/Button';
-import { selectSpammer } from '../../store/session/selectors';
 import { settingCTheme } from '../../store/settings/actions';
-import { getCombinedThemes, getCombinedThemesS } from '../../components/App';
+import { getCombinedThemesS } from '../../components/App';
 import { showOKPopup } from '../Popup_Info';
+import { atob_node, btoa_node } from '../../helpers';
 
 export function CustomThemePane() {
   const dispatch = useDispatch();
   const settings = useSelector(selectSettings);
-  const spammer = useSelector(selectSpammer);
 
   if (!settings.ctheme) resetTheme();
 
@@ -24,7 +23,7 @@ export function CustomThemePane() {
 
   function Base64ToTheme(base64:string) {
     try{
-    let ctheme = JSON.parse(atob(base64))
+    let ctheme = JSON.parse(atob_node(base64))
     dispatch(settingCTheme([ctheme, settings.ctheme[1]]));
       showOKPopup(`Theme applied successfully`)}catch {
       showOKPopup(`Theme is invalid. Base64 to JSON parsing error`)
@@ -32,7 +31,7 @@ export function CustomThemePane() {
   }
   function ThemeToBase64() {
     let ctheme = settings.ctheme[0]
-    return btoa(JSON.stringify(ctheme))
+    return btoa_node(JSON.stringify(ctheme))
   }
 
   function getProp(prop: string): any {
@@ -40,8 +39,7 @@ export function CustomThemePane() {
   }
 
   function getThemeProps(){
-    const themeProps = ['theme1bg', 'theme1fg', 'theme2bg', 'theme2fg', 'theme3bg', 'theme3fg', 'navbar', 'hover', 'theme_bfg', 'theme_bfg_h','custom'];
-    return themeProps;
+    return ['theme1bg', 'theme1fg', 'theme2bg', 'theme2fg', 'theme3bg', 'theme3fg', 'navbar', 'hover', 'theme_bfg', 'theme_bfg_h', 'custom'];
   }
 
   function resetTheme() {
@@ -59,10 +57,6 @@ export function CustomThemePane() {
       }
     });
     dispatch(settingCTheme([ctheme, settings.ctheme[1]]));
-  }
-
-  function onChangeEnabled(enabled: any) {
-    dispatch(settingCTheme([settings.ctheme[0], enabled]));
   }
 
   return (

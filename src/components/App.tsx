@@ -11,11 +11,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectSettings } from '../store/settings/selectors';
 import { SubmissionsPage } from '../containers/SubmissionsPane';
 import { InfoPopup } from '../containers/Popup_Info';
-import { StartSpammer } from '../containers/OtherModules/StartSpammerPane';
 import { OtherModulesPane } from '../containers/OtherModulesPane';
 import { settingTheme } from '../store/settings/actions';
-import { selectSession } from '../store/session/selectors';
-import { getUser, selectFirebase } from '../store/firebase/actions';
+import { selectFirebase } from '../store/firebase/actions';
 import { StatisticsPane } from '../containers/StatisticsPane';
 
 export let themes: any = {
@@ -177,12 +175,12 @@ export function AppV({view}: {view:string}) {
       <Header />
       <Tab.Content className={'theme1'}>
         <StudiesPane />
-        <AccountInfoPane />
+        {firebase.canUsePA===true?<AccountInfoPane />:<></>}
         <SettingsPane />
         <LogsPane />
         <SubmissionsPage />
-        <OtherModulesPane />
-        <StatisticsPane/>
+        {firebase.canUsePA===true?<OtherModulesPane />:<></>}
+        {firebase.canUsePA===true?<StatisticsPane/>:<></>}
       </Tab.Content>
 
       <Nav className={'w-100 theme2'} variant="pills">
@@ -206,14 +204,14 @@ export function AppV({view}: {view:string}) {
           <Nav.Link eventKey="statistics">Statistics</Nav.Link>
         </Nav.Item>):""}
         <Nav.Item className={`text-center w-${firebase.canUsePA===true?"50":"25"} nav_btn`}>
-          <Nav.Link eventKey="logs">LOGS</Nav.Link>
+          <Nav.Link eventKey="logs">Logs</Nav.Link>
         </Nav.Item>
       </Nav>
     </Tab.Container>
   );
 }
 export function useForceUpdate() {
-  const [value, setValue] = useState(0);
+  const setValue = useState(0)[1];
   return () => setValue(value => value + 1);
 }
 
@@ -231,8 +229,8 @@ export function App() {
 
   if (loc.includes('v=')) {
     let part = loc.split('v=')[1];
-    return <AppV view={part}></AppV>;
+    return <AppV view={part}/>;
   }
 
-  return <AppV view={"studies"}></AppV>;
+  return <AppV view={'studies'}/>;
 }

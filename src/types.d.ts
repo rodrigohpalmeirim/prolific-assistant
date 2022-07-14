@@ -56,3 +56,30 @@ interface ProlificApiStudies {
   };
   results?: ProlificStudy[];
 }
+
+export type LogType = '0-studies' | 'studies' | 'error' | 'status' | 'success'
+export type Statistic = { value: number, isMoney: boolean, lastUpdated?: number };
+export type _Statistics = {
+  refreshes?: Statistic,
+  found?: Statistic,
+  started?: Statistic,
+  spammer_count?: Statistic,
+  total_start_amount?: Statistic,
+  submissions?: Statistic,
+  earned?: Statistic,
+  approved?: Statistic,
+  found_amount?:Statistic,
+  launches?:Statistic,
+}
+export type Statistics = {
+  statistics: _Statistics,
+  _lastUpdated?: number,
+  accounts_count?: number,
+};
+export type StatField = keyof _Statistics;
+
+export type FullStatistics = {
+  this_user: { [key: string]: Statistics },
+  bulk: { default: Statistics }
+}
+export type LogObject = {log: string, type: LogType, description: string};

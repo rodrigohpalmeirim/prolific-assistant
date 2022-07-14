@@ -1,4 +1,5 @@
-import { appendLog } from '../pages/background';
+import moment from 'moment';
+import { LogObject, ProlificSubmission } from '../types';
 
 export function centsToGBP(cents: number) {
   return new Intl.NumberFormat('en-US', {
@@ -93,17 +94,20 @@ export function getTimeString() {
   return `${now.getHours()}:${now.getMinutes()}`;
 }
 
-export function testAutoStart(autostart: any, price: number) {
+export function testAutoStart(autostart: any, price: number):boolean|LogObject {
   if (!autostart[0]) return false;
   if (!testTimeRange(autostart[2])) {
-    appendLog(`AutoStart: not in time range`, 'status', `RANGE: ${JSON.stringify(timeRange(autostart[2]))}\nNOW: ${getTimeString()}`);
-    return false;
+    return {type:"status",log:`AutoStart: not in time range`,description:`RANGE: ${JSON.stringify(timeRange(autostart[2]))}\nNOW: ${getTimeString()}`};
   }
   let pRange = priceRange(autostart[1]);
   //appendLog(`AutoStart: study price not in range`, 'status', `RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`);
   if (price / 100 >= pRange[0] && price / 100 <= pRange[1]) {
     return true;
   } else {
-    appendLog(`AutoStart: study price not in range`, 'status', `RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`);
+    return {type:"status",log:`AutoStart: study price not in range`,description:`RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`};
   }
+}
+
+export function formatTimestamp(ts:number){
+  return ts ? moment(ts).format('LTS') : 'Never'
 }

@@ -14,8 +14,8 @@ export function fetchAccountInfoUrl(userID:string){
   return `https://internal-api.prolific.co/api/v1/users/${userID}/`
 }
 
-export function fetchSubmissionsUrl(userID:string,page:number=1){
-  return `https://internal-api.prolific.co/api/v1/submissions/?participant=${userID}&page=${page}`
+export function fetchSubmissionsUrl(userID:string,page:number=1,pageSize:number=20){
+  return `https://internal-api.prolific.co/api/v1/submissions/?participant=${userID}&page=${page}&page_size=${pageSize}`
 }
 
 export function fetchStartStudyUrl(){

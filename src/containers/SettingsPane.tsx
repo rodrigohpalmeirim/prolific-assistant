@@ -9,7 +9,6 @@ import {
   resetSettings,
   settingAlertSound,
   settingAlertVolume,
-  settingAutoStart,
   settingCheckInterval,
   settingDesktopNotifications,
   settingLimitBypass,
@@ -24,16 +23,15 @@ import { browser } from 'webextension-scripts/polyfill';
 import Button from 'react-bootstrap/Button';
 import { getCombinedThemesS } from '../components/App';
 import {
-  FIREBASE_LOGIN,
   firebaseLogin,
   firebaseLogout,
-  getUser, readPreferences,
-  selectFirebase,
+  readPreferences,
   selectUser,
-  setPreferences, uploadPreferences,
+  setPreferences,
+  uploadPreferences,
 } from '../store/firebase/actions';
-import { selectSession } from '../store/session/selectors';
 import { store, useAsyncDispatch } from '../pages/popup';
+import { btoa_node } from '../helpers';
 
 function getTextById(id: string): string {
   // @ts-ignore
@@ -107,10 +105,6 @@ export function SettingsPane() {
     if (!settings.limit_bypass && settings.check_interval < 15) {
       dispatch(settingCheckInterval(15));
     }
-  }
-
-  function onChangeAutoStart(event: any) {
-    dispatch(settingAutoStart(event.target.checked));
   }
 
   function createThemesOptions() {
@@ -249,8 +243,8 @@ export function SettingsPane() {
               let preferences = store.getState().firebase.preferences;
               if (!preferences) preferences = {};
               if (!preferences.prolific) preferences.prolific = {};
-              if (!preferences.prolific.settings || typeof(preferences.prolific.settings) === typeof "") preferences.prolific.settings = {};
-              preferences.prolific.settings[btoa(prompt("Enter backup name"))] = JSON.stringify(settings);
+              if (!preferences.prolific.settings || typeof (preferences.prolific.settings) === typeof '') preferences.prolific.settings = {};
+              preferences.prolific.settings[btoa_node(prompt('Enter backup name'))] = JSON.stringify(settings);
               await dispatchA(setPreferences(preferences));
               await dispatchA(uploadPreferences());
               alert('Successfull');
@@ -264,12 +258,24 @@ export function SettingsPane() {
             try {
               await dispatchA(readPreferences());
               let preferences = store.getState().firebase.preferences;
-              let backup_name = prompt("Enter backup name");
-              if (!preferences) throw 'backup not found (no preferences)';
-              if (!preferences.prolific) throw 'backup not found (no preferences.prolific)';
-              if (!preferences.prolific.settings) throw 'backup not found (no preferences.prolific.settings)';
-              if (!preferences.prolific.settings[btoa(backup_name)]) throw 'backup not found (no backup)';
-              await dispatchA(settingSettings(JSON.parse(preferences.prolific.settings[btoa(backup_name)])));
+              let backup_name = prompt('Enter backup name');
+              if (!preferences) {
+                alert('error: backup not found (no preferences)');
+                return;
+              }
+              if (!preferences.prolific) {
+                alert('error: backup not found (no preferences.prolific)');
+                return;
+              }
+              if (!preferences.prolific.settings) {
+                alert('error: backup not found (no preferences.prolific.settings)');
+                return;
+              }
+              if (!preferences.prolific.settings[btoa_node(backup_name)]) {
+                alert('error: backup not found (no backup)');
+                return;
+              }
+              await dispatchA(settingSettings(JSON.parse(preferences.prolific.settings[btoa_node(backup_name)])));
               alert('Successfull. Extension will be reloaded.');
               Reload();
             } catch (ex) {
@@ -287,10 +293,13 @@ export function SettingsPane() {
           <Form.Control id="password_box" type="password" placeholder="password" />
           <br />
           <Button onClick={async () => {
-            try{
-              await dispatchA(firebaseLogin({ email: getTextById('email_box'), password: getTextById('password_box') }));
+            try {
+              await dispatchA(firebaseLogin({
+                email: getTextById('email_box'),
+                password: getTextById('password_box'),
+              }));
               alert('Successfull.');
-            }catch (ex) {
+            } catch (ex) {
               alert('error: ' + ex);
             }
           }}>

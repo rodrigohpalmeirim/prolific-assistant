@@ -2,7 +2,8 @@ import { initializeApp } from 'firebase/app';
 import { get, getDatabase, ref, set } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
 import { auth } from './firebaseAuth';
-import { FullStatistics, Statistics, userID } from '../pages/background';
+import { userID } from '../pages/background';
+import { FullStatistics, StatField, Statistic, Statistics } from '../types';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCmNeZHXFDSm8Ci4wgbXQYhDeVqS3L98ao',
@@ -34,6 +35,17 @@ export async function readData(path: string) {
   }
 }
 
+export async function readBulkData(path: string) {
+  if (!auth.currentUser) return;
+  const db = getDatabase(app);
+  let snapshot = await get(ref(db, `data/_bulk/prolific/${path}`));
+  if (snapshot.exists()) {
+    return (snapshot.val());
+  } else {
+    return {};
+  }
+}
+
 export async function writeState(state: any) {
   await writeData('state', state);
 }
@@ -41,12 +53,20 @@ export async function writeState(state: any) {
 export let last_full_stats:FullStatistics;
 export async function readStatistics(): Promise<Statistics> {
   // @ts-ignore
-  last_full_stats = await readData(`statistics`);
-  return last_full_stats[userID]||{};
+  last_full_stats = {}
+  last_full_stats.this_user = (await readData(`statistics`)) || {};
+  last_full_stats.bulk = (await readBulkData(`statistics`)) || {default:{statistics:{}}};
+  return last_full_stats.this_user[userID]||{statistics:{}};
 }
 
 export async function writeStatistics(stats: Statistics): Promise<Statistics> {
   if(!userID)return stats;
+  Object.keys(stats.statistics).forEach((field:StatField)=>{
+    if(!stats.statistics[field].lastUpdated){
+      stats.statistics[field].lastUpdated = +new Date();
+    }
+  })
+  stats._lastUpdated = +new Date();
   await writeData(`statistics/${userID}`, stats);
   return stats;
 }
@@ -55,31 +75,35 @@ export async function transactStatistics(cb: { (arg0: Statistics): Statistics; }
   return await writeStatistics(cb(await readStatistics()));
 }
 
-export async function incrementStatistic(field: string, count: number, isMoney:boolean): Promise<Statistics> {
-  return await transactStatistics(((old: any) => {
-    if (!old[field]) old[field] = {value:0,isMoney};
-    old[field].value += count;
+export async function incrementStatistic(field: StatField, count: number, isMoney:boolean): Promise<Statistics> {
+  return await transactStatistics(((old: Statistics) => {
+    if (!old.statistics[field]) old.statistics[field] = statisticObject(0,isMoney);
+    old.statistics[field].value += count;
     return old;
   }));
 }
 
-export async function setStatistic(field: string, count: number, isMoney:boolean): Promise<Statistics> {
-  return await transactStatistics(((old: any) => {
-    old[field] = {value:count,isMoney};
+export async function setStatistic(field: StatField, value: number, isMoney:boolean): Promise<Statistics> {
+  return await transactStatistics(((old: Statistics) => {
+    old.statistics[field] = statisticObject(value,isMoney);
     return old;
   }));
 }
 
-export async function incrementStatistics(fields: string[], counts: number[], isMoney:boolean[]): Promise<Statistics> {
-  return await transactStatistics(((old: any) => {
+export async function incrementStatistics(fields: StatField[], counts: number[], isMoney:boolean[]): Promise<Statistics> {
+  return await transactStatistics(((old: Statistics) => {
     fields.forEach((field,i)=>{
       let count = counts[i];
-      if (!old[field]) old[field] = {value:0,isMoney:isMoney[i]};
-      old[field].value += count;
+      if (!old.statistics[field]) old.statistics[field] = statisticObject(0,isMoney[i]);
+      old.statistics[field].value += count;
     })
 
     return old;
   }));
+}
+
+export function statisticObject(value:number,isMoney:boolean):Statistic{
+  return {value,isMoney,lastUpdated:+new Date()};
 }
 
 export const firestore_db = getFirestore();

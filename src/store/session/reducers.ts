@@ -12,7 +12,9 @@ import {
 } from './types';
 
 const initialState: SessionState = {
-  last_checked: 0, logs: [], popup: {}, flogs: [], spammer: ['', false, '', false, 0], canUsePA:false, errors:{}
+  last_checked: 0, logs: [], popup: {}, flogs: [], errors:{},
+  spammer_conf:{studies:{}},
+  spammer_output:{studies:{}},
 };
 
 export function sessionReducer(state = initialState, action: SessionActionTypes) {
@@ -43,7 +45,17 @@ export function sessionReducer(state = initialState, action: SessionActionTypes)
         draftState.popup = action.payload;
         break;
       case SPAMMER:
-        draftState.spammer = action.payload;
+        if(action.payload.type === "config"){
+          draftState.spammer_conf.studies[action.payload.studyID] = action.payload.data;
+        }
+        if(action.payload.type === "output"){
+          draftState.spammer_output.studies[action.payload.studyID] = action.payload.data;
+        }
+        if(action.payload.type === "delete"){
+          delete draftState.spammer_conf.studies[action.payload.studyID];
+          delete draftState.spammer_output.studies[action.payload.studyID];
+        }
+
         break;
       case SET_ERROR:
         draftState.errors[action.payload.type] = {error:action.payload.error,done:action.payload.done};

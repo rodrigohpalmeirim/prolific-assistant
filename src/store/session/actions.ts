@@ -10,9 +10,9 @@ import {
   SetDone,
   SetError,
   SPAMMER,
-  Spammer,
+  Spammer, spammerActionPayload,
 } from './types';
-import { LogType } from '../../pages/background';
+import { LogType } from '../../types';
 
 export function sessionLastChecked(): SessionLastCheckedAction {
   return {
@@ -42,7 +42,7 @@ export function popup(payload: Popup['payload']): Popup {
   };
 }
 
-export function spammerAction(payload: [string, boolean, string, boolean, number]): Spammer {
+export function spammerAction(payload: spammerActionPayload): Spammer {
   return {
     type: SPAMMER,
     payload,

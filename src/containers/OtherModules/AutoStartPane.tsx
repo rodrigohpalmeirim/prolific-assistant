@@ -4,15 +4,14 @@ import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 import { selectSettings } from '../../store/settings/selectors';
 import { selectSpammer } from '../../store/session/selectors';
-import { settingAutoStart, settingWebhook } from '../../store/settings/actions';
+import { settingAutoStart} from '../../store/settings/actions';
 import { getTimeString, priceRange, testTimeRange, timeRange } from '../../functions/centsToGBP';
 import Button from 'react-bootstrap/Button';
-import { browser } from 'webextension-scripts/polyfill';
 
 export function AutoStartPane() {
   const dispatch = useDispatch();
   const settings = useSelector(selectSettings);
-  const spammer = useSelector(selectSpammer);
+  useSelector(selectSpammer);
 
   function onChangeEnabled(enabled: boolean) {
     dispatch(settingAutoStart([enabled, settings.autostart[1],settings.autostart[2]]));

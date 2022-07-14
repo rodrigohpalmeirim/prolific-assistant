@@ -1,12 +1,7 @@
-import { appendLog } from '../pages/background';
 import { authUrl } from './GlobalVars';
+import { LogObject } from '../types';
 
-export async function authProlific() {
-  appendLog(`Authentication type: FETCH`, 'status', `Authorising by FETCH method.`);
-  const response = await fetch(authUrl);
-  console.log(response);
-}
-
-export async function auth() {
-  await authProlific();
+export async function authProlific():Promise<LogObject> {
+  await fetch(authUrl);
+  return {type:"status",log:`Authentication type: FETCH`,description:`Authorising by FETCH method.`};
 }

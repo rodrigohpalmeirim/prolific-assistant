@@ -1,3 +1,5 @@
+import { ProlificStudy, ProlificSubmission } from '../../types';
+
 export interface ProlificState {
   submissions: ProlificSubmission[];
   error: number;
@@ -7,7 +9,7 @@ export interface ProlificState {
 
 export const PROLIFIC_ERROR_UPDATE = 'PROLIFIC_ERROR_UPDATE';
 export const PROLIFIC_STUDIES_UPDATE = 'PROLIFIC_STUDIES_UPDATE';
-export const PROLIFIC_SUBMISSIONS_UPDATE = ' PROLIFIC_SUBMISSIONS_UPDATE';
+export const PROLIFIC_SUBMISSIONS_UPDATE = 'PROLIFIC_SUBMISSIONS_UPDATE';
 export const ACC_INFO_UPDATE = 'ACC_INFO_UPDATE';
 
 export interface ProlificErrorUpdateAction {

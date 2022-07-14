@@ -13,6 +13,7 @@ import { centsToGBP } from '../functions/centsToGBP';
 import { openProlificStudy } from '../functions/openProlificStudy';
 import { selectProlificError, selectProlificStudies } from '../store/prolific/selectors';
 import { studyImg } from '../functions/GlobalVars';
+import { ProlificStudy } from '../types';
 
 export function StudiesPane() {
   const error = useSelector(selectProlificError);

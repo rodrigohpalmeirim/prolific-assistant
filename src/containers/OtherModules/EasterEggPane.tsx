@@ -4,15 +4,12 @@ import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 import { selectSettings } from '../../store/settings/selectors';
 import Button from 'react-bootstrap/Button';
-import { popup } from '../../store/session/actions';
-import { selectSpammer } from '../../store/session/selectors';
 import { settingEasterEgg } from '../../store/settings/actions';
 import { showOKPopup } from '../Popup_Info';
 
 export function EasterEggPane() {
   const dispatch = useDispatch();
   const settings = useSelector(selectSettings);
-  const spammer = useSelector(selectSpammer);
 
   function onSubmitCode(code: string) {
     switch (code.toUpperCase()) {

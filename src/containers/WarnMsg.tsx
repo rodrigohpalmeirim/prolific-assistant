@@ -32,7 +32,7 @@ export function WarnMsg() {
 
   if (acc_info.status != 'OK') {
     actions = generateActions([(<button className="btn btn-primary" onClick={_ => {
-      window.open('http://app.prolific.co', '_blank');
+      window.open('https://app.prolific.co', '_blank');
     }}>Navigate to prolific</button>), (<button className="btn btn-primary" onClick={_ => {
       //location.href = '?v=accinfo';
       set_app_container('accinfo');
@@ -42,7 +42,7 @@ export function WarnMsg() {
 
   if (!acc_info || !acc_info.id) {
     actions = generateActions([(<button className="btn btn-primary" onClick={_ => {
-      window.open('http://app.prolific.co', '_blank');
+      window.open('https://app.prolific.co', '_blank');
     }}>Navigate to prolific</button>), (<button className="btn btn-primary" onClick={_ => {
       //location.href = '?v=settings';
       set_app_container('settings');
@@ -52,7 +52,7 @@ export function WarnMsg() {
 
   if (error == 401) {
     actions = generateActions([(<button className="btn btn-primary" onClick={_ => {
-      window.open('http://app.prolific.co', '_blank');
+      window.open('https://app.prolific.co', '_blank');
     }}>Navigate to prolific</button>), (<button className="btn btn-primary" onClick={_ => {
       //location.href = '?v=settings';
       browser.runtime.sendMessage('check_for_studies');

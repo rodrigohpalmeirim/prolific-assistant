@@ -7,10 +7,11 @@ import sweetAlert4 from '../audio/sweet-alert-4.wav';
 import sweetAlert5 from '../audio/sweet-alert-5.wav';
 import glowa from '../audio/glowa.wav';
 import trial from '../audio/trial.wav';
-import { appendLog } from '../pages/background';
 import { MessageBuilder, Webhook } from 'webhook-discord';
-import { centsToGBP, centsToGBP_Submission } from './centsToGBP';
+import { centsToGBP } from './centsToGBP';
 import { studyImg } from './GlobalVars';
+import { ProlificStudy } from '../types';
+import { appendLog } from '../pages/background';
 
 function playFile(file: any, volume: number) {
   const audio = new Audio(file);

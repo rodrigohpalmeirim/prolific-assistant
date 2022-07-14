@@ -1,5 +1,5 @@
 import { AppState } from '../index';
-import { FullStatistics, Statistics } from '../../pages/background';
+import { FullStatistics } from '../../types';
 
 export function selectFirebase(state: AppState) {
   return state.firebase;

@@ -3,13 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 import { selectSettings } from '../../store/settings/selectors';
-import { selectSpammer } from '../../store/session/selectors';
 import { settingWebhook } from '../../store/settings/actions';
 
 export function WebHookPane() {
   const dispatch = useDispatch();
   const settings = useSelector(selectSettings);
-  const spammer = useSelector(selectSpammer);
 
   function onChangeWebhook(hook: string) {
     dispatch(settingWebhook([hook, settings.webhook[1],settings.webhook[2]]));

@@ -1,13 +1,14 @@
-import { LogType } from '../../pages/background';
+import { LogType } from '../../types';
 
 export interface SessionState {
   last_checked: number;
   logs: any;
   flogs: any;
   popup: any;
-  spammer:[string,boolean,any,boolean,number],
-  canUsePA:string|boolean,
-  errors:any
+  //spammer:[string,boolean,any,boolean,number],
+  spammer_conf: { studies: { [key: string]: { enabled: boolean } } }
+  spammer_output: { studies: { [key: string]: { success: boolean, error: any, iterations: number } } }
+  errors: any
 }
 
 export const SESSION_LAST_CHECKED = 'SESSION_LAST_CHECKED';
@@ -25,12 +26,12 @@ export interface SessionLastCheckedAction {
 
 export interface AppendLog {
   type: typeof APPEND_LOG;
-  payload: {log:string,type:LogType,description:string};
+  payload: { log: string, type: LogType, description: string };
 }
 
 export interface ClearLogs {
   type: typeof CLEAR_LOGS;
-  payload: "";
+  payload: '';
 }
 
 export interface Popup {
@@ -38,19 +39,31 @@ export interface Popup {
   payload: SessionState['popup'];
 }
 
+export type spammerActionPayload =
+  { data: { enabled: boolean }, type: 'config', studyID: string }
+  | { data: { success: boolean, error: any, iterations: number }, type: 'output', studyID: string }
+  | { type: 'delete', studyID: string }
+
 export interface Spammer {
   type: typeof SPAMMER;
-  payload: SessionState['spammer'];
+  payload: spammerActionPayload;
 }
 
 export interface SetError {
   type: typeof SET_ERROR;
-  payload: {type:string,error:any,done:boolean};
+  payload: { type: string, error: any, done: boolean };
 }
 
 export interface SetDone {
   type: typeof SET_DONE;
-  payload: {type:string,done:boolean};
+  payload: { type: string, done: boolean };
 }
 
-export type SessionActionTypes = SessionLastCheckedAction | AppendLog | Popup | Spammer | SetError | SetDone | ClearLogs;
+export type SessionActionTypes =
+  SessionLastCheckedAction
+  | AppendLog
+  | Popup
+  | Spammer
+  | SetError
+  | SetDone
+  | ClearLogs;

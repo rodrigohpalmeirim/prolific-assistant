@@ -1,21 +1,11 @@
 import produce from 'immer';
 import {
-  FIREBASE_LOGIN,
   FirebaseActionTypes,
-  GET_USER,
-  READ_PREFERENCES,
   SET_PREFERENCES, SET_STATISTICS, SET_USER,
-  UPLOAD_PREFERENCES,
+
 } from './actions';
-import {
-  _canUsePA,
-  auth, canUsePA,
-  canUseProlificAssistant,
-  getUserPreferences,
-  login,
-  setUserPreferences,
-} from '../../functions/firebaseAuth';
-import { FullStatistics } from '../../pages/background';
+import { auth, canUsePA } from '../../functions/firebaseAuth';
+import { FullStatistics } from '../../types';
 
 export type FirebaseState={
   preferences: {prolific:{}}|any,
@@ -28,7 +18,7 @@ const initialState: FirebaseState = {
   preferences: {prolific:{}} = {prolific:{}},
   currentUser:undefined,
   canUsePA:false,
-  statistics:{}
+  statistics:{this_user:{},bulk:{default:{statistics:{}}}}
 };
 
 export function firebaseReducer(state = initialState, action: FirebaseActionTypes) {

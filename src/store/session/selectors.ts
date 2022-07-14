@@ -21,5 +21,9 @@ export function selectPopup(state: AppState) {
 }
 
 export function selectSpammer(state: AppState) {
-  return state.session.spammer;
+  return state.session.spammer_output;
+}
+
+export function selectSpammerConfig(state: AppState) {
+  return state.session.spammer_conf;
 }
