@@ -16,6 +16,7 @@ import { getUser } from '../store/firebase/actions';
 import { AppState } from '../store';
 import { _awaitDispatch } from '../store/confirmCompletionMiddleware';
 import { AnyAction } from 'redux';
+import { createRoot } from 'react-dom/client';
 
 export const store = new Store<AppState>();
 console.log(location.href);
@@ -29,12 +30,9 @@ export function useAsyncDispatch(){
 
 store.ready().then(() => {
   try {
-    ReactDom.render(
-      <Provider store={store}>
-        <PreApp />
-      </Provider>,
-      document.getElementById('root'),
-    );
+    createRoot(document.getElementById('root')).render(<Provider store={store}>
+      <PreApp />
+    </Provider>)
   } catch (ex) {
     console.log(ex);
     ReactDom.render(

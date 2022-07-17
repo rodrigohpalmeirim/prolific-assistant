@@ -17,7 +17,7 @@ export function Header() {
   const last_checked = useSelector(selectSessionLastChecked);
 
   return (
-    <Navbar bg="primary" variant="dark">
+    <Navbar bg="primary" variant="dark" style={{padding: "0.5rem 1rem"}}>
       <Nav className="mr-auto">
         <Nav.Link href="https://app.prolific.co/studies">Studies</Nav.Link>
       </Nav>

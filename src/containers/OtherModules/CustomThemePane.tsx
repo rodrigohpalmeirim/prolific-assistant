@@ -60,7 +60,7 @@ export function CustomThemePane() {
   }
 
   return (
-    <Tab.Pane className="p-1 start-spammer" eventKey="start-spammer">
+    <Tab.Pane className="p-1 custom-theme" eventKey="custom-theme">
       <Form.Group>
         <Button onClick={() => {
           // @ts-ignore

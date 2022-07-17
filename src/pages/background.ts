@@ -28,19 +28,20 @@ import { firebaseMiddleware } from '../store/firebase/firebaseMiddleware';
 import { confirmCompletionMiddleware } from '../store/confirmCompletionMiddleware';
 import { getUser, setStatistics } from '../store/firebase/actions';
 import {
+  attachDispatchListener,
+  incrementBulkStatistics,
   incrementStatistic,
-  incrementStatistics,
   last_full_stats,
+  setBulkStatistics,
   setStatistic,
-  statisticObject,
-  transactStatistics,
+  writeState,
 } from '../functions/firebase';
 import { authUrl } from '../functions/GlobalVars';
 import * as firebaseAuth from '../functions/firebaseAuth';
 import { hasPermissions, valid_version } from '../functions/firebaseAuth';
-import { LogObject, LogType, ProlificStudy, StatField, Statistics } from '../types';
+import { LogObject, LogType, ProlificStudy, StatField } from '../types';
 
-const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware, firebaseMiddleware, confirmCompletionMiddleware);
+export const store = configureStore(prolificStudiesUpdateMiddleware, settingsAlertSoundMiddleware, firebaseMiddleware, confirmCompletionMiddleware);
 export let authHeader: WebRequest.HttpHeadersItemType;
 export let id_token: string;
 export let userID = '';
@@ -48,28 +49,53 @@ export let acc_info: any = {};
 
 export async function incStat(field: StatField, count: number, isMoney: boolean = false) {
   try {
+    if (store.getState()?.firebase?.canUsePA !== true) return false;
+
     await incrementStatistic(field, count, isMoney);
     await store.dispatch(setStatistics(last_full_stats));
+    return true;
   } catch (ex) {
     appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
+    return false;
   }
 }
 
 export async function setStat(field: StatField, value: number, isMoney: boolean = false) {
   try {
+    if (store.getState()?.firebase?.canUsePA !== true) return false;
+
     await setStatistic(field, value, isMoney);
     await store.dispatch(setStatistics(last_full_stats));
+    return true;
   } catch (ex) {
     appendLog(`ERROR while changing statistics - ${field}`, 'error', `ERROR while changing statistics: ${ex}`);
+    return false;
   }
 }
 
 export async function incStats(fields: StatField[], counts: number[], isMoney: boolean[]) {
   try {
-    await incrementStatistics(fields, counts, isMoney);
+    if (store.getState()?.firebase?.canUsePA !== true) return false;
+
+    await incrementBulkStatistics(fields, counts, isMoney);
     await store.dispatch(setStatistics(last_full_stats));
+    return true;
   } catch (ex) {
     appendLog(`ERROR while changing statistics - ${JSON.stringify(fields)}`, 'error', `ERROR while changing statistics: ${ex}`);
+    return false;
+  }
+}
+
+export async function setStats(fields: StatField[], values: number[], isMoney: boolean[]) {
+  try {
+    if (store.getState()?.firebase?.canUsePA !== true) return false;
+
+    await setBulkStatistics(fields, values, isMoney);
+    await store.dispatch(setStatistics(last_full_stats));
+    return true;
+  } catch (ex) {
+    appendLog(`ERROR while changing statistics - ${JSON.stringify(fields)}`, 'error', `ERROR while changing statistics: ${ex}`);
+    return false;
   }
 }
 
@@ -131,11 +157,11 @@ export async function updateResults(results: any[]) {
     });
     const settings = store.getState().settings;
     if (bestStudy && bestStudy.id && settings.autostart && results.length > 0 && state.firebase.canUsePA === true) {
-      if (!bestStudy.id.includes('TEST')){
+      if (!bestStudy.id.includes('TEST')) {
         let testRes = testAutoStart(settings.autostart, bestStudy.reward);
         if (testRes === true)
           await fetchStartStudy(authHeader, userID, bestStudy.id, store);
-        else if (testRes !== false){
+        else if (testRes !== false) {
           appendLogObj(testRes);
         }
       }
@@ -155,6 +181,7 @@ export function appendLogObj(log: LogObject) {
 }
 
 let freshlyLaunched = false;
+
 async function main() {
   freshlyLaunched = true;
   setInterval(FastUpdate, 1000);
@@ -190,9 +217,9 @@ async function FastUpdate() {
       await browser.browserAction.setBadgeBackgroundColor({ color: 'green' });
       await browser.browserAction.setBadgeText({ text: 'IDL' });
     }
-    if(freshlyLaunched){
-      await incStat("launches",1);
-      freshlyLaunched = false;
+    if (freshlyLaunched) {
+      if (await incStat('launches', 1))
+        freshlyLaunched = false;
     }
   }
 
@@ -205,9 +232,18 @@ async function FastUpdate() {
     await incStat('spammer_count', statisticSpammerCountQueue);
     statisticSpammerCountQueue = 0;
   }
+
+  await attachDispatchListener();
+  if ((fastUpdateIndex % 30) === 0 && (store.getState()?.firebase?.canUsePA === true)) {
+    try {
+      await writeState(store.getState());
+    } catch (ex) {
+      appendLog(`ERROR while writing state`, 'error', `ERROR while writing state: ${ex}`);
+    }
+  }
 }
 
-async function SpammerUpdate():Promise<boolean>{
+async function SpammerUpdate(): Promise<boolean> {
   const state = store.getState();
   const spammer = state.session.spammer_conf;
   //console.log("update")
@@ -316,20 +352,10 @@ async function _Update() {
             store.dispatch(prolificSubmissionsUpdate(response.results));
           }
           if (response.meta) {
-            try {
-              let count = response.meta.count;
-              let earned = response.meta.total_earned;
-              let approved = response.meta.total_approved;
-              await transactStatistics((old: Statistics) => {
-                old.statistics[`submissions`] = statisticObject(count, false);
-                old.statistics[`earned`] = statisticObject(earned, true);
-                old.statistics[`approved`] = statisticObject(approved, false);
-                return old;
-              });
-              await store.dispatch(setStatistics(last_full_stats));
-            } catch (ex) {
-              appendLog(`ERROR while changing statistics - meta`, 'error', `ERROR while changing statistics: ${ex}`);
-            }
+            let count = response.meta.count;
+            let earned = response.meta.total_earned;
+            let approved = response.meta.total_approved;
+            await setStats(['submissions', 'earned', 'approved'], [count, earned, approved], [false, true, false]);
           }
         }
       } catch (error) {

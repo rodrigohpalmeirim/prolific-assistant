@@ -6,7 +6,7 @@ import { playAlertSound, sendWebhook } from '../functions/playAlertSound';
 
 import { AppState } from '.';
 import { PROLIFIC_STUDIES_UPDATE } from './prolific/types';
-import { incStat, incStats } from '../pages/background';
+import { incStats } from '../pages/background';
 import { ProlificStudy } from '../types';
 
 const seen: ProlificStudy['id'][] = [];
@@ -51,12 +51,18 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
     if (newStudies.length) {
       playAlertSound(state);
       newStudies.forEach(el => {
-        sendWebhook(state, el)
-      })
-      let totalReward = newStudies.reduce((old, curr) => {
-        return old + curr.reward;
-      }, 0)
-      await incStats(["found", "found_amount"], [newStudies.length, totalReward], [false, true]);
+        sendWebhook(state, el);
+      });
+      let totalReward = newStudies.reduce((old, study) => {
+        if (study.id.includes('TEST')) return old;
+        return old + study.reward;
+      }, 0);
+      let foundCount = newStudies.reduce((old, study) => {
+        if (study.id.includes('TEST')) return old;
+        return old + 1;
+      }, 0);
+      if (foundCount > 0)
+        await incStats(['found', 'found_amount'], [foundCount, totalReward], [false, true]);
     }
   }
 

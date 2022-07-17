@@ -178,3 +178,15 @@
 .inline-block {
     display: inline-block;
 }
+
+.nav_btn{
+    cursor: pointer;
+}
+
+.mr-auto{
+    margin-right:auto;
+}
+
+.tab-pane > div {
+    margin-bottom: 1rem;
+}

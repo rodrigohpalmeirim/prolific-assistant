@@ -21,7 +21,7 @@ export function WebHookPane() {
   }
 
   return (
-    <Tab.Pane className="p-1 start-spammer" eventKey="start-spammer">
+    <Tab.Pane className="p-1 webhook" eventKey="webhook">
       <Form.Group>
         <Form.Check
           label="Enabled"

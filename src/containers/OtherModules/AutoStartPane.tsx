@@ -56,7 +56,7 @@ export function AutoStartPane() {
   }
 
   return (
-    <Tab.Pane className="p-1 start-spammer" eventKey="start-spammer">
+    <Tab.Pane className="p-1 autostart" eventKey="autostart">
       <Form.Group>
         <Form.Check
           label="Enabled"

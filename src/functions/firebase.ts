@@ -2,8 +2,9 @@ import { initializeApp } from 'firebase/app';
 import { get, getDatabase, ref, set } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
 import { auth } from './firebaseAuth';
-import { userID } from '../pages/background';
+import { store, userID } from '../pages/background';
 import { FullStatistics, StatField, Statistic, Statistics } from '../types';
+import { onValue, Unsubscribe } from '@firebase/database';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCmNeZHXFDSm8Ci4wgbXQYhDeVqS3L98ao',
@@ -19,23 +20,26 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 
 export const FIREBASE_DATA_VERSION = 2;
-export function firebaseRootPath(){
-  return `data/v${FIREBASE_DATA_VERSION}/prolific`
+
+export function firebaseRootPath() {
+  return `data/v${FIREBASE_DATA_VERSION}/prolific`;
 }
-export function firebasePath(accountID:string,path:string){
+
+export function firebasePath(accountID: string, path: string) {
   return `${firebaseRootPath()}/${accountID}/${path}`;
 }
 
 export async function writeData(path: string, data: any) {
-  if (!auth.currentUser) return;
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
   const db = getDatabase(app);
-  await set(ref(db, firebasePath(auth.currentUser.uid,path)), data);
+  await set(ref(db, firebasePath(auth.currentUser.uid, path)), data);
 }
 
 export async function readData(path: string) {
-  if (!auth.currentUser) return;
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
+
   const db = getDatabase(app);
-  let snapshot = await get(ref(db, firebasePath(auth.currentUser.uid,path)));
+  let snapshot = await get(ref(db, firebasePath(auth.currentUser.uid, path)));
   if (snapshot.exists()) {
     return (snapshot.val());
   } else {
@@ -43,10 +47,23 @@ export async function readData(path: string) {
   }
 }
 
+export function attachDataReader(path: string, cb: (data: any) => unknown, errorCb: (error: Error) => unknown): Unsubscribe {
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
+
+  const db = getDatabase(app);
+  return onValue(ref(db, firebasePath(auth.currentUser.uid, path)), (snapshot) => {
+    if (snapshot.exists()) {
+      cb(snapshot.val());
+    } else {
+      return {};
+    }
+  }, errorCb);
+}
+
 export async function readBulkData(path: string) {
   if (!auth.currentUser) return;
   const db = getDatabase(app);
-  let snapshot = await get(ref(db, firebasePath("_bulk",path)));
+  let snapshot = await get(ref(db, firebasePath('_bulk', path)));
   if (snapshot.exists()) {
     return (snapshot.val());
   } else {
@@ -55,63 +72,122 @@ export async function readBulkData(path: string) {
 }
 
 export async function writeState(state: any) {
-  await writeData('state', state);
+  if (!userID) return;
+  state._lastUpdated = +new Date();
+  await writeData(`state/${userID}/current/`, JSON.parse(JSON.stringify(state)));
 }
 
-export let last_full_stats:FullStatistics;
+export async function clearDispatch() {
+  if (!userID) return;
+  await writeData(`state/${userID}/dispatch/`, { type: '', payload: '' });
+}
+
+export async function readDispatch(): Promise<{ type: string, payload: any }> {
+  if (!userID) return;
+  return await readData(`state/${userID}/dispatch/`);
+}
+
+export let dispatchListener: Unsubscribe;
+
+export function attachDispatchListener() {
+  if (dispatchListener) return;
+  if (!userID) return;
+
+  dispatchListener = attachDataReader(`state/${userID}/dispatch/`, processDispatch, () => {
+    dispatchListener();
+    dispatchListener = undefined;
+  });
+}
+
+export async function processDispatch(dispatch: any) {
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
+
+  if (dispatch.type && dispatch.payload) {
+    store.dispatch({ type: dispatch.type, payload: dispatch.payload });
+    await writeState(store.getState());
+    await clearDispatch();
+  }
+}
+
+export let last_full_stats: FullStatistics;
+
 export async function readStatistics(): Promise<Statistics> {
-  // @ts-ignore
-  last_full_stats = {}
+  last_full_stats = { this_user: {}, bulk: { default: { statistics: {} } } };
   last_full_stats.this_user = (await readData(`statistics`)) || {};
-  last_full_stats.bulk = (await readBulkData(`statistics`)) || {default:{statistics:{}}};
-  return last_full_stats.this_user[userID]||{statistics:{}};
+  last_full_stats.bulk = (await readBulkData(`statistics`)) || { default: { statistics: {} } };
+
+  if (!last_full_stats?.this_user || !last_full_stats.this_user[userID]) return undefined;
+  return last_full_stats.this_user[userID];
 }
 
 export async function writeStatistics(stats: Statistics): Promise<Statistics> {
-  if(!userID)return stats;
-  Object.keys(stats.statistics).forEach((field:StatField)=>{
-    if(!stats.statistics[field].lastUpdated){
+  if (!userID) return stats;
+  Object.keys(stats.statistics).forEach((field: StatField) => {
+    if (!stats.statistics[field].lastUpdated) {
       stats.statistics[field].lastUpdated = +new Date();
     }
-  })
+  });
   stats._lastUpdated = +new Date();
   await writeData(`statistics/${userID}`, stats);
   return stats;
 }
 
 export async function transactStatistics(cb: { (arg0: Statistics): Statistics; }): Promise<Statistics> {
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
   return await writeStatistics(cb(await readStatistics()));
 }
 
-export async function incrementStatistic(field: StatField, count: number, isMoney:boolean): Promise<Statistics> {
+export async function incrementStatistic(field: StatField, count: number, isMoney: boolean): Promise<Statistics> {
   return await transactStatistics(((old: Statistics) => {
-    if (!old.statistics[field]) old.statistics[field] = statisticObject(0,isMoney);
-    old.statistics[field] = statisticObject(old.statistics[field].value + count,isMoney)
+    if (!old.statistics[field]) old.statistics[field] = statisticObject(0, isMoney);
+    old.statistics[field] = statisticObject(old.statistics[field].value + count, isMoney);
     return old;
   }));
 }
 
-export async function setStatistic(field: StatField, value: number, isMoney:boolean): Promise<Statistics> {
+export async function setStatistic(field: StatField, value: number, isMoney: boolean): Promise<Statistics> {
   return await transactStatistics(((old: Statistics) => {
-    old.statistics[field] = statisticObject(value,isMoney);
+    old.statistics[field] = statisticObject(value, isMoney);
     return old;
   }));
 }
 
-export async function incrementStatistics(fields: StatField[], counts: number[], isMoney:boolean[]): Promise<Statistics> {
+export async function incrementBulkStatistics(fields: StatField[], counts: number[], isMoney: boolean[]): Promise<Statistics> {
   return await transactStatistics(((old: Statistics) => {
-    fields.forEach((field,i)=>{
+    fields.forEach((field, i) => {
       let count = counts[i];
-      if (!old.statistics[field]) old.statistics[field] = statisticObject(0,isMoney[i]);
-      old.statistics[field] = statisticObject(old.statistics[field].value + count,isMoney[i])
-    })
+      if (!old.statistics[field]) old.statistics[field] = statisticObject(0, isMoney[i]);
+      old.statistics[field] = statisticObject(old.statistics[field].value + count, isMoney[i]);
+    });
 
     return old;
   }));
 }
 
-export function statisticObject(value:number,isMoney:boolean):Statistic{
-  return {value,isMoney,lastUpdated:+new Date()};
+export async function setBulkStatistics(fields: StatField[], values: number[], isMoney: boolean[]): Promise<Statistics> {
+  return await transactStatistics(((old: Statistics) => {
+    fields.forEach((field, i) => {
+      let value = values[i];
+      old.statistics[field] = statisticObject(value, isMoney[i]);
+    });
+
+    return old;
+  }));
+}
+
+export function statisticObject(value: number, isMoney: boolean): Statistic {
+  return { value, isMoney, lastUpdated: +new Date() };
+}
+
+export async function readNeededVersion() {
+  if (!auth.currentUser) return;
+  const db = getDatabase(app);
+  let snapshot = await get(ref(db, firebasePath('_version', '')));
+  if (snapshot.exists()) {
+    return (snapshot.val());
+  } else {
+    return '';
+  }
 }
 
 export const firestore_db = getFirestore();

@@ -1,6 +1,6 @@
 import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import * as firebase from "./firebase";
-import { app } from "./firebase";
+import { app, readNeededVersion } from './firebase';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export const auth = getAuth(app);
@@ -29,11 +29,8 @@ export async function canUseProlificAssistant(){
 
 export async function _canUseProlificAssistant(){
   hasPermissions = !!await checkPermissions("prolific");
-  let package_json:any = await fetch("https://raw.githubusercontent.com/dommilosz/prolific-assistant/master/package.json", {
-    "method": "GET",
-  });
-  package_json = await package_json.json();
-  valid_version = package_json.version === pjson.version;
+  let version_needed = await readNeededVersion();
+  valid_version = version_needed === pjson.version;
 }
 
 export async function login(username: string, password: string) {
