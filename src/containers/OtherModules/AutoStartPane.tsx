@@ -92,7 +92,7 @@ export function AutoStartPane() {
         <Form.Control className={"maxTimeBox"} style={{display:"inline",width:"75%"}} type="time" onChange={(event:any)=>{const value = (event.target.value);onChangeMaxTimeRange(value)}} value={settings.autostart[2]?settings.autostart[2][1]: "00:00"} />
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           onResetFilters();
         }}>
           RESET FILTERS

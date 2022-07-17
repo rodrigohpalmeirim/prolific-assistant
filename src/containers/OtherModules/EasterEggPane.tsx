@@ -60,7 +60,7 @@ export function EasterEggPane() {
         <Form.Control id="code_box" type="text" />
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
           onSubmitCode(document.getElementById('code_box').value);
         }}>

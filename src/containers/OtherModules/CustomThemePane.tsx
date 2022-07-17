@@ -62,7 +62,7 @@ export function CustomThemePane() {
   return (
     <Tab.Pane className="p-1 custom-theme" eventKey="custom-theme">
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
           resetTheme();
         }}>
@@ -75,13 +75,13 @@ export function CustomThemePane() {
         <Form.Control className={"ThemeBase64Input"} type="text"/>
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
           document.querySelector('.ThemeBase64Input').value = ThemeToBase64();
         }}>
           GENERATE
-        </Button>&nbsp;&nbsp;&nbsp;
-        <Button onClick={() => {
+        </Button>
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
           Base64ToTheme(document.querySelector('.ThemeBase64Input').value)
         }}>

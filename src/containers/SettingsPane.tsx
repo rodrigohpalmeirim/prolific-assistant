@@ -159,7 +159,7 @@ export function SettingsPane() {
         </Form.Control>
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           onTestAlertSound();
         }}>
           TEST NOTIFICATION
@@ -174,7 +174,7 @@ export function SettingsPane() {
         <Form.Control id="uid_box" type="text" />
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
           onChangeUID(document.getElementById('uid_box').value);
           browser.runtime.sendMessage('check_for_studies-cuid');
@@ -187,7 +187,7 @@ export function SettingsPane() {
         <Form.Control id="proxy_box" type="text" />
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
           onChangeProxyBox(document.getElementById('proxy_box').value);
         }}>
@@ -203,7 +203,7 @@ export function SettingsPane() {
         />
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           onTestStudy();
         }}>
           TEST FAKE STUDY
@@ -216,13 +216,12 @@ export function SettingsPane() {
         </Form.Control>
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           ResetSettings();
         }}>
           RESET SETTINGS
         </Button>
-        &nbsp;&nbsp;&nbsp;
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           Reload();
         }}>
           RELOAD
@@ -232,12 +231,12 @@ export function SettingsPane() {
         <Form.Group>
           <Form.Label>logged in as: {user.email}</Form.Label>
           <br />
-          <Button onClick={async () => {
+          <Button className="mx-2" onClick={async () => {
             await dispatchA(firebaseLogout());
           }}>
             Logout
           </Button>
-          <Button onClick={async () => {
+          <Button className="mx-2" onClick={async () => {
             try {
               await dispatchA(readPreferences());
               let preferences = store.getState().firebase.preferences;
@@ -254,7 +253,7 @@ export function SettingsPane() {
           }}>
             Backup Settings
           </Button>
-          <Button onClick={async () => {
+          <Button className="mx-2" onClick={async () => {
             try {
               await dispatchA(readPreferences());
               let preferences = store.getState().firebase.preferences;
@@ -292,7 +291,7 @@ export function SettingsPane() {
           <br />
           <Form.Control id="password_box" type="password" placeholder="password" />
           <br />
-          <Button onClick={async () => {
+          <Button className="mx-2" onClick={async () => {
             try {
               await dispatchA(firebaseLogin({
                 email: getTextById('email_box'),

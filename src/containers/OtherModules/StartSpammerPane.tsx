@@ -25,11 +25,11 @@ export function StartSpammer() {
     }
   }
 
-  function addStudy(studyID:string){
+  function addStudy(studyID:string, start:boolean){
     if(studyID.length<1){
       return;
     }
-    dispatch(spammerAction({type:"config",studyID,data:{enabled:false}}));
+    dispatch(spammerAction({type:"config",studyID,data:{enabled:start}}));
   }
 
   function removeStudy(studyID:string){
@@ -61,13 +61,19 @@ export function StartSpammer() {
         <Form.Control id="study_id_box" type="text" />
       </Form.Group>
       <Form.Group>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
-          addStudy(document.getElementById('study_id_box').value);
+          addStudy(document.getElementById('study_id_box').value, true);
+        }}>
+          Add & Start
+        </Button>
+        <Button className="mx-2" onClick={() => {
+          // @ts-ignore
+          addStudy(document.getElementById('study_id_box').value,false);
         }}>
           Add
         </Button>
-        <Button onClick={() => {
+        <Button className="mx-2" onClick={() => {
           // @ts-ignore
           clearStudies();
         }}>
@@ -90,13 +96,13 @@ export function StartSpammer() {
             <Form.Label>ERR DETAIL:{JSON.stringify(studyOutput?.error?.detail)}</Form.Label><br />
             <Form.Label>FULL LOG:{JSON.stringify(studyOutput?.error)}</Form.Label><br />
 
-            <Button onClick={() => {
+            <Button className="mx-2" onClick={() => {
               // @ts-ignore
               onToggleStudySpammer(studyID);
             }}>
               {studyConfig?.enabled?"STOP":"START"}
             </Button>
-            <Button onClick={() => {
+            <Button className="mx-2" onClick={() => {
               // @ts-ignore
               removeStudy(studyID);
             }}>
