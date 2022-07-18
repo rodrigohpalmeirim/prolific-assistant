@@ -16,47 +16,49 @@ export function CustomThemePane() {
   if (!settings.ctheme) resetTheme();
 
   function onChangeProp(prop: string, value: string) {
-    let ctheme = settings.ctheme[0];
+    let ctheme = settings.ctheme;
     ctheme[prop] = value;
-    dispatch(settingCTheme([ctheme, settings.ctheme[1]]));
+    dispatch(settingCTheme(ctheme));
   }
 
-  function Base64ToTheme(base64:string) {
-    try{
-    let ctheme = JSON.parse(atob_node(base64))
-    dispatch(settingCTheme([ctheme, settings.ctheme[1]]));
-      showOKPopup(`Theme applied successfully`)}catch {
-      showOKPopup(`Theme is invalid. Base64 to JSON parsing error`)
+  function Base64ToTheme(base64: string) {
+    try {
+      let ctheme = JSON.parse(atob_node(base64));
+      dispatch(settingCTheme(ctheme));
+      showOKPopup(`Theme applied successfully`);
+    } catch {
+      showOKPopup(`Theme is invalid. Base64 to JSON parsing error`);
     }
   }
+
   function ThemeToBase64() {
-    let ctheme = settings.ctheme[0]
-    return btoa_node(JSON.stringify(ctheme))
+    let ctheme = settings.ctheme;
+    return btoa_node(JSON.stringify(ctheme));
   }
 
   function getProp(prop: string): any {
-    return settings.ctheme[0][prop];
+    return settings.ctheme[prop];
   }
 
-  function getThemeProps(){
+  function getThemeProps() {
     return ['theme1bg', 'theme1fg', 'theme2bg', 'theme2fg', 'theme3bg', 'theme3fg', 'navbar', 'hover', 'theme_bfg', 'theme_bfg_h', 'custom'];
   }
 
   function resetTheme() {
     let ctheme: any = {};
     if (!settings.ctheme) {
-      dispatch(settingCTheme([{}, false]));
+      dispatch(settingCTheme({}));
       return;
     }
     let allThemes = getCombinedThemesS(settings);
-    const themeProps = getThemeProps()
+    const themeProps = getThemeProps();
     themeProps.forEach((prop: any) => {
       try {
-        ctheme[prop] = allThemes[settings.theme][prop]?allThemes[settings.theme][prop]:"";
+        ctheme[prop] = allThemes[settings.theme][prop] ? allThemes[settings.theme][prop] : '';
       } catch {
       }
     });
-    dispatch(settingCTheme([ctheme, settings.ctheme[1]]));
+    dispatch(settingCTheme(ctheme));
   }
 
   return (
@@ -71,8 +73,8 @@ export function CustomThemePane() {
       </Form.Group>
       {generateColorBoxes()}
       <Form.Group>
-        <Form.Label>{"EXPORT/IMPORT"}</Form.Label>
-        <Form.Control className={"ThemeBase64Input"} type="text"/>
+        <Form.Label>{'EXPORT/IMPORT'}</Form.Label>
+        <Form.Control className={'ThemeBase64Input'} type="text" />
       </Form.Group>
       <Form.Group>
         <Button className="mx-2" onClick={() => {
@@ -83,7 +85,7 @@ export function CustomThemePane() {
         </Button>
         <Button className="mx-2" onClick={() => {
           // @ts-ignore
-          Base64ToTheme(document.querySelector('.ThemeBase64Input').value)
+          Base64ToTheme(document.querySelector('.ThemeBase64Input').value);
         }}>
           APPLY
         </Button>
@@ -93,7 +95,7 @@ export function CustomThemePane() {
 
   function generateColorBoxes(): any {
     let boxes: any = [];
-    const themeProps = getThemeProps()
+    const themeProps = getThemeProps();
 
     themeProps.forEach(prop => {
       let box = (<Form.Group style={{ display: 'inline-block', width: '50%' }} key={`theme_prop_${prop}`}>

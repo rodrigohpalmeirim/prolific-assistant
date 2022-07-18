@@ -30,7 +30,7 @@ export async function canUseProlificAssistant(){
 export async function _canUseProlificAssistant(){
   hasPermissions = !!await checkPermissions("prolific");
   let version_needed = await readNeededVersion();
-  valid_version = version_needed === pjson.version;
+  valid_version = version_needed.includes(pjson.version);
 }
 
 export async function login(username: string, password: string) {

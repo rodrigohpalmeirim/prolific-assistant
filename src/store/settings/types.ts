@@ -16,7 +16,7 @@ export interface SettingsState {
   check_interval: number;
   desktop_notifications: boolean;
   theme: string;
-  ctheme: [any, boolean];
+  ctheme: {[key:string]:string};
   uid: string;
   limit_bypass: boolean;
   webhook: {url: string,ping:string,enabled:boolean};
