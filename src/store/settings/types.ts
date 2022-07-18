@@ -19,8 +19,8 @@ export interface SettingsState {
   ctheme: [any, boolean];
   uid: string;
   limit_bypass: boolean;
-  webhook: any;
-  easter_egg: any;
+  webhook: {url: string,ping:string,enabled:boolean};
+  easter_egg: {[key:string]:boolean};
   proxy:string;
 }
 

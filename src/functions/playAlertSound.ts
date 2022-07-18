@@ -57,9 +57,9 @@ export function playAlertSound(state: AppState) {
 export function sendWebhook(state: AppState,study:ProlificStudy){
   if (study.id.includes('TEST'))return;
 
-  const hookUrl = state.settings.webhook[0];
+  const hookUrl = state.settings.webhook.url;
   let pings = "";
-  const pingsRaw = state.settings.webhook[1];
+  const pingsRaw = state.settings.webhook.ping;
   pingsRaw.split(' ').forEach((el:any)=>{
     pings+=`<@${el.trim()}>`;
   })
@@ -69,7 +69,7 @@ export function sendWebhook(state: AppState,study:ProlificStudy){
     return
   }
 
-  if(!state.settings.webhook[2])return;
+  if(!state.settings.webhook.enabled)return;
 
   try{
     async function sendWebhookAsync(){

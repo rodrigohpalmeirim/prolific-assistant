@@ -10,14 +10,14 @@ export function WebHookPane() {
   const settings = useSelector(selectSettings);
 
   function onChangeWebhook(hook: string) {
-    dispatch(settingWebhook([hook, settings.webhook[1],settings.webhook[2]]));
+    dispatch(settingWebhook({url:hook,ping:settings?.webhook?.ping,enabled:settings?.webhook?.enabled}));
   }
 
   function onChangeWebhookPings(pings: string) {
-    dispatch(settingWebhook([settings.webhook[0], pings,settings.webhook[2]]));
+    dispatch(settingWebhook({url:settings?.webhook?.url,ping:pings,enabled:settings?.webhook?.enabled}));
   }
   function enableWebHook(enabled: boolean) {
-    dispatch(settingWebhook([settings.webhook[0], settings.webhook[1],enabled]));
+    dispatch(settingWebhook({url:settings?.webhook?.url,ping:settings?.webhook?.ping,enabled:enabled}));
   }
 
   return (
@@ -26,19 +26,19 @@ export function WebHookPane() {
         <Form.Check
           label="Enabled"
           type="checkbox"
-          checked={settings.webhook[2]}
+          checked={settings?.webhook?.enabled}
           onChange={(event:any)=>enableWebHook(event.target.checked)}
         />
       </Form.Group>
       <Form.Group>
         <Form.Label>Discord Webhook</Form.Label>
-        <Form.Control id="webhook_box" type="text" value={settings.webhook[0]} onChange={() => {// @ts-ignore
+        <Form.Control id="webhook_box" type="text" value={settings?.webhook?.url} onChange={() => {// @ts-ignore
           onChangeWebhook(document.getElementById('webhook_box').value);
         }} />
       </Form.Group>
       <Form.Group>
         <Form.Label>Roles/Users to ping</Form.Label>
-        <Form.Control id="webhook_box_pings" type="text" value={settings.webhook[1]} onChange={() => {// @ts-ignore
+        <Form.Control id="webhook_box_pings" type="text" value={settings?.webhook?.ping} onChange={() => {// @ts-ignore
           onChangeWebhookPings(document.getElementById('webhook_box_pings').value);
         }} />
       </Form.Group>

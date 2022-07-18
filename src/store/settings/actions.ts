@@ -25,7 +25,7 @@ import {
   SettingProxyAction,
   SettingsDesktopNotificationAction,
   SettingSettingsAction,
-  SettingsLimitBypassAction,
+  SettingsLimitBypassAction, SettingsState,
   SettingThemeAction,
   SettingUIDAction,
   SettingWebhookAction,
@@ -42,7 +42,7 @@ export function settingAlertSound(payload: SettingAlertSoundAction['payload']): 
   };
 }
 
-export function settingWebhook(payload: (string)[]): SettingWebhookAction {
+export function settingWebhook(payload: SettingsState["webhook"]): SettingWebhookAction {
   return {
     type: SETTING_WEBHOOK,
     payload,

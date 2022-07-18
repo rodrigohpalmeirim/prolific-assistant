@@ -32,7 +32,7 @@ const initialState: SettingsState = {
   },
   uid: undefined,
   limit_bypass: false,
-  webhook: ['', '', false],
+  webhook: {url: "",ping:"",enabled:false},
   easter_egg: {},
   proxy: '',
 };
