@@ -372,6 +372,12 @@ async function _Update() {
       appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
       appendLogObj(await authProlific());
     }
+    if(store.getState().prolific.submissions.reduce((old,curr)=>{
+      return old || curr.status === "ACTIVE";
+    },false)){
+      await browser.browserAction.setBadgeText({ text: 'ACT' });
+      await browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
+    }
   } catch (e) {
     console.error(e);
   }

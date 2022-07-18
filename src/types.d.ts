@@ -36,7 +36,7 @@ interface ProlificSubmission{
   is_complete:boolean,
   time_taken:number,
   reward:number,
-  status:"APPROVED"|"RETURNED"|"REJECTED"|"TIMED-OUT"|"AWAITING REVIEW",
+  status:"APPROVED"|"RETURNED"|"REJECTED"|"TIMED-OUT"|"AWAITING REVIEW"|"ACTIVE",
   study_code:string,
   star_awarded:boolean,
   bonus_payments:number[],
