@@ -1,5 +1,7 @@
+import { settingAutoStartPayload } from './actions';
+
 export interface SettingsState {
-  autostart: any;
+  autostart: {enabled:boolean,priceRange:{min:number,max:number,enabled:boolean},timeRange:{min:string,max:string,enabled:boolean}};
   alert_sound:
     | 'none'
     | 'voice'
@@ -102,7 +104,7 @@ export interface SettingsLimitBypassAction {
 
 export interface SettingAutostartAction {
   type: typeof SETTING_AUTOSTART;
-  payload: SettingsState['autostart'];
+  payload: settingAutoStartPayload;
 }
 
 export interface SettingEasterEggAction {

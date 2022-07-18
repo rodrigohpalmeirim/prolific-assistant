@@ -24,17 +24,21 @@ const initialState: SettingsState = {
   check_interval: 60,
   desktop_notifications: true,
   theme: 'white',
-  ctheme: [{},false],
-  autostart: [false, [-1,-1],["-","-",false]],
+  ctheme: [{}, false],
+  autostart: {
+    enabled: false,
+    priceRange: { min: 0, max: -1, enabled: false },
+    timeRange: { min: '00:00', max: '-', enabled: false },
+  },
   uid: undefined,
-  limit_bypass:false,
-  webhook:["","",false],
-  easter_egg:{},
-  proxy:"",
+  limit_bypass: false,
+  webhook: ['', '', false],
+  easter_egg: {},
+  proxy: '',
 };
 
 export function settingsReducer(state = initialState, action: SettingsActionTypes) {
-  if(action.type == SETTING_SETTINGS){
+  if (action.type == SETTING_SETTINGS) {
     return action.payload;
   }
   return produce(state, (draftState) => {
@@ -55,7 +59,36 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         draftState.theme = action.payload;
         break;
       case SETTING_AUTOSTART:
-        draftState.autostart = action.payload;
+        if (!draftState.autostart || !draftState.autostart.priceRange || !draftState.autostart.timeRange) draftState.autostart = {
+          enabled: false,
+          priceRange: { min: 0, max: -1, enabled: false },
+          timeRange: { min: '00:00', max: '-', enabled: false },
+        };
+
+        if (action.payload.type === 'enabled') {
+          draftState.autostart.enabled = action.payload.value;
+        }
+        if (action.payload.type === 'price-range') {
+          if(action.payload.value.min < 0) action.payload.value.min = 0;
+          draftState.autostart.priceRange.min = action.payload.value.min;
+          draftState.autostart.priceRange.max = action.payload.value.max;
+        }
+        if (action.payload.type === 'time-range') {
+          if(draftState.autostart.timeRange.min === "") draftState.autostart.timeRange.min = "-";
+          if(draftState.autostart.timeRange.max === "") draftState.autostart.timeRange.max = "-";
+          draftState.autostart.timeRange.min = action.payload.value.min;
+          draftState.autostart.timeRange.max = action.payload.value.max;
+        }
+        if (action.payload.type === 'price-range-enabled') {
+          draftState.autostart.priceRange.enabled = action.payload.value;
+        }
+        if (action.payload.type === 'time-range-enabled') {
+          draftState.autostart.timeRange.enabled = action.payload.value;
+        }
+        if (action.payload.type === 'reset-filters') {
+          draftState.autostart.timeRange = { min: '00:00', max: '-', enabled: false };
+          draftState.autostart.priceRange = { min: 0, max: -1, enabled: false };
+        }
         break;
       case SETTING_UID:
         draftState.uid = action.payload;

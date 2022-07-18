@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { LogObject, ProlificSubmission } from '../types';
+import { SettingsState } from '../store/settings/types';
 
 export function centsToGBP(cents: number) {
   return new Intl.NumberFormat('en-US', {
@@ -27,65 +28,64 @@ export function efficiency(submissions: ProlificSubmission[]) {
   return Math.round(total / (totalTime / 4));
 }
 
-export function getFullReward(submission: ProlificSubmission):{all:number,bonus:number,adjustment:number,base:number}{
-  let reward = {base:submission.reward/100,bonus:0,adjustment:0,all:0};
-  if(submission.bonus_payments){
-    reward.bonus = submission.bonus_payments.reduce((prev,cur)=>{
-      return prev+cur;
-    },0)
+export function getFullReward(submission: ProlificSubmission): { all: number, bonus: number, adjustment: number, base: number } {
+  let reward = { base: submission.reward / 100, bonus: 0, adjustment: 0, all: 0 };
+  if (submission.bonus_payments) {
+    reward.bonus = submission.bonus_payments.reduce((prev, cur) => {
+      return prev + cur;
+    }, 0);
   }
-  if(submission.adjustment_payments){
-    reward.adjustment = submission.adjustment_payments.reduce((prev,cur)=>{
-      return prev+cur;
-    },0)
+  if (submission.adjustment_payments) {
+    reward.adjustment = submission.adjustment_payments.reduce((prev, cur) => {
+      return prev + cur;
+    }, 0);
   }
-  reward.all = reward.base+reward.bonus+reward.adjustment;
+  reward.all = reward.base + reward.bonus + reward.adjustment;
   return reward;
 }
 
-export function priceRange(prices: any): any {
-  let min = 0;
-  let max = 1 / 0;
-  if (!prices) return [0, 1 / 0];
-  min = prices[0];
-  max = prices[1];
-  if (max < 0) return [min, 1 / 0];
-  if (min == max) return [min, max];
-  if (min > max) return [-1, -1];
-  return [min, max];
+export function priceRange(prices: { min: number, max: number, enabled: boolean }) {
+  let min = prices?.min;
+  let max = prices?.max;
+  if (max < 0) max = 1/0;
+  if (min > max) {min = -1;max=-1}
+  if (!prices?.enabled) {min=0;max = 1/0}
+  return { min, max};
 }
 
-export function timeRange(times: any): any {
-  if (!times) return ['00:00', '23:59'];
-  let min = (times[0]);
-  let max = (times[1]);
-  if(!min||min.length<5)return ['00:00', '23:59'];
-  if(!max||max.length<5)return ['00:00', '23:59'];
-  if (!times[2]) return ['00:00', '23:59'];
-  return [min, max];
-}
-
-export function testTimeRange(times: any):any {
-  try{
-  let min = timeRange(times)[0];
-  let max = timeRange(times)[1];
-
-  let timeString = getTimeString();
-
-  let Hours = Number(timeString.split(':')[0]);
-  let MinHours = Number(min.split(':')[0]);
-  let MinMinutes = Number(min.split(':')[1]);
-  let MaxHours = Number(max.split(':')[0]);
-  let MaxMinutes = Number(max.split(':')[1]);
-  let Minutes = Number(timeString.split(':')[1]);
-
-  if (Minutes >= MinMinutes && Minutes <= MaxMinutes) {
-    if (Hours >= MinHours && Hours <= MaxHours) {
-      return true;
-    }
+export function timeRange(times: { min: string, max: string, enabled: boolean }) {
+  let min = (times?.min);
+  let max = (times?.max);
+  if (min === "-" || max === "-" ) {
+    min = '00:00';
+    max = '23:59';
   }
-  return false;}catch {
-    return testTimeRange(["00:00","23:59"])
+  if (!times?.enabled) {
+    min = '00:00';
+    max = '23:59';
+  }
+  return { min, max };
+}
+
+export function timeValue(str:string){
+  if(!str?.includes(":"))return 0;
+  let hours = Number(str.split(':')[0]);
+  let mins = Number(str.split(':')[1]);
+  return hours*60+mins;
+}
+
+export function testTimeRange(times: { min: string, max: string, enabled: boolean }): any {
+  try {
+    let {min, max} = timeRange(times);
+    let current = getTimeString();
+
+    let minV = timeValue(min);
+    let maxV = timeValue(max);
+    let cV = timeValue(current);
+
+    return cV >= minV && cV <= maxV;
+  } catch {
+    return testTimeRange({min:'00:00', max:'23:59',enabled:false});
   }
 }
 
@@ -94,20 +94,28 @@ export function getTimeString() {
   return `${now.getHours()}:${now.getMinutes()}`;
 }
 
-export function testAutoStart(autostart: any, price: number):boolean|LogObject {
-  if (!autostart[0]) return false;
-  if (!testTimeRange(autostart[2])) {
-    return {type:"status",log:`AutoStart: not in time range`,description:`RANGE: ${JSON.stringify(timeRange(autostart[2]))}\nNOW: ${getTimeString()}`};
+export function testAutoStart(autostart: SettingsState['autostart'], price: number): boolean | LogObject {
+  if (!autostart.enabled) return false;
+  if (!testTimeRange(autostart.timeRange)) {
+    return {
+      type: 'status',
+      log: `AutoStart: not in time range`,
+      description: `RANGE: ${JSON.stringify(timeRange(autostart.timeRange))}\nNOW: ${getTimeString()}`,
+    };
   }
-  let pRange = priceRange(autostart[1]);
+  let pRange = priceRange(autostart.priceRange);
   //appendLog(`AutoStart: study price not in range`, 'status', `RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`);
-  if (price / 100 >= pRange[0] && price / 100 <= pRange[1]) {
+  if (price / 100 >= pRange.min && price / 100 <= pRange.max) {
     return true;
   } else {
-    return {type:"status",log:`AutoStart: study price not in range`,description:`RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`};
+    return {
+      type: 'status',
+      log: `AutoStart: study price not in range`,
+      description: `RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`,
+    };
   }
 }
 
-export function formatTimestamp(ts:number){
-  return ts ? moment(ts).format('LTS') : 'Never'
+export function formatTimestamp(ts: number) {
+  return ts ? moment(ts).format('LTS') : 'Never';
 }

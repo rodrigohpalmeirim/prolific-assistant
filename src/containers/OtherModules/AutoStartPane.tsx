@@ -5,7 +5,7 @@ import Tab from 'react-bootstrap/Tab';
 import { selectSettings } from '../../store/settings/selectors';
 import { selectSpammer } from '../../store/session/selectors';
 import { settingAutoStart} from '../../store/settings/actions';
-import { getTimeString, priceRange, testTimeRange, timeRange } from '../../functions/centsToGBP';
+import { centsToGBP, getTimeString, priceRange, testTimeRange, timeRange } from '../../functions/centsToGBP';
 import Button from 'react-bootstrap/Button';
 
 export function AutoStartPane() {
@@ -14,45 +14,36 @@ export function AutoStartPane() {
   useSelector(selectSpammer);
 
   function onChangeEnabled(enabled: boolean) {
-    dispatch(settingAutoStart([enabled, settings.autostart[1],settings.autostart[2]]));
+    dispatch(settingAutoStart({type:"enabled",value:enabled}));
   }
   function onChangeTimeEnabled(enabled: boolean) {
-    dispatch(settingAutoStart([settings.autostart[0], settings.autostart[1],[settings.autostart[2][0],settings.autostart[2][1],enabled]]));
+    dispatch(settingAutoStart({type:"time-range-enabled",value:enabled}));
+  }
+  function onChangePriceEnabled(enabled: boolean) {
+    dispatch(settingAutoStart({type:"price-range-enabled",value:enabled}));
   }
   function onResetFilters() {
-    dispatch(settingAutoStart([settings.autostart[0],undefined,undefined]));
-    dispatch(settingAutoStart([settings.autostart[0],[0,-1],[0,-1]]));
+    dispatch(settingAutoStart({type:"reset-filters"}));
   }
 
-  function onChangePriceRange(minPrice:number, maxPrice:number) {
-    dispatch(settingAutoStart([settings.autostart[0], [minPrice,maxPrice],settings.autostart[2]]));
+  function onChangePriceRange(min:number, max:number) {
+    dispatch(settingAutoStart({type:"price-range",value:{min,max}}));
   }
   function onChangeMinPriceRange(minPrice:number) {
-    if(!settings.autostart[1]){onChangePriceRange(0,-1);return;}
-    if(minPrice<0)minPrice=0;
-    if(minPrice>20)minPrice=20;
-    if(settings.autostart[1][1]>=0&&minPrice>settings.autostart[1][1])minPrice = settings.autostart[1][1];
-    dispatch(settingAutoStart([settings.autostart[0], [minPrice,settings.autostart[1][1]],settings.autostart[2]]));
+    onChangePriceRange(minPrice,settings?.autostart?.priceRange?.max);
   }
   function onChangeMaxPriceRange(maxPrice:number) {
-    if(!settings.autostart[1]){onChangePriceRange(0,-1);return;}
-    if(maxPrice<-1)maxPrice=-1;
-    if(maxPrice>20)maxPrice=-1;
-    if(maxPrice>-1&&settings.autostart[1][0]>maxPrice&&settings.autostart[1][1]<0)maxPrice=settings.autostart[1][0];
-    if(settings.autostart[1][0]>maxPrice)maxPrice=-1;
-    dispatch(settingAutoStart([settings.autostart[0], [settings.autostart[1][0],maxPrice],settings.autostart[2]]));
+    onChangePriceRange(settings?.autostart?.priceRange?.min,maxPrice);
   }
 
-  function onChangeTimeRange(minTime:string, maxTime:string,enabled:boolean) {
-    dispatch(settingAutoStart([settings.autostart[0], settings.autostart[1],[minTime,maxTime,enabled]]));
+  function onChangeTimeRange(min:string, max:string) {
+    dispatch(settingAutoStart({type:"time-range",value:{min,max}}));
   }
   function onChangeMinTimeRange(minTime:string) {
-    if(!settings.autostart[2]){onChangeTimeRange("00:00","00:00",false);return;}
-    dispatch(settingAutoStart([settings.autostart[0], settings.autostart[1],[minTime,settings.autostart[2][1],settings.autostart[2][2]]]));
+    onChangeTimeRange(minTime,settings?.autostart?.timeRange?.max);
   }
   function onChangeMaxTimeRange(maxTime:string) {
-    if(!settings.autostart[2]){onChangeTimeRange("00:00","00:00",false);return;}
-    dispatch(settingAutoStart([settings.autostart[0], settings.autostart[1],[settings.autostart[2][0],maxTime,settings.autostart[2][2]]]));
+    onChangeTimeRange(settings?.autostart?.timeRange?.min,maxTime);
   }
 
   return (
@@ -61,35 +52,43 @@ export function AutoStartPane() {
         <Form.Check
           label="Enabled"
           type="checkbox"
-          checked={(settings.autostart[0])}
+          checked={(settings?.autostart?.enabled)}
           onChange={(event:any)=>onChangeEnabled(event.target.checked)}
         />
       </Form.Group>
-      <Form.Label>Price Range: {priceRange(settings.autostart[1])[0]+" > "+priceRange(settings.autostart[1])[1]}</Form.Label><br/>
+      <Form.Label>Price Range: {centsToGBP(priceRange(settings?.autostart?.priceRange).min*100)+" - "+centsToGBP(priceRange(settings?.autostart?.priceRange).max*100)}</Form.Label><br/>
+      <Form.Group>
+        <Form.Check
+          label="Price Range Enabled"
+          type="checkbox"
+          checked={(settings?.autostart?.priceRange?.enabled)}
+          onChange={(event:any)=>onChangePriceEnabled(event.target.checked)}
+        />
+      </Form.Group>
       <Form.Group style={{display:"inline-block",width:"50%"}}>
         <Form.Label style={{display:"inline-block",width:"25%",textAlign: "center"}}>Minimum Price</Form.Label>
-        <Form.Control className={"minPriceBox"} step={0.10} style={{display:"inline",width:"75%"}} type="number" onChange={(event:any)=>{const value = Number(event.target.value);onChangeMinPriceRange(value)}} value={settings.autostart[1]?settings.autostart[1][0]:0} />
+        <Form.Control className={"minPriceBox"} step={0.10} style={{display:"inline",width:"75%"}} type="number" onChange={(event:any)=>{const value = Number(event.target.value);onChangeMinPriceRange(value)}} value={settings?.autostart?.priceRange?.min} />
       </Form.Group>
       <Form.Group style={{display:"inline-block",width:"50%"}}>
         <Form.Label style={{display:"inline-block",width:"25%",textAlign: "center"}}>Maximum Price</Form.Label>
-        <Form.Control className={"maxPriceBox"} step={0.10} style={{display:"inline",width:"75%"}} type="number" onChange={(event:any)=>{const value = Number(event.target.value);onChangeMaxPriceRange(value)}} value={settings.autostart[1]?settings.autostart[1][1]:-1} />
+        <Form.Control className={"maxPriceBox"} step={0.10} style={{display:"inline",width:"75%"}} type="number" onChange={(event:any)=>{const value = Number(event.target.value);onChangeMaxPriceRange(value)}} value={settings?.autostart?.priceRange?.max} />
       </Form.Group>
-      <Form.Label>Time Range: {timeRange(settings.autostart[2])[0]+" > "+timeRange(settings.autostart[2])[1]+`   NOW:${testTimeRange(settings.autostart[2])} (${getTimeString()})`}</Form.Label><br/>
+      <Form.Label>Time Range: {timeRange(settings?.autostart?.timeRange).min+" - "+timeRange(settings?.autostart?.timeRange).max+`   NOW:${testTimeRange(settings?.autostart?.timeRange)} (${getTimeString()})`}</Form.Label><br/>
       <Form.Group>
         <Form.Check
           label="Time Range Enabled"
           type="checkbox"
-          checked={(settings.autostart[2][2])}
+          checked={(settings?.autostart?.timeRange?.enabled)}
           onChange={(event:any)=>onChangeTimeEnabled(event.target.checked)}
         />
       </Form.Group>
       <Form.Group style={{display:"inline-block",width:"50%"}}>
         <Form.Label style={{display:"inline-block",width:"25%",textAlign: "center"}}>From</Form.Label>
-        <Form.Control className={"minTimeBox"} style={{display:"inline",width:"75%"}} type="time" onChange={(event:any)=>{const value = (event.target.value);onChangeMinTimeRange(value)}} value={settings.autostart[2]?settings.autostart[2][0]: "00:00"} />
+        <Form.Control className={"minTimeBox"} style={{display:"inline",width:"75%"}} type="time" onChange={(event:any)=>{const value = (event.target.value);onChangeMinTimeRange(value)}} value={settings?.autostart?.timeRange?.min} />
       </Form.Group>
       <Form.Group style={{display:"inline-block",width:"50%"}}>
         <Form.Label style={{display:"inline-block",width:"25%",textAlign: "center"}}>To</Form.Label>
-        <Form.Control className={"maxTimeBox"} style={{display:"inline",width:"75%"}} type="time" onChange={(event:any)=>{const value = (event.target.value);onChangeMaxTimeRange(value)}} value={settings.autostart[2]?settings.autostart[2][1]: "00:00"} />
+        <Form.Control className={"maxTimeBox"} style={{display:"inline",width:"75%"}} type="time" onChange={(event:any)=>{const value = (event.target.value);onChangeMaxTimeRange(value)}} value={settings?.autostart?.timeRange?.max} />
       </Form.Group>
       <Form.Group>
         <Button className="mx-2" onClick={() => {

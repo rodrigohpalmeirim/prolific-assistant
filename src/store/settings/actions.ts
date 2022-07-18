@@ -121,7 +121,15 @@ export function settingProxy(payload: SettingProxyAction['payload']): SettingPro
   };
 }
 
-export function settingAutoStart(payload: SettingAutostartAction['payload']): SettingAutostartAction {
+export type settingAutoStartPayload =
+  { type: 'enabled', value: boolean }
+  | { type: 'price-range-enabled', value: boolean }
+  | { type: 'time-range-enabled', value: boolean }
+  | { type: 'price-range', value: { min: number, max: number } }
+  | { type: 'time-range', value: { min: string, max: string } }
+  | { type: 'reset-filters' }
+
+export function settingAutoStart(payload: settingAutoStartPayload): SettingAutostartAction {
   return {
     type: SETTING_AUTOSTART,
     payload,
@@ -147,7 +155,7 @@ export function reload(): ReloadAction {
   };
 }
 
-export function settingSettings(payload:any): SettingSettingsAction {
+export function settingSettings(payload: any): SettingSettingsAction {
   return {
     type: SETTING_SETTINGS, payload,
   };
