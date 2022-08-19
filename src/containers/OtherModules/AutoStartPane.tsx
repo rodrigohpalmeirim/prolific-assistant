@@ -26,14 +26,17 @@ export function AutoStartPane() {
     dispatch(settingAutoStart({type:"reset-filters"}));
   }
 
-  function onChangePriceRange(min:number, max:number) {
-    dispatch(settingAutoStart({type:"price-range",value:{min,max}}));
+  function onChangePriceRange(min:number, max:number,min_per_hour:number) {
+    dispatch(settingAutoStart({type:"price-range",value:{min,max,min_per_hour}}));
   }
   function onChangeMinPriceRange(minPrice:number) {
-    onChangePriceRange(minPrice,settings?.autostart?.priceRange?.max);
+    onChangePriceRange(minPrice,settings?.autostart?.priceRange?.max,settings?.autostart?.priceRange?.min_per_hour);
+  }
+  function onChangeMinPricePerHRange(minPricePerH:number) {
+    onChangePriceRange(settings?.autostart?.priceRange?.min,settings?.autostart?.priceRange?.max,minPricePerH);
   }
   function onChangeMaxPriceRange(maxPrice:number) {
-    onChangePriceRange(settings?.autostart?.priceRange?.min,maxPrice);
+    onChangePriceRange(settings?.autostart?.priceRange?.min,maxPrice,settings?.autostart?.priceRange?.min_per_hour);
   }
 
   function onChangeTimeRange(min:string, max:string) {
@@ -68,6 +71,10 @@ export function AutoStartPane() {
       <Form.Group style={{display:"inline-block",width:"50%"}}>
         <Form.Label style={{display:"inline-block",width:"25%",textAlign: "center"}}>Minimum Price</Form.Label>
         <Form.Control className={"minPriceBox"} step={0.10} style={{display:"inline",width:"75%"}} type="number" onChange={(event:any)=>{const value = Number(event.target.value);onChangeMinPriceRange(value)}} value={settings?.autostart?.priceRange?.min} />
+      </Form.Group>
+      <Form.Group style={{display:"inline-block",width:"50%"}}>
+        <Form.Label style={{display:"inline-block",width:"25%",textAlign: "center"}}>Minimum Price per hour</Form.Label>
+        <Form.Control className={"minPricephBox"} step={0.10} style={{display:"inline",width:"75%"}} type="number" onChange={(event:any)=>{const value = Number(event.target.value);onChangeMinPricePerHRange(value)}} value={settings?.autostart?.priceRange?.min_per_hour} />
       </Form.Group>
       <Form.Group style={{display:"inline-block",width:"50%"}}>
         <Form.Label style={{display:"inline-block",width:"25%",textAlign: "center"}}>Maximum Price</Form.Label>

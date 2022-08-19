@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { LogObject, ProlificSubmission } from '../types';
+import { LogObject, ProlificStudy, ProlificSubmission } from '../types';
 import { SettingsState } from '../store/settings/types';
 
 export function centsToGBP(cents: number) {
@@ -94,7 +94,7 @@ export function getTimeString() {
   return `${now.getHours()}:${now.getMinutes()}`;
 }
 
-export function testAutoStart(autostart: SettingsState['autostart'], price: number): boolean | LogObject {
+export function testAutoStart(autostart: SettingsState['autostart'], study: ProlificStudy): boolean | LogObject {
   if (!autostart.enabled) return false;
   if (!testTimeRange(autostart.timeRange)) {
     return {
@@ -103,17 +103,27 @@ export function testAutoStart(autostart: SettingsState['autostart'], price: numb
       description: `RANGE: ${JSON.stringify(timeRange(autostart.timeRange))}\nNOW: ${getTimeString()}`,
     };
   }
+
+  let price = study.reward;
   let pRange = priceRange(autostart.priceRange);
   //appendLog(`AutoStart: study price not in range`, 'status', `RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`);
-  if (price / 100 >= pRange.min && price / 100 <= pRange.max) {
-    return true;
-  } else {
+  if (price / 100 < pRange.min || price / 100 > pRange.max) {
     return {
       type: 'status',
       log: `AutoStart: study price not in range`,
       description: `RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`,
     };
   }
+
+  if (study.estimated_reward_per_hour / 100 < autostart.priceRange.min_per_hour) {
+    return {
+      type: 'status',
+      log: `AutoStart: study price not in range`,
+      description: `RANGE: ${JSON.stringify(pRange)}\nSTUDY: ${price / 100}`,
+    };
+  }
+
+  return true;
 }
 
 export function formatTimestamp(ts: number) {

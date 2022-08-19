@@ -125,7 +125,7 @@ export type settingAutoStartPayload =
   { type: 'enabled', value: boolean }
   | { type: 'price-range-enabled', value: boolean }
   | { type: 'time-range-enabled', value: boolean }
-  | { type: 'price-range', value: { min: number, max: number } }
+  | { type: 'price-range', value: { min: number, max: number,min_per_hour:number } }
   | { type: 'time-range', value: { min: string, max: string } }
   | { type: 'reset-filters' }
 

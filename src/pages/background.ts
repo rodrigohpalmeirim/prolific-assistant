@@ -158,7 +158,7 @@ export async function updateResults(results: any[]) {
     const settings = store.getState().settings;
     if (bestStudy && bestStudy.id && settings.autostart && results.length > 0 && state.firebase.canUsePA === true) {
       if (!bestStudy.id.includes('TEST')) {
-        let testRes = testAutoStart(settings.autostart, bestStudy.reward);
+        let testRes = testAutoStart(settings.autostart, bestStudy);
         if (testRes === true)
           await fetchStartStudy(authHeader, userID, bestStudy.id, store);
         else if (testRes !== false) {

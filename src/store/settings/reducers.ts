@@ -24,10 +24,10 @@ const initialState: SettingsState = {
   check_interval: 60,
   desktop_notifications: true,
   theme: 'white',
-  ctheme: [{}, false],
+  ctheme: {},
   autostart: {
     enabled: false,
-    priceRange: { min: 0, max: -1, enabled: false },
+    priceRange: { min: 0, max: -1, enabled: false,min_per_hour:0 },
     timeRange: { min: '00:00', max: '-', enabled: false },
   },
   uid: undefined,
@@ -61,7 +61,7 @@ export function settingsReducer(state = initialState, action: SettingsActionType
       case SETTING_AUTOSTART:
         if (!draftState.autostart || !draftState.autostart.priceRange || !draftState.autostart.timeRange) draftState.autostart = {
           enabled: false,
-          priceRange: { min: 0, max: -1, enabled: false },
+          priceRange: { min: 0, max: -1, enabled: false,min_per_hour:0 },
           timeRange: { min: '00:00', max: '-', enabled: false },
         };
 
@@ -70,8 +70,10 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         }
         if (action.payload.type === 'price-range') {
           if(action.payload.value.min < 0) action.payload.value.min = 0;
+          if(action.payload.value.min_per_hour < 0) action.payload.value.min_per_hour = 0;
           draftState.autostart.priceRange.min = action.payload.value.min;
           draftState.autostart.priceRange.max = action.payload.value.max;
+          draftState.autostart.priceRange.min_per_hour = action.payload.value.min_per_hour;
         }
         if (action.payload.type === 'time-range') {
           if(draftState.autostart.timeRange.min === "") draftState.autostart.timeRange.min = "-";
@@ -87,7 +89,7 @@ export function settingsReducer(state = initialState, action: SettingsActionType
         }
         if (action.payload.type === 'reset-filters') {
           draftState.autostart.timeRange = { min: '00:00', max: '-', enabled: false };
-          draftState.autostart.priceRange = { min: 0, max: -1, enabled: false };
+          draftState.autostart.priceRange = { min: 0, max: -1, enabled: false,min_per_hour:0 };
         }
         break;
       case SETTING_UID:

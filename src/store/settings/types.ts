@@ -1,7 +1,7 @@
 import { settingAutoStartPayload } from './actions';
 
 export interface SettingsState {
-  autostart: {enabled:boolean,priceRange:{min:number,max:number,enabled:boolean},timeRange:{min:string,max:string,enabled:boolean}};
+  autostart: {enabled:boolean,priceRange:{min:number,max:number,enabled:boolean,min_per_hour:number},timeRange:{min:string,max:string,enabled:boolean}};
   alert_sound:
     | 'none'
     | 'voice'

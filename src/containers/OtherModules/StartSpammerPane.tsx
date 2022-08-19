@@ -88,8 +88,8 @@ export function StartSpammer() {
 
           return <Form.Group>
             <Form.Label>Study ID: {studyID}</Form.Label><br/>
-            <Form.Label>Active: {studyConfig?.enabled || "false"}</Form.Label><br/>
-            <Form.Label>Success: {studyOutput?.success || "false"}</Form.Label><br/>
+            <Form.Label>Active: {studyConfig?.enabled? "true" : "false"}</Form.Label><br/>
+            <Form.Label>Success: {studyOutput?.success? "true" : "false"}</Form.Label><br/>
             <Form.Label>Iterations: {studyOutput?.iterations || "0"}</Form.Label><br/>
 
             <Form.Label>ERR TITLE :{JSON.stringify(studyOutput?.error?.title)}</Form.Label><br />
