@@ -13,7 +13,7 @@ import {
   SHARE_STUDY,
 } from './prolific/types';
 import { authHeader, incStats, store } from '../pages/background';
-import { ProlificStudy } from '../types';
+import { ProlificStudy, SharedProlificStudy } from '../types';
 import { fetchProlificStudy } from '../functions/fetchProlificStudies';
 import { claimStudy, readOwnClaimed, readShare, writeShare } from '../functions/firebase';
 import { readSharedStudies, setSharedStudies } from './prolific/actions';
@@ -83,7 +83,7 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
         store.dispatch(readSharedStudies());
         return next(action);
       }
-      let study = await fetchProlificStudy(authHeader,studyID);
+      let study = await fetchProlificStudy(authHeader,studyID) as SharedProlificStudy;
       if(study.id === studyID){
         //PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}
         let url = study.external_study_url;
@@ -92,6 +92,7 @@ export const prolificStudiesUpdateMiddleware: Middleware = (store) => (next) => 
         url = url.replaceAll('{{%STUDY_ID%}}',studyID);
         url = url.replaceAll('{{%SESSION_ID%}}',study.submission.id);
         study.external_study_url = url;
+        study.submission.end_time = study.submission.time_remaining + +new Date();
 
         await writeShare(study);
         store.dispatch(readSharedStudies());

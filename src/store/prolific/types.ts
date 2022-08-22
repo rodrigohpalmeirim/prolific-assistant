@@ -1,11 +1,11 @@
-import { FullProlificStudy, ProlificStudy, ProlificSubmission } from '../../types';
+import { FullProlificStudy, ProlificStudy, ProlificSubmission, SharedProlificStudy } from '../../types';
 
 export interface ProlificState {
   submissions: ProlificSubmission[];
   error: number;
   studies: ProlificStudy[];
   acc_info: any,
-  sharedStudies: { available:{[key: string]: {[key:string]:FullProlificStudy}},own:FullProlificStudy|{},claimed:any },
+  sharedStudies: { available:{[key: string]: {[key:string]:SharedProlificStudy}},own:SharedProlificStudy|{},claimed:any },
 }
 
 export const PROLIFIC_ERROR_UPDATE = 'PROLIFIC_ERROR_UPDATE';
@@ -50,7 +50,7 @@ export interface ClaimSharedStudyAction {
 
 export interface SetSharedStudiesAction {
   type: typeof SET_SHARED_STUDIES;
-  payload: { available:{[key: string]: {[key: string]:FullProlificStudy}},claimed:any };
+  payload: { available:{[key: string]: {[key: string]:SharedProlificStudy}},claimed:any };
 }
 
 export interface ReadSharedStudiesAction {

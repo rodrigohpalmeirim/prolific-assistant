@@ -29,9 +29,13 @@ interface ProlificStudy {
 
 interface FullProlificStudy extends ProlificStudy{
   external_study_url:string;
-  submission:ProlificSubmission;
+  submission:StudyProlificSubmission;
+}
+
+interface SharedProlificStudy extends FullProlificStudy{
   claimed:boolean;
   claimed_by:string;
+  submission:SharedStudyProlificSubmission;
 }
 
 interface ProlificSubmission{
@@ -48,6 +52,17 @@ interface ProlificSubmission{
   star_awarded:boolean,
   bonus_payments:number[],
   adjustment_payments:number[]
+}
+
+interface StudyProlificSubmission{
+  id:string,
+  status:string,
+  study_url:string,
+  time_remaining:number
+}
+
+interface SharedStudyProlificSubmission extends StudyProlificSubmission{
+  end_time:number,
 }
 
 interface ProlificApiStudies {

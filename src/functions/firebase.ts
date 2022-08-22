@@ -3,7 +3,7 @@ import { get, getDatabase, ref, set } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
 import { auth } from './firebaseAuth';
 import { store, userID } from '../pages/background';
-import { FullProlificStudy, FullStatistics, StatField, Statistic, Statistics } from '../types';
+import { FullProlificStudy, FullStatistics, SharedProlificStudy, StatField, Statistic, Statistics } from '../types';
 import { onValue, Unsubscribe } from '@firebase/database';
 
 const firebaseConfig = {
@@ -92,7 +92,7 @@ export async function writeShare(study: FullProlificStudy | {}) {
   await set(ref(db, firebaseRootPath()+`/_share/${auth.currentUser.uid}/${userID}/shared`), JSON.parse(JSON.stringify(study)));
 }
 
-export async function readShare():Promise<{ [key: string]: {[key: string]:FullProlificStudy} }> {
+export async function readShare():Promise<{ [key: string]: {[key: string]:SharedProlificStudy} }> {
   if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
   if (!userID) return;
   const db = getDatabase(app);

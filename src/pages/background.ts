@@ -243,7 +243,7 @@ async function FastUpdate() {
     try {
       let sharedStudies = await readShare();
       let ownClaimed = await readOwnClaimed();
-      store.dispatch(setSharedStudies({available:sharedStudies,claimed:ownClaimed}))
+      store.dispatch(setSharedStudies({ available: sharedStudies, claimed: ownClaimed }));
     } catch (ex) {
       appendLog(`ERROR while reading shared studies`, 'error', `ERROR while reading shared studies: ${ex}`);
     }
@@ -296,97 +296,104 @@ async function SpammerUpdate(): Promise<boolean> {
 }
 
 async function _Update() {
-  const state = store.getState();
+  await browser.browserAction.setBadgeText({ text: '...' });
+  await browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
+
+  if (!authHeader) {
+    store.dispatch(prolificErrorUpdate(401));
+    await browser.browserAction.setBadgeText({ text: 'ERR' });
+    await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+    appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
+    appendLogObj(await authProlific());
+    return;
+  }
+
   try {
-    await browser.browserAction.setBadgeText({ text: '...' });
-    await browser.browserAction.setBadgeBackgroundColor({ color: 'orange' });
+    let studies = await checkForStudies();
+    if (studies?.results) {
+      await updateResults(studies.results);
+    }
+    await fetchSubmissions();
+    await fetchAccountInfo();
+  } catch (error) {
+    store.dispatch(prolificStudiesUpdate([]));
+    await browser.browserAction.setBadgeText({ text: 'ERR' });
+    await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+    appendLog(`ERROR - fetchProlificStudies`, 'error', `Exception occurred:\n${error}`);
+    window.console.error('fetchProlificStudies error', error);
+  }
 
-    if (authHeader) {
-      try {
-        const response = await fetchProlificStudies(authHeader);
-        await browser.browserAction.setBadgeText({ text: 'ERR' });
-        await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
+  if (store.getState().prolific?.acc_info?.active_study_id) {
+    await browser.browserAction.setBadgeText({ text: 'ACT' });
+    await browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
+  }
 
+}
 
-        if (response.error) {
-          if (response.error.status === 401) {
-            store.dispatch(prolificErrorUpdate(401));
-            await browser.browserAction.setBadgeText({ text: '!' });
-            await browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
-            appendLog('AUTHENTICATION ERROR', 'error', `ERROR 401 Occurred\n${JSON.stringify(response.error)}`);
-            appendLogObj(await authProlific());
-          } else {
-            store.dispatch(prolificStudiesUpdate([]));
-            await browser.browserAction.setBadgeText({ text: 'ERR' });
-            await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-            appendLog('OTHER ERROR', 'error', `Unknown ERROR Occurred\n${JSON.stringify(response.error)}`);
-            appendLogObj(await authProlific());
-          }
-        } else {
-          await browser.browserAction.setBadgeText({ text: 'OK' });
-          await browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
-          appendLog('OK!', 'status', `Everything seems to be fine`);
-        }
-
-        if (response.results) {
-          await updateResults(response.results);
-        }
-        if (userID) {
-          acc_info = await fetchProlificAccount(authHeader, userID);
-          if (state.settings.easter_egg && state.settings.easter_egg.atos) {
-            acc_info.status = 'SHADOWBANNED';
-          }
-
-          if (!acc_info.id || acc_info.id == !userID) {
-            if (await checkUserID(authHeader, state.settings.uid, store)) {
-              userID = state.settings.uid;
-            }
-          }
-          store.dispatch(accInfoUpdate(acc_info));
-        } else {
-          if (await checkUserID(authHeader, state.settings.uid, store)) {
-            userID = state.settings.uid;
-            appendLog(`Successfully Gathered Prolific ID from settings`, 'success', `Successfully Gathered Prolific ID from settings\nID: ${state.settings.uid}`);
-          } else {
-            appendLog('Prolific ID from settings is invalid', 'error', `Prolific ID from settings is invalid. \nID: ${state.settings.uid}`);
-          }
-        }
-
-        if (userID) {
-          let response = await fetchProlificSubmissions(authHeader, userID);
-          console.log(response);
-          if (response.results) {
-            store.dispatch(prolificSubmissionsUpdate(response.results));
-          }
-          if (response.meta) {
-            let count = response.meta.count;
-            let earned = response.meta.total_earned;
-            let approved = response.meta.total_approved;
-            await setStats(['submissions', 'earned', 'approved'], [count, earned, approved], [false, true, false]);
-          }
-        }
-      } catch (error) {
-        store.dispatch(prolificStudiesUpdate([]));
-        await browser.browserAction.setBadgeText({ text: 'ERR' });
-        await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-        appendLog(`ERROR - fetchProlificStudies`, 'error', `Exception occurred:\n${error}`);
-        window.console.error('fetchProlificStudies error', error);
-      }
-    } else {
+async function checkForStudies() {
+  const response = await fetchProlificStudies(authHeader);
+  if (response.error) {
+    if (response.error.status === 401) {
       store.dispatch(prolificErrorUpdate(401));
+      await browser.browserAction.setBadgeText({ text: '!' });
+      await browser.browserAction.setBadgeBackgroundColor({ color: 'red' });
+      appendLog('AUTHENTICATION ERROR', 'error', `ERROR 401 Occurred\n${JSON.stringify(response.error)}`);
+      appendLogObj(await authProlific());
+    } else {
+      store.dispatch(prolificStudiesUpdate([]));
       await browser.browserAction.setBadgeText({ text: 'ERR' });
       await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
-      appendLog(`ERROR - Auth Header missing`, 'error', `Auth header is missing`);
+      appendLog('OTHER ERROR', 'error', `Unknown ERROR Occurred\n${JSON.stringify(response.error)}`);
       appendLogObj(await authProlific());
     }
-    if(store.getState().prolific.submissions.reduce((old,curr)=>{
-      return old || curr.status === "ACTIVE";
-    },false)){
-      await browser.browserAction.setBadgeText({ text: 'ACT' });
-      await browser.browserAction.setBadgeBackgroundColor({ color: 'white' });
+    return undefined;
+  }
+
+  await browser.browserAction.setBadgeText({ text: 'OK' });
+  await browser.browserAction.setBadgeBackgroundColor({ color: 'lime' });
+  appendLog('OK!', 'status', `Everything seems to be fine`);
+  return response;
+}
+
+async function fetchSubmissions() {
+  if (!userID) {
+    return;
+  }
+
+  let response = await fetchProlificSubmissions(authHeader, userID);
+  console.log(response);
+  if (response.results) {
+    store.dispatch(prolificSubmissionsUpdate(response.results));
+  }
+  if (response.meta) {
+    let count = response.meta.count;
+    let earned = response.meta.total_earned;
+    let approved = response.meta.total_approved;
+    await setStats(['submissions', 'earned', 'approved'], [count, earned, approved], [false, true, false]);
+  }
+}
+
+async function fetchAccountInfo() {
+  const state = store.getState();
+  if (userID) {
+    acc_info = await fetchProlificAccount(authHeader, userID);
+    if (state.settings.easter_egg && state.settings.easter_egg.atos) {
+      acc_info.status = 'SHADOWBANNED';
     }
-  } catch (e) {
-    console.error(e);
+
+    if (!acc_info.id || acc_info.id == !userID) {
+      if (await checkUserID(authHeader, state.settings.uid, store)) {
+        userID = state.settings.uid;
+      }
+    }
+    store.dispatch(accInfoUpdate(acc_info));
+  } else {
+    if (await checkUserID(authHeader, state.settings.uid, store)) {
+      userID = state.settings.uid;
+      appendLog(`Successfully Gathered Prolific ID from settings`, 'success', `Successfully Gathered Prolific ID from settings\nID: ${state.settings.uid}`);
+    } else {
+      appendLog('Prolific ID from settings is invalid', 'error', `Prolific ID from settings is invalid. \nID: ${state.settings.uid}`);
+    }
   }
 }
 
@@ -395,50 +402,18 @@ browser.notifications.onClicked.addListener(async (notificationId) => {
   openProlificStudy(notificationId);
 });
 
-function handleSignedOut() {
-  authHeader = null;
-  updateResults([]);
-  store.dispatch(prolificErrorUpdate(401));
-}
-
-// Watch for url changes and handle sign out
-browser.webNavigation.onCompleted.addListener(
-  () => {
-    handleSignedOut();
-  },
-  {
-    url: [{ urlEquals: 'https://internal-api.prolific.co/auth/accounts/login/' }],
-  },
-);
-
-// Prolific is a single page app, so we need to watch
-// the history state for changes too
-browser.webNavigation.onHistoryStateUpdated.addListener(
-  () => {
-    handleSignedOut();
-  },
-  {
-    url: [{ urlEquals: 'https://app.prolific.co/login' }],
-  },
-);
-
 // Parse and save the Authorization header from any Prolific request.
 browser.webRequest.onBeforeSendHeaders.addListener(
   (details) => {
     const foundAuthHeader = details.requestHeaders.find((header) => header.name === 'Authorization');
-
-
     if (foundAuthHeader) {
       if (foundAuthHeader.value === 'Bearer null') {
         return;
       }
-
       let restart = false;
-
       if (!authHeader) {
         restart = true;
       }
-
       authHeader = foundAuthHeader;
       if (restart) {
         Update();
@@ -494,9 +469,9 @@ browser.runtime.onMessage.addListener((message) => {
     }
   }
 });
+
 browser.webRequest.onHeadersReceived.addListener(
   (details) => {
-
     if (details.url === authUrl) {
       details.responseHeaders.forEach(el => {
         if (el.name === 'location') {
