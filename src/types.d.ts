@@ -27,6 +27,13 @@ interface ProlificStudy {
   total_available_places: number;
 }
 
+interface FullProlificStudy extends ProlificStudy{
+  external_study_url:string;
+  submission:ProlificSubmission;
+  claimed:boolean;
+  claimed_by:string;
+}
+
 interface ProlificSubmission{
   study:ProlificStudy,
   id:string,

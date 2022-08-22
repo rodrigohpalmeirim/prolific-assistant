@@ -5,14 +5,17 @@ import {
   PROLIFIC_ERROR_UPDATE,
   PROLIFIC_STUDIES_UPDATE,
   PROLIFIC_SUBMISSIONS_UPDATE,
-  ProlificActionTypes, ProlificState,
+  ProlificActionTypes, ProlificState, SET_SHARED_STUDIES,
 } from './types';
+import { auth } from '../../functions/firebaseAuth';
+import { userID } from '../../pages/background';
 
 const initialState: ProlificState = {
   error: undefined,
   studies: [],
   acc_info: {},
-  submissions:[]
+  submissions:[],
+  sharedStudies:{available:{},own:{},claimed:{}}
 };
 
 export function prolificReducer(state = initialState, action: ProlificActionTypes) {
@@ -32,6 +35,10 @@ export function prolificReducer(state = initialState, action: ProlificActionType
         break;
       case ACC_INFO_UPDATE:
         draftState.acc_info = action.payload;
+        break;
+      case SET_SHARED_STUDIES:
+        let own = ((action?.payload?.available??{})[auth.currentUser.uid]??{})[userID];
+        draftState.sharedStudies = {...action.payload,own};
         break;
     }
   });

@@ -9,6 +9,7 @@ import { EasterEggPane } from './OtherModules/EasterEggPane';
 import { AutoStartPane } from './OtherModules/AutoStartPane';
 import { CustomThemePane } from './OtherModules/CustomThemePane';
 import { selectSettings } from '../store/settings/selectors';
+import { StudySharing } from './OtherModules/StudySharing';
 
 export function OtherModulesPane() {
   const settings = useSelector(selectSettings);
@@ -36,6 +37,9 @@ export function OtherModulesPane() {
             <Nav.Link eventKey="custom-theme">CustomTheme</Nav.Link>
           </Nav.Item> : <div />) : <div />}
           <Nav.Item className="text-center w-25 nav_btn">
+            <Nav.Link eventKey="StudySharing">Study Sharing</Nav.Link>
+          </Nav.Item>
+          <Nav.Item className="text-center w-25 nav_btn">
             <Nav.Link eventKey="easter-egg">???</Nav.Link>
           </Nav.Item>
         </Nav>
@@ -45,6 +49,7 @@ export function OtherModulesPane() {
           <WebHookPane />
           <CustomThemePane />
           <EasterEggPane />
+          <StudySharing />
         </Tab.Content>
       </Tab.Container></Tab.Pane>
   );

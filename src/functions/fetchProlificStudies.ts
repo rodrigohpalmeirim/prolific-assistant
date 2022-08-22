@@ -9,7 +9,7 @@ import {
   fetchStudyUrl,
   fetchSubmissionsUrl,
 } from './GlobalVars';
-import { ProlificApiStudies, ProlificStudy, ProlificSubmission } from '../types';
+import { FullProlificStudy, ProlificApiStudies, ProlificStudy, ProlificSubmission } from '../types';
 
 export async function fetchProlificStudies(authHeader: any) {
   const { name, value } = authHeader;
@@ -25,7 +25,7 @@ export async function fetchProlificStudy(authHeader: any, studyID:string) {
   const headers = { [name]: value };
   // omit credentials here, since auth is handled via the bearer token
   const response = await fetch(fetchStudyUrl(studyID), { credentials: 'omit', headers });
-  const json: ProlificStudy = await response.json();
+  const json: FullProlificStudy = await response.json();
   return json;
 }
 

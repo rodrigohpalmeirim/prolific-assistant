@@ -14,7 +14,7 @@ const retry_interval = 10;
 export async function _awaitDispatch(dispatch:Dispatch<any>,store:any,action:AnyAction){
   dispatch(setErrorAction({type:action.type,error:undefined,done:false}));
 
-  await new Promise((r,j)=>{
+  await new Promise<void>((r,j)=>{
     function a(){
       let state:AppState = store.getState();
       if(!state.session.errors[action.type]?.done){
@@ -28,7 +28,7 @@ export async function _awaitDispatch(dispatch:Dispatch<any>,store:any,action:Any
 
   dispatch(action);
 
-  await new Promise((r,j)=>{
+  await new Promise<void>((r,j)=>{
     function a(){
       let state:AppState = store.getState();
       if(state.session.errors[action.type]?.done){

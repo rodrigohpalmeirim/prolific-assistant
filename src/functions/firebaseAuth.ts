@@ -11,9 +11,9 @@ export let hasPermissions:boolean|undefined = undefined;
 export let lastCanUsePA:string|boolean = "";
 
 export function _canUsePA(){
-  if(!valid_version)return "wrong version";
   if(!auth.currentUser)return "not logged in";
   if(!hasPermissions)return "no permissions";
+  if(!valid_version)return "wrong version";
   return true;
 }
 
@@ -30,7 +30,7 @@ export async function canUseProlificAssistant(){
 export async function _canUseProlificAssistant(){
   hasPermissions = !!await checkPermissions("prolific");
   let version_needed = await readNeededVersion();
-  valid_version = version_needed.includes(pjson.version);
+  valid_version = version_needed?.includes(pjson.version);
 }
 
 export async function login(username: string, password: string) {

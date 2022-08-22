@@ -3,7 +3,7 @@ import { get, getDatabase, ref, set } from 'firebase/database';
 import { getFirestore } from 'firebase/firestore';
 import { auth } from './firebaseAuth';
 import { store, userID } from '../pages/background';
-import { FullStatistics, StatField, Statistic, Statistics } from '../types';
+import { FullProlificStudy, FullStatistics, StatField, Statistic, Statistics } from '../types';
 import { onValue, Unsubscribe } from '@firebase/database';
 
 const firebaseConfig = {
@@ -33,6 +33,14 @@ export async function writeData(path: string, data: any) {
   if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
   const db = getDatabase(app);
   await set(ref(db, firebasePath(auth.currentUser.uid, path)), data);
+}
+
+export function readSnapshot(snapshot:any){
+  if (snapshot.exists()) {
+    return (snapshot.val());
+  } else {
+    return {};
+  }
 }
 
 export async function readData(path: string) {
@@ -75,6 +83,59 @@ export async function writeState(state: any) {
   if (!userID) return;
   state._lastUpdated = +new Date();
   await writeData(`state/${userID}/current/`, JSON.parse(JSON.stringify(state)));
+}
+
+export async function writeShare(study: FullProlificStudy | {}) {
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
+  if (!userID) return;
+  const db = getDatabase(app);
+  await set(ref(db, firebaseRootPath()+`/_share/${auth.currentUser.uid}/${userID}/shared`), JSON.parse(JSON.stringify(study)));
+}
+
+export async function readShare():Promise<{ [key: string]: {[key: string]:FullProlificStudy} }> {
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
+  if (!userID) return;
+  const db = getDatabase(app);
+  let res:any = readSnapshot(await get(ref(db, firebaseRootPath()+"/_share/")));
+  let pres:any = {};
+  Object.keys(res).filter(accID=>{
+    return !!(res[accID])
+  }).forEach(accID=>{
+    Object.keys(res[accID]).filter(userID=>{
+      return !!(res[accID][userID] && res[accID][userID].shared)
+    }).forEach(userID=>{
+      if(!pres[accID])pres[accID] = {};
+      pres[accID][userID] = res[accID][userID].shared;
+    })
+  })
+  Object.keys(res).forEach(accID=>{
+    Object.keys(res[accID]).forEach(userID=>{
+      if(res[accID][userID]?.claimed){
+        try{
+          pres[res[accID][userID]?.claimed?.accountID][res[accID][userID]?.claimed.remoteUserID].claimed = true;
+          pres[res[accID][userID]?.claimed?.accountID][res[accID][userID]?.claimed.remoteUserID].claimed_by = accID;
+        }catch{
+
+        }
+      }
+    })
+  })
+  return pres;
+}
+
+export async function readOwnClaimed():Promise<{userID:string,accountID:string,studyID:string,remoteUserID:string}>{
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
+  if (!userID) return;
+  const db = getDatabase(app);
+  // @ts-ignore
+  return readSnapshot(await get(ref(db, firebaseRootPath()+`/_share/${auth.currentUser.uid}/${userID}/claimed`)));
+}
+
+export async function claimStudy(accountID:string,remoteUserID:string,studyID:string){
+  if (store.getState()?.firebase?.canUsePA !== true) throw new Error('extension not authenticated');
+  if (!userID) return;
+  const db = getDatabase(app);
+  await set(ref(db, firebaseRootPath()+`/_share/${auth.currentUser.uid}/${userID}/claimed`), {userID,accountID,studyID,remoteUserID});
 }
 
 export async function clearDispatch() {

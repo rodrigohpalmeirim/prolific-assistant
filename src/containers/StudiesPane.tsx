@@ -15,6 +15,144 @@ import { selectProlificError, selectProlificStudies } from '../store/prolific/se
 import { studyImg } from '../functions/GlobalVars';
 import { ProlificStudy } from '../types';
 
+export function StudyCard(props:{study:ProlificStudy|{}}){
+  let study:ProlificStudy = props.study as ProlificStudy;
+  if(!study.id)return <></>
+  return <Card className="study-card" key={study.id} onClick={() => openProlificStudy(study.id)}>
+    <Card.Body>
+      <Container>
+        <Row>
+          <Col xs="auto">
+            <img
+              alt="logo"
+              src={
+                study.researcher.institution && study.researcher.institution.logo
+                  ? study.researcher.institution.logo
+                  : studyImg
+              }
+              style={{ width: 64, height: 64 }}
+            />
+          </Col>
+          <Col xs>
+            <div>
+              <b>{study.name}</b>
+            </div>
+            <div>
+              Hosted by <b>{study.researcher.name}</b>
+            </div>
+            <div className="split-with-bullets">
+              <OverlayTrigger
+                overlay={
+                  <Tooltip id="reward-tooltip">
+                    <table className="tooltip-table">
+                      <tbody>
+                      <tr>
+                        <td>Reward:</td>
+                        <td>
+                          <strong>{centsToGBP(study.reward)}</strong>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </Tooltip>
+                }
+              >
+                <span>{centsToGBP(study.reward)}</span>
+              </OverlayTrigger>
+              <OverlayTrigger
+                overlay={
+                  <Tooltip id="time-tooltip">
+                    <table className="tooltip-table">
+                      <tbody>
+                      <tr>
+                        <td>Estimated completion time:</td>
+                        <td>
+                          <strong>{study.estimated_completion_time} minutes</strong>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Average completion time:</td>
+                        <td>
+                          <strong>{study.average_completion_time} minutes</strong>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Maximum allowed time:</td>
+                        <td>
+                          <strong>{study.maximum_allowed_time} minutes</strong>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </Tooltip>
+                }
+              >
+                <span>{study.estimated_completion_time} minutes</span>
+              </OverlayTrigger>
+              <OverlayTrigger
+                overlay={
+                  <Tooltip id="per-hour-tooltip">
+                    <table className="tooltip-table">
+                      <tbody>
+                      <tr>
+                        <td>Estimated reward per hour:</td>
+                        <td>
+                          <strong>{centsToGBP(study.estimated_reward_per_hour)}/hr</strong>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Average reward per hour:</td>
+                        <td>
+                          <strong>{centsToGBP(study.average_reward_per_hour)}/hr</strong>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </Tooltip>
+                }
+              >
+                <span>{centsToGBP(study.estimated_reward_per_hour)}/hr</span>
+              </OverlayTrigger>
+              <OverlayTrigger
+                overlay={
+                  <Tooltip id="places-tooltip">
+                    <table className="tooltip-table">
+                      <tbody>
+                      <tr>
+                        <td>Total available places:</td>
+                        <td>
+                          <strong>{study.total_available_places}</strong>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Places taken:</td>
+                        <td>
+                          <strong>{study.places_taken}</strong>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Places remaining:</td>
+                        <td>
+                          <strong>{study.total_available_places - study.places_taken}</strong>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </Tooltip>
+                }
+              >
+                <span>{study.total_available_places - study.places_taken} places remaining</span>
+              </OverlayTrigger>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+    </Card.Body>
+  </Card>
+}
+
 export function StudiesPane() {
   const error = useSelector(selectProlificError);
   const studies = useSelector(selectProlificStudies);
@@ -23,139 +161,7 @@ export function StudiesPane() {
     <Tab.Pane eventKey="studies">
       {studies.length ? (
         studies.map((study: ProlificStudy) => (
-          <Card className="study-card" key={study.id} onClick={() => openProlificStudy(study.id)}>
-            <Card.Body>
-              <Container>
-                <Row>
-                  <Col xs="auto">
-                    <img
-                      alt="logo"
-                      src={
-                        study.researcher.institution && study.researcher.institution.logo
-                          ? study.researcher.institution.logo
-                          : studyImg
-                      }
-                      style={{ width: 64, height: 64 }}
-                    />
-                  </Col>
-                  <Col xs>
-                    <div>
-                      <b>{study.name}</b>
-                    </div>
-                    <div>
-                      Hosted by <b>{study.researcher.name}</b>
-                    </div>
-                    <div className="split-with-bullets">
-                      <OverlayTrigger
-                        overlay={
-                          <Tooltip id="reward-tooltip">
-                            <table className="tooltip-table">
-                              <tbody>
-                              <tr>
-                                <td>Reward:</td>
-                                <td>
-                                  <strong>{centsToGBP(study.reward)}</strong>
-                                </td>
-                              </tr>
-                              </tbody>
-                            </table>
-                          </Tooltip>
-                        }
-                      >
-                        <span>{centsToGBP(study.reward)}</span>
-                      </OverlayTrigger>
-                      <OverlayTrigger
-                        overlay={
-                          <Tooltip id="time-tooltip">
-                            <table className="tooltip-table">
-                              <tbody>
-                              <tr>
-                                <td>Estimated completion time:</td>
-                                <td>
-                                  <strong>{study.estimated_completion_time} minutes</strong>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>Average completion time:</td>
-                                <td>
-                                  <strong>{study.average_completion_time} minutes</strong>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>Maximum allowed time:</td>
-                                <td>
-                                  <strong>{study.maximum_allowed_time} minutes</strong>
-                                </td>
-                              </tr>
-                              </tbody>
-                            </table>
-                          </Tooltip>
-                        }
-                      >
-                        <span>{study.estimated_completion_time} minutes</span>
-                      </OverlayTrigger>
-                      <OverlayTrigger
-                        overlay={
-                          <Tooltip id="per-hour-tooltip">
-                            <table className="tooltip-table">
-                              <tbody>
-                              <tr>
-                                <td>Estimated reward per hour:</td>
-                                <td>
-                                  <strong>{centsToGBP(study.estimated_reward_per_hour)}/hr</strong>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>Average reward per hour:</td>
-                                <td>
-                                  <strong>{centsToGBP(study.average_reward_per_hour)}/hr</strong>
-                                </td>
-                              </tr>
-                              </tbody>
-                            </table>
-                          </Tooltip>
-                        }
-                      >
-                        <span>{centsToGBP(study.estimated_reward_per_hour)}/hr</span>
-                      </OverlayTrigger>
-                      <OverlayTrigger
-                        overlay={
-                          <Tooltip id="places-tooltip">
-                            <table className="tooltip-table">
-                              <tbody>
-                              <tr>
-                                <td>Total available places:</td>
-                                <td>
-                                  <strong>{study.total_available_places}</strong>
-                                </td>
-                              </tr>
-
-                              <tr>
-                                <td>Places taken:</td>
-                                <td>
-                                  <strong>{study.places_taken}</strong>
-                                </td>
-                              </tr>
-
-                              <tr>
-                                <td>Places remaining:</td>
-                                <td>
-                                  <strong>{study.total_available_places - study.places_taken}</strong>
-                                </td>
-                              </tr>
-                              </tbody>
-                            </table>
-                          </Tooltip>
-                        }
-                      >
-                        <span>{study.total_available_places - study.places_taken} places remaining</span>
-                      </OverlayTrigger>
-                    </div>
-                  </Col>
-                </Row>
-              </Container>
-            </Card.Body>
-          </Card>
+          <StudyCard study={study}/>
         ))
       ) : (
         <div className="p-3 text-center">

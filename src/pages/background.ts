@@ -15,7 +15,7 @@ import {
   accInfoUpdate,
   prolificErrorUpdate,
   prolificStudiesUpdate,
-  prolificSubmissionsUpdate,
+  prolificSubmissionsUpdate, setSharedStudies,
 } from '../store/prolific/actions';
 import { appendLogAction, sessionLastChecked, spammerAction } from '../store/session/actions';
 import { prolificStudiesUpdateMiddleware } from '../store/prolificStudiesUpdateMiddleware';
@@ -31,7 +31,7 @@ import {
   attachDispatchListener,
   incrementBulkStatistics,
   incrementStatistic,
-  last_full_stats,
+  last_full_stats, readOwnClaimed, readShare,
   setBulkStatistics,
   setStatistic,
   writeState,
@@ -239,6 +239,13 @@ async function FastUpdate() {
       await writeState(store.getState());
     } catch (ex) {
       appendLog(`ERROR while writing state`, 'error', `ERROR while writing state: ${ex}`);
+    }
+    try {
+      let sharedStudies = await readShare();
+      let ownClaimed = await readOwnClaimed();
+      store.dispatch(setSharedStudies({available:sharedStudies,claimed:ownClaimed}))
+    } catch (ex) {
+      appendLog(`ERROR while reading shared studies`, 'error', `ERROR while reading shared studies: ${ex}`);
     }
   }
 }
