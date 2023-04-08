@@ -2,14 +2,19 @@ import {
   ACC_INFO_UPDATE,
   AccInfoUpdateAction,
   CLAIM_SHARED_STUDY,
-  ClaimSharedStudyAction, CLEAR_CLAIMED_SHARED_STUDIES, ClearClaimedStudiesAction,
+  ClaimSharedStudyAction,
+  CLEAR_CLAIMED_SHARED_STUDIES,
+  ClearClaimedStudiesAction,
+  OPEN_SUBMISSION,
+  OpenSubmissionLinkAction,
   PROLIFIC_ERROR_UPDATE,
   PROLIFIC_STUDIES_UPDATE,
   PROLIFIC_SUBMISSIONS_UPDATE,
   ProlificErrorUpdateAction,
   ProlificStudiesUpdateAction,
   ProlificSubmissionsUpdateAction,
-  READ_SHARED_STUDIES, ReadSharedStudiesAction,
+  READ_SHARED_STUDIES,
+  ReadSharedStudiesAction,
   SET_SHARED_STUDIES,
   SetSharedStudiesAction,
   SHARE_STUDY,
@@ -76,5 +81,12 @@ export function clearClaimedSharedStudy(): ClearClaimedStudiesAction {
   return {
     type: CLEAR_CLAIMED_SHARED_STUDIES,
     payload:"",
+  };
+}
+
+export function openSubmissionLink(payload: OpenSubmissionLinkAction['payload']): OpenSubmissionLinkAction {
+  return {
+    type: OPEN_SUBMISSION,
+    payload,
   };
 }

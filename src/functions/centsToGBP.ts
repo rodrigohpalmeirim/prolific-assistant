@@ -29,7 +29,7 @@ export function efficiency(submissions: ProlificSubmission[]) {
 }
 
 export function getFullReward(submission: ProlificSubmission): { all: number, bonus: number, adjustment: number, base: number } {
-  let reward = { base: submission.reward / 100, bonus: 0, adjustment: 0, all: 0 };
+  let reward = { base: submission.submission_reward.amount, bonus: 0, adjustment: 0, all: 0 };
   if (submission.bonus_payments) {
     reward.bonus = submission.bonus_payments.reduce((prev, cur) => {
       return prev + cur;

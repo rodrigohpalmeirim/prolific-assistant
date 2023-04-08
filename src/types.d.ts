@@ -29,7 +29,7 @@ interface ProlificStudy {
 
 interface FullProlificStudy extends ProlificStudy{
   external_study_url:string;
-  submission:StudyProlificSubmission;
+  submissions:StudyProlificSubmission[];
 }
 
 interface SharedProlificStudy extends FullProlificStudy{
@@ -46,7 +46,7 @@ interface ProlificSubmission{
   completed_at:string,
   is_complete:boolean,
   time_taken:number,
-  reward:number,
+  submission_reward:{amount:number, currency:string},
   status:"APPROVED"|"RETURNED"|"REJECTED"|"TIMED-OUT"|"AWAITING REVIEW"|"ACTIVE",
   study_code:string,
   star_awarded:boolean,

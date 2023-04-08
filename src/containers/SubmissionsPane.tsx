@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
@@ -15,11 +15,13 @@ import { selectProlificError, selectProlificSubmissions } from '../store/prolifi
 import Form from 'react-bootstrap/Form';
 import { studyImg } from '../functions/GlobalVars';
 import { ProlificSubmission } from '../types';
+import { openSubmissionLink } from '../store/prolific/actions';
 
 export function SubmissionsPage() {
   let [submissionType, setSubmissionType] = useState('awaiting review');
   const error = useSelector(selectProlificError);
   const submissions = useSelector(selectProlificSubmissions);
+  const dispatch = useDispatch();
 
   let submissionTypes = getTypes(submissionType);
 
@@ -120,6 +122,22 @@ export function SubmissionsPage() {
                         >
                           <span>{submission.study_code}</span>
                         </OverlayTrigger>
+                        <OverlayTrigger
+                          overlay={
+                            <Tooltip>
+                              Open study link in a new tab
+                            </Tooltip>
+                          }
+                        >
+                          <span onClick={(e)=>{
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dispatch(openSubmissionLink({submission}))
+                          }}>
+                            Open
+                          </span>
+                        </OverlayTrigger>
+
                       </div>
                     </Col>
                   </Row>

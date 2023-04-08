@@ -320,7 +320,7 @@ async function _Update() {
     await browser.browserAction.setBadgeText({ text: 'ERR' });
     await browser.browserAction.setBadgeBackgroundColor({ color: 'black' });
     appendLog(`ERROR - fetchProlificStudies`, 'error', `Exception occurred:\n${error}`);
-    window.console.error('fetchProlificStudies error', error);
+    console.error('fetchProlificStudies error', error);
   }
 
   if (store.getState().prolific?.acc_info?.active_study_id) {
@@ -501,7 +501,7 @@ async function UIDfromUrl(url: string) {
     acc_info = await fetchProlificAccount(authHeader, userID);
     store.dispatch(accInfoUpdate(acc_info));
   }
-  if (userID_t && userID_t.length > 0) {
+  if (userID_t && userID_t.length == 24) {
     store.dispatch(settingUID(userID_t));
     userID = userID_t;
     if (store.getState().settings.uid != userID) {
@@ -511,13 +511,16 @@ async function UIDfromUrl(url: string) {
 
 }
 
-function UIDfromBody(body: any) {
-  store.dispatch(accInfoUpdate(acc_info));
+async function UIDfromBody(body: any) {
+  if (!acc_info) {
+    acc_info = await fetchProlificAccount(authHeader, userID);
+    store.dispatch(accInfoUpdate(acc_info));
+  }
   let userID_t = '';
   if (body) {
     userID_t = body.id;
   }
-  if (userID_t && userID_t.length > 0) {
+  if (userID_t && userID_t.length == 24) {
     store.dispatch(settingUID(userID_t));
     userID = userID_t;
     if (store.getState().settings.uid != userID) {

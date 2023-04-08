@@ -17,6 +17,7 @@ export const CLAIM_SHARED_STUDY = 'CLAIM_SHARED_STUDY';
 export const READ_SHARED_STUDIES = 'READ_SHARED_STUDIES';
 export const CLEAR_CLAIMED_SHARED_STUDIES = 'CLEAR_CLAIMED_SHARED_STUDIES';
 export const SET_SHARED_STUDIES = 'SET_SHARED_STUDIES';
+export const OPEN_SUBMISSION = 'OPEN_SUBMISSION';
 
 export interface ProlificErrorUpdateAction {
   type: typeof PROLIFIC_ERROR_UPDATE;
@@ -63,6 +64,11 @@ export interface ClearClaimedStudiesAction {
   payload: "",
 }
 
+export interface OpenSubmissionLinkAction {
+  type: typeof OPEN_SUBMISSION;
+  payload: {submission:ProlificSubmission},
+}
+
 export type ProlificActionTypes =
   ProlificErrorUpdateAction
   | ProlificStudiesUpdateAction
@@ -73,3 +79,4 @@ export type ProlificActionTypes =
   | SetSharedStudiesAction
   | ReadSharedStudiesAction
   | ClearClaimedStudiesAction
+  | OpenSubmissionLinkAction
